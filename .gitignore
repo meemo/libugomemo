@@ -350,10 +350,7 @@ MigrationBackup/
 .ionide/
 
 # Custom additions for cleanliness
-*.vcxproj
-*.vcxproj.filters
 samples/
-*.kwz
-*.sln
 out/
+documentation/
 CMakeLists.txt
