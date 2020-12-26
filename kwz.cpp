@@ -5,7 +5,8 @@
 #include <iomanip>
 #include <chrono>
 #include <algorithm>
-#include "kwz.h" 
+#include <climits>
+#include "kwz.hpp" 
 
 char* readFile(std::string inputFileName) {
     // Read file to a char* buffer
@@ -214,11 +215,9 @@ void decodeFileHeader() {
     file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
     file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
     app_version = get32BitInt(kfh_offset + 0xC);
-    // Inconstencies with these
     root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
     parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
     current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
-    //
     root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
     parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
     current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
@@ -328,6 +327,7 @@ void decodeFrame(int frame_index) {
         (frame_meta.sound_effect_flags & 0x8) != 0
     };
 
+    // Recurse through all 3 layers
     for (int layer_index = 0; layer_index <= 3; layer_index++) {
         for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
             for (int large_tile_x = 0; large_tile_x < 320; large_tile_x += 128) {
@@ -341,21 +341,24 @@ void decodeFrame(int frame_index) {
                         // if the tile falls off the right of the frame, jump to the next small tile row
                         if (x >= 320) break;
 
-                        // ... decode tile here -- (x, y) is the position of the tile's top-left corner relative to the top-left of the image
+                        // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
+                        // Decode frame based on tile type
                         int tile_type = readBits(3);
                         //switch (tile_type) {
                         //case 0:
                         //    int line_index = common_line_index_table[readBits(5)];
-                        //    /*uint8_t a[8][8] = { 0 };
-                        //    a[8][0] = line_table[line_index][0];
-                        //    a[8][1] = line_table[line_index][1];
-                        //    a[8][2] = line_table[line_index][2];
-                        //    a[8][3] = line_table[line_index][3];
-                        //    a[8][4] = line_table[line_index][4];
-                        //    a[8][5] = line_table[line_index][5];
-                        //    a[8][6] = line_table[line_index][6];
-                        //    a[8][7] = line_table[line_index][7];*/
-                        //    //uint8_t tile[8][8] = { a, a, a, a, a, a, a, a };
+                        //    uint8_t a[8][8] = { 0 };
+                        //    uint8_t tile[8][8] = { line_table[line_index][0] * 8 };
+                        //    // Original:
+                        //    // uint8_t tile[8][8] = { a, a, a, a, a, a, a, a };
+                        //    // C++ does not allow clean setting of values in arrays, so we must do this.
+                        //    for (int a_1 = 0; a_1 < 8; a_1++) {
+                        //        for (int b_1 = 0; b_1 < 8; b_1++) {
+
+                        //        }
+                        //    }
+
+                        //    
                         //case 1:
 
                         //case 2:
@@ -431,13 +434,15 @@ void extractThumbnail() {
     std::string file_name = "C:\\Users\\user\\Desktop\\kwz-cpp\\output\\" + current_file_name + ".jpg";
     int ktn_offset = findSectionOffset("KTN");
     int start_offset = ktn_offset + 12;
+    // Need to verify KMC is always after KTN, or maybe check for smallest unused
+    // offset and set that as end?
     int end_offset = kmc_offset;
     writeFile(file_name, getSubCharArray(start_offset, end_offset), end_offset - start_offset);
 }
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("C:\\Users\\user\\Desktop\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
+    file_buffer = readFile("flipnote path here");
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
@@ -460,6 +465,7 @@ int main() {
         std::cout << "Frame count: " << frame_count << std::endl;
         std::cout << "Framerate: " << framerate << std::endl;
         std::cout << "Is locked? " << is_locked << std::endl;
+
 
     }
     else {
