@@ -352,6 +352,7 @@ MigrationBackup/
 # Custom additions
 samples/
 documentation/
+output/
 
 # Removing visual studio files
 *.sln

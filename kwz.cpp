@@ -4,10 +4,11 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <algorithm>
 #include "kwz.h" 
 
 char* readFile(std::string inputFileName) {
-    // Open file
+    // Read file to a char* buffer
     std::ifstream file(inputFileName, std::ifstream::binary);
     if (file) {
         // get length of file:
@@ -27,18 +28,27 @@ char* readFile(std::string inputFileName) {
     }
 }
 
+void writeFile(std::string path, char* output_buffer, int length) {
+    // Write a char* buffer to a file
+    std::ofstream file(path, std::ifstream::binary);
+    file.write(output_buffer, length);
+    file.close();
+}
+
 char* getSubCharArray(int start, int end) {
+    // Inclusive of end value
     int size = (end + 1) - (start + 1);
     char* output = new char[size];
     int index = 0;
     for (int i = start; i <= end; i++) {
-        output[index] = (char)file_buffer[i];
+        output[index] = file_buffer[i];
         index++;
     }
     return output;
 }
 
 std::string getHexString(int start, int end) {
+    // End value is exclusive
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
     for (int i = start; i != end; i++) {
@@ -66,10 +76,7 @@ void getSectionOffsets() {
         int section_offset = 0;
         while (section_offset < file_size) {
             std::string section = std::string(getSubCharArray(section_offset, section_offset + 2), 3);
-            if (section == "KTN") {
-                ktn_offset = section_offset;
-            }
-            else if (section == "KMI") {
+            if (section == "KMI") {
                 kmi_offset = section_offset;
             }
             else if (section == "KSN") {
@@ -78,7 +85,7 @@ void getSectionOffsets() {
             else if (section == "KMC") {
                 kmc_offset = section_offset;
             }
-            else if (ktn_offset > 0 && kmi_offset > 0 && ksn_offset > 0 && kmc_offset > 0) {
+            else if (kmi_offset > 0 && ksn_offset > 0 && kmc_offset > 0) {
                 // Early break if all are filled, saves a few cycles
                 break;
             }
@@ -88,7 +95,6 @@ void getSectionOffsets() {
     else {
         // Go through the file to find each header from the start
         // Faster on small files
-        ktn_offset = findSectionOffset("KTN");
         ksn_offset = findSectionOffset("KSN");
         kmi_offset = findSectionOffset("KMI");
         kmc_offset = findSectionOffset("KMC");
@@ -203,14 +209,16 @@ uint32_t get32BitInt(int start) {
         uint32_t(uint8_t(file_buffer[start + 3])) << 24;
 }
 
-void decodeFileMeta() {
+void decodeFileHeader() {
     kfh_section_size = get32BitInt(kfh_offset - 4);
     file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
     file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
     app_version = get32BitInt(kfh_offset + 0xC);
-    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x1A);
-    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x24);
-    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2E);
+    // Inconstencies with these
+    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
+    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
+    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
+    //
     root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
     parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
     current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
@@ -228,6 +236,21 @@ void decodeFileMeta() {
     layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
     layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
     layer_c_invisible = (raw_layer_visibility_flags & 0x4) == 0;
+}
+
+void decodeSoundHeader() {
+    // Flipnote speed when recorded
+    flipnote_speed_when_recorded = get32BitInt(ksn_offset + 0x4);
+    // BGM size
+    bgm_size =  get32BitInt(ksn_offset + 0x8);
+    // Sound effect 1 (A) size
+    se_1_size = get32BitInt(ksn_offset + 0xC);
+    // Sound effect 2 (X) size
+    se_2_size = get32BitInt(ksn_offset + 0x10);
+    // Sound effect 3 (Y) size
+    se_3_size = get32BitInt(ksn_offset + 0x14);
+    // Sound effect 4 (up) size
+    se_4_size = get32BitInt(ksn_offset + 0x18);
 }
 
 int readBits(int num_bits) {
@@ -270,64 +293,174 @@ void decodeFrame(int frame_index) {
         // Camera flags
         get16BitInt(offset + 0x1A)
     };
+    struct diffing_flags_struct diffing_flags {
+        // Paper color index
+        frame_meta.flags & 0xF,
+        // Layer A diffing flag
+        (frame_meta.flags >> 4) & 0x1,
+        // Layer A diffing flag
+        (frame_meta.flags >> 5) & 0x1,
+        // Layer A diffing flag
+        (frame_meta.flags >> 6) & 0x1,
+        // Is frame based on prev frame
+        (frame_meta.flags >> 7) & 0x1,
+        // Layer A first color index
+        (frame_meta.flags >> 8) & 0xF,
+        // Layer A first color index
+        (frame_meta.flags >> 12) & 0xF,
+        // Layer B first color index
+        (frame_meta.flags >> 16) & 0xF,
+        // Layer B first color index
+        (frame_meta.flags >> 20) & 0xF,
+        // Layer C first color index
+        (frame_meta.flags >> 24) & 0xF,
+        // Layer C first color index
+        (frame_meta.flags >> 28) & 0xF
+    };
+    struct sfx_flags_struct sfx_flags {
+        // Is SFX1 used on this frame
+        (frame_meta.sound_effect_flags & 0x1) != 0,
+        // Is SFX2 used on this frame
+        (frame_meta.sound_effect_flags & 0x2) != 0,
+        // Is SFX3 used on this frame
+        (frame_meta.sound_effect_flags & 0x4) != 0,
+        // Is SFX4 used on this frame
+        (frame_meta.sound_effect_flags & 0x8) != 0
+    };
 
-    std::cout << "Frame 0 layer a depth: " << frame_meta.layer_a_depth << std::endl;
+    for (int layer_index = 0; layer_index <= 3; layer_index++) {
+        for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
+            for (int large_tile_x = 0; large_tile_x < 320; large_tile_x += 128) {
+                for (int tile_y = 0; tile_y < 128; tile_y += 8) {
+                    int y = large_tile_y + tile_y;
+                    // if the tile falls off the bottom of the frame, jump to the next large tile
+                    if (y >= 240) break;
 
-    int tileType = readBits(3);
-    
-    std::cout << std::endl << "Tile type: " << tileType << std::endl;
+                    for (int tile_x = 0; tile_x < 128; tile_x += 8) {
+                        int x = large_tile_x + tile_x;
+                        // if the tile falls off the right of the frame, jump to the next small tile row
+                        if (x >= 320) break;
 
-    for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
-        for (int large_tile_x = 0; large_tile_x < 320; large_tile_x += 128) {
-            for (int tile_y = 0; tile_y < 128; tile_y += 8) {
-                int y = large_tile_y + tile_y;
-                // if the tile falls off the bottom of the frame, jump to the next large tile
-                if (y >= 240) { 
-                    break; 
-                }
+                        // ... decode tile here -- (x, y) is the position of the tile's top-left corner relative to the top-left of the image
+                        int tile_type = readBits(3);
+                        //switch (tile_type) {
+                        //case 0:
+                        //    int line_index = common_line_index_table[readBits(5)];
+                        //    /*uint8_t a[8][8] = { 0 };
+                        //    a[8][0] = line_table[line_index][0];
+                        //    a[8][1] = line_table[line_index][1];
+                        //    a[8][2] = line_table[line_index][2];
+                        //    a[8][3] = line_table[line_index][3];
+                        //    a[8][4] = line_table[line_index][4];
+                        //    a[8][5] = line_table[line_index][5];
+                        //    a[8][6] = line_table[line_index][6];
+                        //    a[8][7] = line_table[line_index][7];*/
+                        //    //uint8_t tile[8][8] = { a, a, a, a, a, a, a, a };
+                        //case 1:
 
-                for (int tile_x = 0; tile_x < 128; tile_x += 8) {
-                    int x = large_tile_x + tile_x;
-                    // if the tile falls off the right of the frame, jump to the next small tile row
-                    if (x >= 320) { 
-                        break; 
+                        //case 2:
+
+                        //case 3:
+
+                        //case 4:
+
+                        //case 5:
+
+                        //case 6:
+                        //    std::cout << "Tile type 6 detected, type is not used. Exiting." << std::endl;
+                        //    exit(6);
+                        //case 7:
+
+                        //}
                     }
-
-                    // ... decode tile here -- (x, y) is the position of the tile's top-left corner relative to the top-left of the image
                 }
             }
         }
     }
 }
 
-void init() {
-    getSectionOffsets();
-    decodeFileMeta();
-    generateLineTables();
-    generateSampleTables();
+void decodeAudioTrack(int track_index, int track_length, int track_offset) {
+    // Need to implement track mixing at some point.
+    for (track_offset; track_offset < track_length; track_offset += 1) {
+        int byte = file_buffer[track_offset];
+        int bit_pos = 0;
+        while (bit_pos < 8) {
+            if (prev_step_index < 18 || bit_pos == 6) {
+                // read 2 - bit sample
+                int16_t sample = (byte >> bit_pos) & 0x3;
+                // get diff
+                int16_t step = adpcm_step_table[prev_step_index];
+                int16_t diff = step >> 3;
+                if (sample & 1) diff += step;
+                if (sample & 2) diff = -diff;
+                diff = prev_diff + diff;
+                // get step index
+                int step_index = prev_step_index + adpcm_index_table_2b[sample];
+                bit_pos += 2;
+            }
+            else {
+                // read 4 - bit sample
+                int16_t sample = (byte >> bit_pos) & 0xF;
+                // get diff
+                int16_t step = adpcm_step_table[prev_step_index];
+                int16_t diff = step >> 3;
+                if (sample & 4) diff += step; 
+                if (sample & 2) diff += step >> 1;
+                if (sample & 1) diff += step >> 2;
+                if (sample & 8) diff = -diff;
+                diff = prev_diff + diff;
+                // get step index
+                int step_index = prev_step_index + adpcm_index_table_4b[sample];
+                bit_pos += 4;
+                // clamp step index and diff
+                step_index = std::max(0, std::min(step_index, 79));
+                diff = std::max(-2048, std::min((int) diff, 2047)) * 16;
+
+                output_buffer[output_offset] = (char) diff;
+                output_offset += 1;
+
+                // set prev decoder state
+                prev_step_index = (int) step_index;
+                prev_diff = (int) diff;
+            }
+        }
+    }
+}
+
+void extractThumbnail() {
+    std::string file_name = "C:\\Users\\user\\Desktop\\kwz-cpp\\output\\" + current_file_name + ".jpg";
+    int ktn_offset = findSectionOffset("KTN");
+    int start_offset = ktn_offset + 12;
+    int end_offset = kmc_offset;
+    writeFile(file_name, getSubCharArray(start_offset, end_offset), end_offset - start_offset);
 }
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
+    file_buffer = readFile("C:\\Users\\user\\Desktop\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
+    getSectionOffsets();
+    decodeFileHeader();
+    generateLineTables();
+    generateSampleTables();
+    decodeSoundHeader();
 
-    file_buffer = readFile("file path here");
-
-    // Testing for file header (KFH) to determine if file is valid KWZ
-    if (std::string(getSubCharArray(0, 2), 3) == "KFH") {
-        init();
-        
+    // Valid KWZ files start with KFH
+    if (file_buffer[2] == 'H') {
         std::cout << "Root file name: " << root_file_name << std::endl;
         std::cout << "Parent file name: " << parent_file_name << std::endl;
         std::cout << "Current file name: " << current_file_name << std::endl;
         std::cout << "App version: " << app_version << std::endl;
         std::cout << "File size: " << file_size << std::endl;
         std::cout << "Creation timestamp unconverted: " << file_creation_timestamp << std::endl;
+        std::cout << "Last edit timestamp unconverted: " << file_last_edit_timestap << std::endl;
+        std::cout << "File size: " << file_size << std::endl;
+        std::cout << "Root author ID: " << root_author_ID << std::endl;
+        std::cout << "Parent author ID: " << parent_author_ID << std::endl;
         std::cout << "Current author ID: " << current_author_ID << std::endl;
         std::cout << "Frame count: " << frame_count << std::endl;
         std::cout << "Framerate: " << framerate << std::endl;
-        std::cout << "Locked? " << is_locked << std::endl;
+        std::cout << "Is locked? " << is_locked << std::endl;
 
-        decodeFrame(0);
     }
     else {
         std::cout << "File is not a valid KWZ file." << std::endl;

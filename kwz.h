@@ -6,16 +6,31 @@ char* file_buffer;
 // Offsets
 int offset = 0;
 int kfh_offset = 0;
-int ktn_offset = 0;
 int kmi_offset = 0;
 int ksn_offset = 0;
 int kmc_offset = 0;
 
 // Processing variables
+// Video
 int layer_buffer_pointer;
 int current_layer = 0;
 uint16_t bit_value = 0;
 int bit_index = 0;
+
+// Audio
+// An output buffer with enough space for 60 seconds of audio at 16364 Hz
+char* output_buffer = new char[16346 * 60];
+int output_offset = 0;
+int prev_diff = 0;
+// Bugged initial state, set to 40 for console accurate audio
+int prev_step_index = 40;
+
+uint32_t flipnote_speed_when_recorded;
+uint32_t bgm_size;
+uint32_t se_1_size;
+uint32_t se_2_size;
+uint32_t se_3_size;
+uint32_t se_4_size;
 
 // File meta
 int file_size = 0;
@@ -59,6 +74,27 @@ struct frame_meta_struct {
 	uint8_t layer_c_depth;
 	uint8_t sound_effect_flags;
 	uint16_t camera_flags;
+};
+
+struct diffing_flags_struct {
+	int paper_color_index;
+	int layer_a_diffing_flag;
+	int layer_b_diffing_flag;
+	int layer_c_diffing_flag;
+	int is_prev_frame;
+	int layer_a_first_color_index;
+	int layer_a_second_color_index;
+	int layer_b_first_color_index;
+	int layer_b_second_color_index;
+	int layer_c_first_color_index;
+	int layer_c_second_color_index;
+};
+
+struct sfx_flags_struct {
+	bool sfx_1_used;
+	bool sfx_2_used;
+	bool sfx_3_used;
+	bool sfx_4_used;
 };
 
 // All framerate values
