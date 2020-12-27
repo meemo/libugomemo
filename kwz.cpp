@@ -484,143 +484,83 @@ void decodeFrame(int frame_index) {
                                 break;
                             case 1:
                                 // A A B A A B A A 
-                                for (int i = 0; i < 8; i++) {
-                                    switch (i) {
-                                        case 0:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 1:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 2:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 3:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 4:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 5:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 6:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 7:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                    }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[0][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[1][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[2][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[3][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[4][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[5][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[6][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[7][j] = a[j];
                                 }
                                 break;
                             case 2:
                                 // A B A A B A A B
-                                for (int i = 0; i < 8; i++) {
-                                    switch (i) {
-                                        case 0:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 1:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 2:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 3:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 4:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 5:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 6:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 7:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                    }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[0][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[1][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[2][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[3][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[4][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[5][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[6][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[7][j] = b[j];
                                 }
                                 break;
                             case 3:
                                 // A B B A B B B A B
-                                for (int i = 0; i < 8; i++) {
-                                    switch (i) {
-                                        case 0:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 1:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 2:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 3:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 4:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 5:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                        case 6:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = a[j];
-                                            }
-                                            break;
-                                        case 7:
-                                            for (int j = 0; j < 8; j++) {
-                                                tile[i][j] = b[j];
-                                            }
-                                            break;
-                                    }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[0][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[1][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[2][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[3][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[4][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[5][j] = b[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[6][j] = a[j];
+                                }
+                                for (int j = 0; j < 8; j++) {
+                                    tile[7][j] = b[j];
                                 }
                                 break;
                             }
