@@ -1,5 +1,5 @@
 # kwz-cpp
-A Flipnote Studio 3D .kwz file processing program made in C++.
+A (very rough) Flipnote Studio 3D .kwz file processing program made in C++.
 
 Source code can be found at: https://www.github.com/meemo/kwz-cpp
 
@@ -13,7 +13,7 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 - ✅ Thumbnail extraction
 - 🟩 Frame decoding - rough skeleton implemented
 - 🟩 Audio track decoding - rough skeleton implemented
-- ❌ Converting author names from UTF-16 to readable encoding\
+- ❌ Converting author names from UTF-16 to readable encoding
 - ❌ Conversion of timestamps (to unix epoch? to formatted date/time?)
 - ❌ Frame output to file
 - ❌ Audio track output to file
@@ -26,6 +26,7 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 
 - Parent file name is sometimes in the ppm format
 - DSi Library folder structure uses the Flipnote Studio FSID format to sort by author IDs
+- Thumbnails are officially extracted with 3 bytes of unkown use at the end, after the `0xD9` byte that terminates all JPG files.
 
 # Credits
 
