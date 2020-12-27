@@ -269,6 +269,7 @@ int readBits(int num_bits) {
 
 void decodeFrame(int frame_index) {
     offset = kmi_offset + (frame_index * 28);
+    int skip_value;
 
     struct frame_meta_struct frame_meta {
         // Flags
@@ -340,41 +341,291 @@ void decodeFrame(int frame_index) {
                         int x = large_tile_x + tile_x;
                         // if the tile falls off the right of the frame, jump to the next small tile row
                         if (x >= 320) break;
-
                         // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
+
                         // Decode frame based on tile type
                         int tile_type = readBits(3);
-                        //switch (tile_type) {
-                        //case 0:
-                        //    int line_index = common_line_index_table[readBits(5)];
-                        //    uint8_t a[8][8] = { 0 };
-                        //    uint8_t tile[8][8] = { line_table[line_index][0] * 8 };
-                        //    // Original:
-                        //    // uint8_t tile[8][8] = { a, a, a, a, a, a, a, a };
-                        //    // C++ does not allow clean setting of values in arrays, so we must do this.
-                        //    for (int a_1 = 0; a_1 < 8; a_1++) {
-                        //        for (int b_1 = 0; b_1 < 8; b_1++) {
+                        switch (tile_type) {
+                        case 0:
+                            // C++ does not allow clean setting of values in arrays
+                            // so we must recurse through each position of the array to assign values.
+                            int line_index = line_index_table_common[readBits(5)];
+                            uint8_t tile[8][8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                for (int j = 0; j < 8; j++) {
+                                    tile[i][j] = line_table[line_index][j];
+                                }
+                            }
+                            break;
+                        case 1:
+                            int line_index = readBits(13);
+                            uint8_t tile[8][8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                for (int j = 0; j < 8; j++) {
+                                    tile[i][j] = line_table[line_index][j];
+                                }
+                            }
+                            break;
+                        case 2:
+                            int line_index = readBits(5);
+                            int line_index_a = line_index_table_common[line_index];
+                            int line_index_b = line_index_table_common_shifted[line_index];
+                            uint8_t tile[8][8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                if (i == 0 || (i % 2) == 0) {
+                                    for (int j = 0; j < 8; j++) {
+                                        tile[i][j] = line_table[line_index_a][j];
+                                    }
+                                }
+                                else {
+                                    for (int j = 0; j < 8; j++) {
+                                        tile[i][j] = line_table[line_index_b][j];
+                                    }
+                                }
+                            }
+                            break;
+                        case 3:
+                            int line_index = readBits(13);
+                            int line_index_a = line_index_table_common[line_index];
+                            int line_index_b = line_index_table_common_shifted[line_index];
+                            uint8_t tile[8][8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                if (i == 0 || (i % 2) == 0) {
+                                    for (int j = 0; j < 8; j++) {
+                                        tile[i][j] = line_table[line_index_a][j];
+                                    }
+                                }
+                                else {
+                                    for (int j = 0; j < 8; j++) {
+                                        tile[i][j] = line_table[line_index_b][j];
+                                    }
+                                }
+                            }
+                            break;
+                        case 4:
+                            uint8_t mask = readBits(8);
+                            uint8_t tile[8][8] = { 0 };
+                            int line_index;
+                            // Documentation version, missing `line`
+                            //for (int mask = 1; mask < 0xFF; mask <<= 1) {
+                            //    if (flags & mask) {
+                            //        line_index = line_index_table_common[readBits(5)];
+                            //    }
+                            //    else {
+                            //        line_index = (int) line_table[line_index];
+                            //    }
+                            //    for (int i = 0; i < 8; i++) {
+                            //        tile[line][i] = line_table[line][i];
+                            //    }
+                            //}
+                            for (int line = 0; line < 8; line++) {
+                                if (mask & (1 << line)) {
+                                    line_index = (int) line_index_table_common[readBits(5)];
+                                }
+                                else {
+                                    line_index = (int) line_table[line_index];
+                                }
+                                for (int i = 0; i < 8; i++) {
+                                    tile[line][i] = line_table[line][i];
+                                }
+                            }
+                            break;
+                        case 5:
+                            skip_value = readBits(5);
+                            continue;
+                        case 6:
+                            std::cout << "Tile type 6 detected, type is not used." << std::endl;
+                            break;
+                        case 7:
+                            // This entire case could use major optimization in the future
+                            uint8_t pattern = readBits(2);
+                            uint8_t is_common = readBits(1);
 
-                        //        }
-                        //    }
+                            int line_index_a;
+                            int line_index_b;
 
-                        //    
-                        //case 1:
+                            if (is_common == 1) {
+                                line_index_a = (int) line_index_table_common[readBits(5)];
+                                line_index_b = (int) line_index_table_common[readBits(5)];
+                                pattern = (pattern + 1) % 4;
+                            }
+                            else {
+                                line_index_a = (int) readBits(13);
+                                line_index_b = (int) readBits(13);
+                            }
 
-                        //case 2:
+                            uint8_t a[8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                a[i] = line_table[line_index_a][i];
+                            }
 
-                        //case 3:
+                            uint8_t b[8] = { 0 };
+                            for (int i = 0; i < 8; i++) {
+                                b[i] = line_table[line_index_b][i];
+                            }
 
-                        //case 4:
+                            uint8_t tile[8][8] = { 0 };
 
-                        //case 5:
-
-                        //case 6:
-                        //    std::cout << "Tile type 6 detected, type is not used. Exiting." << std::endl;
-                        //    exit(6);
-                        //case 7:
-
-                        //}
+                            switch (pattern) {
+                            case 0:
+                                // A B A B A B A B
+                                for (int i = 0; i < 8; i++) {
+                                    if (i == 0 || (i % 2) == 0) {
+                                        for (int j = 0; j < 8; j++) {
+                                            tile[i][j] = a[j];
+                                        }
+                                    }
+                                    else {
+                                        for (int j = 0; j < 8; j++) {
+                                            tile[i][j] = b[j];
+                                        }
+                                    }
+                                }
+                                break;
+                            case 1:
+                                // A A B A A B A A 
+                                for (int i = 0; i < 8; i++) {
+                                    switch (i) {
+                                        case 0:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 1:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 2:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 3:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 4:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 5:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 6:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 7:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case 2:
+                                // A B A A B A A B
+                                for (int i = 0; i < 8; i++) {
+                                    switch (i) {
+                                        case 0:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 1:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 2:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 3:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 4:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 5:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 6:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 7:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case 3:
+                                // A B B A B B B A B
+                                for (int i = 0; i < 8; i++) {
+                                    switch (i) {
+                                        case 0:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 1:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 2:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 3:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 4:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 5:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                        case 6:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = a[j];
+                                            }
+                                            break;
+                                        case 7:
+                                            for (int j = 0; j < 8; j++) {
+                                                tile[i][j] = b[j];
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            }
+                            break;
+                        }
                     }
                 }
             }
@@ -442,7 +693,7 @@ void extractThumbnail() {
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("flipnote path here");
+    file_buffer = readFile("file path here");
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
