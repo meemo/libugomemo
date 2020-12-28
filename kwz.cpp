@@ -349,6 +349,7 @@ void decodeFrame(int frame_index) {
                             break;
                         }
 
+                        uint8_t tile[8][8] = { 0 };
                         int tile_type = readBits(3);
                         switch (tile_type) {
                         case 0:
@@ -357,7 +358,6 @@ void decodeFrame(int frame_index) {
                             // to assign values if we want things to look clean.
                             // For optimization, listing out each value is faster.
                             int line_index = line_index_table_common[readBits(5)];
-                            uint8_t tile[8][8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
                                     tile[i][j] = line_table[line_index][j];
@@ -366,7 +366,6 @@ void decodeFrame(int frame_index) {
                             break;
                         case 1:
                             int line_index = readBits(13);
-                            uint8_t tile[8][8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
                                     tile[i][j] = line_table[line_index][j];
@@ -377,7 +376,6 @@ void decodeFrame(int frame_index) {
                             int line_index = readBits(5);
                             int line_index_a = line_index_table_common[line_index];
                             int line_index_b = line_index_table_common_shifted[line_index];
-                            uint8_t tile[8][8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 if (i == 0 || (i % 2) == 0) {
                                     for (int j = 0; j < 8; j++) {
@@ -395,7 +393,6 @@ void decodeFrame(int frame_index) {
                             int line_index = readBits(13);
                             int line_index_a = line_index_table_common[line_index];
                             int line_index_b = line_index_table_common_shifted[line_index];
-                            uint8_t tile[8][8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 if (i == 0 || (i % 2) == 0) {
                                     for (int j = 0; j < 8; j++) {
@@ -411,7 +408,6 @@ void decodeFrame(int frame_index) {
                             break;
                         case 4:
                             uint8_t mask = readBits(8);
-                            uint8_t tile[8][8] = { 0 };
                             int line_index;
                             // Documentation version, missing `line`
                             //for (int mask = 1; mask < 0xFF; mask <<= 1) {
@@ -471,8 +467,6 @@ void decodeFrame(int frame_index) {
                             for (int i = 0; i < 8; i++) {
                                 b[i] = line_table[line_index_b][i];
                             }
-
-                            uint8_t tile[8][8] = { 0 };
 
                             switch (pattern) {
                             case 0:
@@ -574,7 +568,12 @@ void decodeFrame(int frame_index) {
                             }
                             break;
                         }
-                        // Copy from tile to pixel buffer here
+                        // Copy from tile to pixel array
+                        for (int line = 0; line < 8; line++) {
+                            for (int i = 0; i < 8; i++) {
+                                layer_pixels[layer_index][y + line][(int)(x / 8)][i] = tile[line][i];
+                            }
+                        }
                     }
                 }
             }
@@ -582,6 +581,13 @@ void decodeFrame(int frame_index) {
     }
     // Create output image
     uint8_t output_image[320][240] = { 0 };
+
+    uint32_t layer_depths[3] = { frame_meta.layer_a_depth,
+                                 frame_meta.layer_b_depth,
+                                 frame_meta.layer_c_depth };
+    //std::sort(layer_depths, layer_depths + 3);
+    // Sort depths 
+    
 
 
     prev_decoded_frame = frame_index;
@@ -647,7 +653,7 @@ void extractThumbnail() {
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("C:\\Users\\user\\Desktop\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
+    file_buffer = readFile("file path here");
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();

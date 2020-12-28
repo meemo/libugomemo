@@ -27,7 +27,7 @@ int kmc_offset;
 
 // Processing variables
 // Video
-uint8_t layer_pixels[3][240][40] = { 0 };
+uint8_t layer_pixels[3][240][40][8] = { 0 };
 int layer_buffer_pointer;
 int current_layer;
 uint16_t bit_value;
