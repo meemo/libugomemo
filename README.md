@@ -13,14 +13,15 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 - ✅ Thumbnail extraction
 - 🟩 Frame decoding - rough skeleton implemented
 - 🟩 Audio track decoding - rough skeleton implemented
+- 🟩 Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the number of seconds from 00:00:00 1/1/2000 epoch.
 - ❌ Converting author names from UTF-16 to readable encoding
-- ❌ Conversion of timestamps (to unix epoch? to formatted date/time?)
 - ❌ Frame output to file
 - ❌ Audio track output to file
 - ❌ Audio track mixing with sound effects from frame meta
 - ❌ Conversion of entire flipnote to (mp4) file
 - ❌ Handling all DSi Library conversion inconsistencies
 - ❌ Running from CLI implementation
+- ❌ Replace expensive for loops with individually setting values
 
 # Observed DSi Library Conversion Errors
 

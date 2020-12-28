@@ -19,18 +19,20 @@ T swap_endian(T u)
 char* file_buffer;
 
 // Offsets
-int offset = 0;
-int kfh_offset = 0;
-int kmi_offset = 0;
-int ksn_offset = 0;
-int kmc_offset = 0;
+int offset;
+int kfh_offset;
+int kmi_offset;
+int ksn_offset;
+int kmc_offset;
 
 // Processing variables
 // Video
+uint8_t layer_pixels[3][240][40] = { 0 };
 int layer_buffer_pointer;
-int current_layer = 0;
-uint16_t bit_value = 0;
-int bit_index = 0;
+int current_layer;
+uint16_t bit_value;
+int bit_index;
+int prev_decoded_frame;
 
 // Audio
 // An output buffer with enough space for 60 seconds of audio at 16364 Hz
@@ -38,7 +40,7 @@ char* output_buffer = new char[16346 * 60];
 int output_offset = 0;
 int prev_diff = 0;
 // Bugged initial state, set to 40 for console accurate audio
-int prev_step_index = 40;
+int prev_step_index = 0;
 
 uint32_t flipnote_speed_when_recorded;
 uint32_t bgm_size;
@@ -48,7 +50,7 @@ uint32_t se_3_size;
 uint32_t se_4_size;
 
 // File meta
-int file_size = 0;
+int file_size;
 uint32_t kfh_section_size;
 uint32_t file_creation_timestamp;
 uint32_t file_last_edit_timestap;
@@ -70,7 +72,7 @@ std::string parent_file_name;
 std::string current_file_name;
 uint16_t frame_count;
 uint16_t thumbnail_frame_index;
-double framerate = 0;
+double framerate;
 bool is_locked;
 bool is_loop_playback;
 bool is_toolset;
@@ -151,3 +153,11 @@ const uint16_t line_index_table_common_shifted[32] = { 0x0000, 0x0CD0, 0x19A0, 0
 													   0x0009, 0x001B, 0x0001, 0x0006, 0x05B2, 0x1116, 0x00A2, 0x01E6,
 													   0x0012, 0x0036, 0x0002, 0x02DC, 0x0B64, 0x08DC, 0x0144, 0x00FC,
 													   0x0024, 0x001C, 0x099C, 0x0334, 0x1338, 0x0668, 0x166C, 0x1004 };
+
+const uint8_t palette[7][3] = { {0xff, 0xff, 0xff},   // White
+								{0x10, 0x10, 0x10},   // Black
+								{0xff, 0x10, 0x10},   // Red
+								{0xff, 0xe7, 0x00},   // Yellow
+								{0x00, 0x86, 0x31},   // Green
+								{0x00, 0x38, 0xce},   // Blue
+								{0xff, 0xff, 0xff} }; // Transparent 

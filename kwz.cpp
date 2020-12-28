@@ -317,16 +317,17 @@ void decodeFrame(int frame_index) {
         // Layer C first color index
         (frame_meta.flags >> 28) & 0xF
     };
-    struct sfx_flags_struct sfx_flags {
-        // Is SFX1 used on this frame
-        (frame_meta.sound_effect_flags & 0x1) != 0,
-        // Is SFX2 used on this frame
-        (frame_meta.sound_effect_flags & 0x2) != 0,
-        // Is SFX3 used on this frame
-        (frame_meta.sound_effect_flags & 0x4) != 0,
-        // Is SFX4 used on this frame
-        (frame_meta.sound_effect_flags & 0x8) != 0
-    };
+    // Not needed until sfx mixing is implemented.
+    //struct sfx_flags_struct sfx_flags {
+    //    // Is SFX1 used on this frame
+    //    (frame_meta.sound_effect_flags & 0x1) != 0,
+    //    // Is SFX2 used on this frame
+    //    (frame_meta.sound_effect_flags & 0x2) != 0,
+    //    // Is SFX3 used on this frame
+    //    (frame_meta.sound_effect_flags & 0x4) != 0,
+    //    // Is SFX4 used on this frame
+    //    (frame_meta.sound_effect_flags & 0x8) != 0
+    //};
 
     // Recurse through all 3 layers
     for (int layer_index = 0; layer_index <= 3; layer_index++) {
@@ -343,12 +344,18 @@ void decodeFrame(int frame_index) {
                         if (x >= 320) break;
                         // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
 
-                        // Decode frame based on tile type
+                        if (skip_value) {
+                            skip_value -= 1;
+                            break;
+                        }
+
                         int tile_type = readBits(3);
                         switch (tile_type) {
                         case 0:
                             // C++ does not allow clean setting of values in arrays
-                            // so we must recurse through each position of the array to assign values.
+                            // so we must recurse through each position of the array 
+                            // to assign values if we want things to look clean.
+                            // For optimization, listing out each value is faster.
                             int line_index = line_index_table_common[readBits(5)];
                             uint8_t tile[8][8] = { 0 };
                             for (int i = 0; i < 8; i++) {
@@ -438,6 +445,7 @@ void decodeFrame(int frame_index) {
                             break;
                         case 7:
                             // This entire case could use major optimization in the future
+                            // by removing for loops and replacing with individuall setting values.
                             uint8_t pattern = readBits(2);
                             uint8_t is_common = readBits(1);
 
@@ -566,11 +574,17 @@ void decodeFrame(int frame_index) {
                             }
                             break;
                         }
+                        // Copy from tile to pixel buffer here
                     }
                 }
             }
         }
     }
+    // Create output image
+    uint8_t output_image[320][240] = { 0 };
+
+
+    prev_decoded_frame = frame_index;
 }
 
 void decodeAudioTrack(int track_index, int track_length, int track_offset) {
@@ -633,7 +647,7 @@ void extractThumbnail() {
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("file path here");
+    file_buffer = readFile("C:\\Users\\user\\Desktop\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
