@@ -269,7 +269,18 @@ int readBits(int num_bits) {
 
 void decodeFrame(int frame_index) {
     offset = kmi_offset + (frame_index * 28);
-    int skip_value;
+
+    int skip_value = 0;
+    int x;
+    int y;
+    int line_index;
+    int line_index_a;
+    int line_index_b;
+    int tile_type;
+    uint8_t mask = 0;
+
+    uint8_t a[8] = { 0 };
+    uint8_t b[8] = { 0 };
 
     struct frame_meta_struct frame_meta {
         // Flags
@@ -330,16 +341,16 @@ void decodeFrame(int frame_index) {
     //};
 
     // Recurse through all 3 layers
-    for (int layer_index = 0; layer_index <= 3; layer_index++) {
+    for (int layer_index = 0; layer_index < 3; layer_index++) {
         for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
             for (int large_tile_x = 0; large_tile_x < 320; large_tile_x += 128) {
                 for (int tile_y = 0; tile_y < 128; tile_y += 8) {
-                    int y = large_tile_y + tile_y;
+                    y = large_tile_y + tile_y;
                     // if the tile falls off the bottom of the frame, jump to the next large tile
                     if (y >= 240) break;
 
                     for (int tile_x = 0; tile_x < 128; tile_x += 8) {
-                        int x = large_tile_x + tile_x;
+                        x = large_tile_x + tile_x;
                         // if the tile falls off the right of the frame, jump to the next small tile row
                         if (x >= 320) break;
                         // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
@@ -350,14 +361,15 @@ void decodeFrame(int frame_index) {
                         }
 
                         uint8_t tile[8][8] = { 0 };
-                        int tile_type = readBits(3);
+                        tile_type = readBits(3);
+
                         switch (tile_type) {
                         case 0:
                             // C++ does not allow clean setting of values in arrays
                             // so we must recurse through each position of the array 
                             // to assign values if we want things to look clean.
                             // For optimization, listing out each value is faster.
-                            int line_index = line_index_table_common[readBits(5)];
+                            line_index = line_index_table_common[readBits(5)];
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
                                     tile[i][j] = line_table[line_index][j];
@@ -365,7 +377,7 @@ void decodeFrame(int frame_index) {
                             }
                             break;
                         case 1:
-                            int line_index = readBits(13);
+                            line_index = readBits(13);
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
                                     tile[i][j] = line_table[line_index][j];
@@ -373,9 +385,9 @@ void decodeFrame(int frame_index) {
                             }
                             break;
                         case 2:
-                            int line_index = readBits(5);
-                            int line_index_a = line_index_table_common[line_index];
-                            int line_index_b = line_index_table_common_shifted[line_index];
+                            line_index = readBits(5);
+                            line_index_a = line_index_table_common[line_index];
+                            line_index_b = line_index_table_common_shifted[line_index];
                             for (int i = 0; i < 8; i++) {
                                 if (i == 0 || (i % 2) == 0) {
                                     for (int j = 0; j < 8; j++) {
@@ -390,9 +402,9 @@ void decodeFrame(int frame_index) {
                             }
                             break;
                         case 3:
-                            int line_index = readBits(13);
-                            int line_index_a = line_index_table_common[line_index];
-                            int line_index_b = line_index_table_common_shifted[line_index];
+                            line_index = readBits(13);
+                            line_index_a = line_index_table_common[line_index];
+                            line_index_b = line_index_table_common_shifted[line_index];
                             for (int i = 0; i < 8; i++) {
                                 if (i == 0 || (i % 2) == 0) {
                                     for (int j = 0; j < 8; j++) {
@@ -405,28 +417,15 @@ void decodeFrame(int frame_index) {
                                     }
                                 }
                             }
-                            break;
+                            break; 
                         case 4:
-                            uint8_t mask = readBits(8);
-                            int line_index;
-                            // Documentation version, missing `line`
-                            //for (int mask = 1; mask < 0xFF; mask <<= 1) {
-                            //    if (flags & mask) {
-                            //        line_index = line_index_table_common[readBits(5)];
-                            //    }
-                            //    else {
-                            //        line_index = (int) line_table[line_index];
-                            //    }
-                            //    for (int i = 0; i < 8; i++) {
-                            //        tile[line][i] = line_table[line][i];
-                            //    }
-                            //}
+                            mask = readBits(8);
                             for (int line = 0; line < 8; line++) {
                                 if (mask & (1 << line)) {
-                                    line_index = (int) line_index_table_common[readBits(5)];
+                                    line_index = line_index_table_common[readBits(5)];
                                 }
                                 else {
-                                    line_index = (int) line_table[line_index];
+                                    line_index = readBits(13);
                                 }
                                 for (int i = 0; i < 8; i++) {
                                     tile[line][i] = line_table[line][i];
@@ -441,12 +440,9 @@ void decodeFrame(int frame_index) {
                             break;
                         case 7:
                             // This entire case could use major optimization in the future
-                            // by removing for loops and replacing with individuall setting values.
+                            // by removing for loops and replacing with individually setting values.
                             uint8_t pattern = readBits(2);
                             uint8_t is_common = readBits(1);
-
-                            int line_index_a;
-                            int line_index_b;
 
                             if (is_common == 1) {
                                 line_index_a = (int) line_index_table_common[readBits(5)];
@@ -458,12 +454,10 @@ void decodeFrame(int frame_index) {
                                 line_index_b = (int) readBits(13);
                             }
 
-                            uint8_t a[8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 a[i] = line_table[line_index_a][i];
                             }
 
-                            uint8_t b[8] = { 0 };
                             for (int i = 0; i < 8; i++) {
                                 b[i] = line_table[line_index_b][i];
                             }
@@ -471,18 +465,78 @@ void decodeFrame(int frame_index) {
                             switch (pattern) {
                             case 0:
                                 // A B A B A B A B
-                                for (int i = 0; i < 8; i++) {
-                                    if (i == 0 || (i % 2) == 0) {
-                                        for (int j = 0; j < 8; j++) {
-                                            tile[i][j] = a[j];
-                                        }
-                                    }
-                                    else {
-                                        for (int j = 0; j < 8; j++) {
-                                            tile[i][j] = b[j];
-                                        }
-                                    }
-                                }
+                                // [0] A
+                                tile[0][0] = a[0];
+                                tile[0][1] = a[1];
+                                tile[0][2] = a[2];
+                                tile[0][3] = a[3];
+                                tile[0][4] = a[4];
+                                tile[0][5] = a[5];
+                                tile[0][6] = a[6];
+                                tile[0][7] = a[7];
+                                // [1] B
+                                tile[1][0] = b[0];
+                                tile[1][1] = b[1];
+                                tile[1][2] = b[2];
+                                tile[1][3] = b[3];
+                                tile[1][4] = b[4];
+                                tile[1][5] = b[5];
+                                tile[1][6] = b[6];
+                                tile[1][7] = b[7];
+                                // [2] A
+                                tile[2][2] = a[2];
+                                tile[2][1] = a[1];
+                                tile[2][2] = a[2];
+                                tile[2][3] = a[3];
+                                tile[2][4] = a[4];
+                                tile[2][5] = a[5];
+                                tile[2][6] = a[6];
+                                tile[2][7] = a[7];
+                                // [3] B
+                                tile[3][0] = b[0];
+                                tile[3][1] = b[1];
+                                tile[3][2] = b[2];
+                                tile[3][3] = b[3];
+                                tile[3][4] = b[4];
+                                tile[3][5] = b[5];
+                                tile[3][6] = b[6];
+                                tile[3][7] = b[7];
+                                // [4] A
+                                tile[4][0] = a[0];
+                                tile[4][1] = a[1];
+                                tile[4][2] = a[2];
+                                tile[4][3] = a[3];
+                                tile[4][4] = a[4];
+                                tile[4][5] = a[5];
+                                tile[4][6] = a[6];
+                                tile[4][7] = a[7];
+                                // [5] B
+                                tile[5][0] = b[0];
+                                tile[5][1] = b[1];
+                                tile[5][2] = b[2];
+                                tile[5][3] = b[3];
+                                tile[5][4] = b[4];
+                                tile[5][5] = b[5];
+                                tile[5][6] = b[6];
+                                tile[5][7] = b[7];
+                                // [6] A
+                                tile[6][0] = a[0];
+                                tile[6][1] = a[1];
+                                tile[6][2] = a[2];
+                                tile[6][3] = a[3];
+                                tile[6][6] = a[6];
+                                tile[6][5] = a[5];
+                                tile[6][6] = a[6];
+                                tile[6][7] = a[7];
+                                // [7] B
+                                tile[7][0] = b[0];
+                                tile[7][1] = b[1];
+                                tile[7][2] = b[2];
+                                tile[7][3] = b[3];
+                                tile[7][4] = b[4];
+                                tile[7][5] = b[5];
+                                tile[7][6] = b[6];
+                                tile[7][7] = b[7];
                                 break;
                             case 1:
                                 // A A B A A B A A 
@@ -588,7 +642,7 @@ void decodeFrame(int frame_index) {
     //std::sort(layer_depths, layer_depths + 3);
     // Sort depths 
     
-
+    // Convert table[8] to a pixel 
 
     prev_decoded_frame = frame_index;
 }
@@ -653,7 +707,8 @@ void extractThumbnail() {
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("file path here");
+    file_buffer = readFile("C:\\Users\\Meemo\\Desktop\\Projects\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
+    
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
@@ -677,7 +732,8 @@ int main() {
         std::cout << "Framerate: " << framerate << std::endl;
         std::cout << "Is locked? " << is_locked << std::endl;
 
-
+        // Automatically extracting track 0
+        decodeAudioTrack(0, 0, 0);
     }
     else {
         std::cout << "File is not a valid KWZ file." << std::endl;
