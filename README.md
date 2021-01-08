@@ -10,10 +10,10 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 # Progress
 
 - ✅ File metadata extraction
-- ✅ Thumbnail extraction
+- ✅ Thumbnail extraction - fully implemented
+- ✅ Audio track decoding - fully implemented wav file output
 - 🟩 Frame decoding - rough skeleton implemented
-- 🟩 Audio track decoding - rough skeleton implemented
-- 🟩 Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the number of seconds from 00:00:00 1/1/2000 epoch.
+- ❌ Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the number of seconds from 00:00:00 1/1/2000 epoch.
 - ❌ Converting author names from UTF-16 to readable encoding
 - ❌ Frame output to file
 - ❌ Audio track output to file
@@ -28,6 +28,7 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 - Parent file name is sometimes in the ppm format
 - DSi Library folder structure uses the Flipnote Studio FSID format to sort by author IDs
 - Thumbnails are officially extracted with 3 bytes of unkown use at the end, after the `0xD9` byte that terminates all JPG files.
+- Audio decoding issues resulting in corrupt-sounding audio in some flipnotes.
 
 # Credits
 
