@@ -8,9 +8,9 @@
 #include <climits>
 #include "kwz.hpp" 
 
-char* readFile(std::string inputFileName) {
+char* readFile(std::string t_file_name) {
     // Read file to a char* buffer
-    std::ifstream file(inputFileName, std::ifstream::binary);
+    std::ifstream file(t_file_name, std::ifstream::binary);
     if (file) {
         // get length of file:
         file.seekg(0, file.end);
@@ -29,38 +29,50 @@ char* readFile(std::string inputFileName) {
     }
 }
 
-void writeFile(std::string path, char* output_buffer, int length) {
+void writeFile(std::string t_path, char* t_output_buffer, int t_length) {
     // Write a char* buffer to a file
-    std::ofstream file(path, std::ifstream::binary);
-    file.write(output_buffer, length);
+    std::ofstream file(t_path, std::ifstream::binary);
+    file.write(t_output_buffer, t_length);
     file.close();
 }
 
-char* getSubCharArray(int start, int end) {
+void writeWAV(std::string t_file_name) {
+    std::ofstream output_file;
+    output_file.open(t_file_name, std::ofstream::binary);
+    wav_hdr wav;
+    wav.chunk_size = audio_buffer_length + 36;
+    wav.subchunk_2_size = audio_buffer_length * 2;
+    output_file.write(reinterpret_cast<const char*>(&wav), sizeof(wav));
+    //output_file.write(reinterpret_cast<const char*>(&audio_buffer), sizeof(audio_buffer));
+    for (uint32_t i = 0; i < (uint32_t)audio_buffer_length; i++) {
+        output_file.write(reinterpret_cast<const char*>(&audio_buffer[i]), sizeof(audio_buffer[i]));
+    }
+    output_file.close();
+}
+
+char* getSubCharArray(int t_start, int t_end) {
     // Inclusive of end value
-    int size = (end + 1) - (start + 1);
+    int size = (t_end + 1) - (t_start + 1);
     char* output = new char[size];
-    int index = 0;
-    for (int i = start; i <= end; i++) {
-        output[index] = file_buffer[i];
-        index++;
+    for (int i = t_start; i <= t_end; i++) {
+        output[i - t_start] = file_buffer[i];
     }
     return output;
 }
 
-std::string getHexString(int start, int end) {
-    // End value is exclusive
+std::string getHexString(int t_start, int t_end) {
+    // Exclusive of end value
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
-    for (int i = start; i != end; i++) {
+    for (int i = t_start; i != t_end; i++) {
         ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(file_buffer[i]));
     }
     return ss.str();
 }
 
-int findSectionOffset(std::string section) {
+int findSectionOffset(std::string t_section) {
     int sectionOffset = 0;
-    while (std::string(getSubCharArray(sectionOffset, sectionOffset + 2), 3) != section) {
+    while (std::string(getSubCharArray(sectionOffset, sectionOffset + 2), 3) != t_section) {
         // Unsure about 8 byte skipping, may skip data.
         sectionOffset += 4;
     }
@@ -157,57 +169,34 @@ void generateLineTables() {
     };
 }
 
-void generateSampleTables() {
-    for (int sample = 0; sample != 4; sample++) {
-        for (int step_index = 0; step_index != 90; step_index++) {
-            int step = adpcm_step_table[step_index];
-            int diff = step >> 3;
-            if (sample & 1) {
-                diff += step;
-            }
-            if (sample & 2) {
-                diff = -diff;
-            }
-            adpcm_sample_table_2b[sample + 4 * step_index] = int16_t(diff);
-        }
+int16_t clampValue(int16_t t_input, int16_t t_min, int16_t t_max) {
+    if (t_input > t_max) {
+        return t_max;
     }
-    for (int sample = 0; sample != 16; sample++) {
-        for (int step_index = 0; step_index != 90; step_index++) {
-            int step = adpcm_step_table[step_index];
-            int diff = step >> 3;
-            if (sample & 4) {
-                diff += step;
-            }
-            if (sample & 2) {
-                diff += step >> 1;
-            }
-            if (sample & 8) {
-                diff += step >> 2;
-            }
-            if (sample & 1) {
-                diff = -diff;
-            }
-            adpcm_sample_table_4b[sample + 16 * step_index] = int16_t(diff);
-        }
+    else if (t_input < t_min) {
+        return t_min;
+    }
+    else {
+        return t_input;
     }
 }
 
-uint8_t get8BitInt(int start) {
-    return uint8_t(file_buffer[start]);
+uint8_t get8BitInt(int t_start) {
+    return uint8_t(file_buffer[t_start]);
 }
 
-uint16_t get16BitInt(int start) {
+uint16_t get16BitInt(int t_start) {
     // Starts at `start` and gets a little endian uint16 (2 bytes)
-    return uint16_t(uint8_t(file_buffer[start])) |
-        uint16_t(uint8_t(file_buffer[start + 1])) << 8;
+    return uint16_t(uint8_t(file_buffer[t_start])) |
+        uint16_t(uint8_t(file_buffer[t_start + 1])) << 8;
 }
 
-uint32_t get32BitInt(int start) {
+uint32_t get32BitInt(int t_start) {
     // Starts at `start` and gets a little endian uint32 (4 bytes)
-    return uint32_t(uint8_t(file_buffer[start])) |
-        uint32_t(uint8_t(file_buffer[start + 1])) << 8 |
-        uint32_t(uint8_t(file_buffer[start + 2])) << 16 |
-        uint32_t(uint8_t(file_buffer[start + 3])) << 24;
+    return uint32_t(uint8_t(file_buffer[t_start])) |
+        uint32_t(uint8_t(file_buffer[t_start + 1])) << 8 |
+        uint32_t(uint8_t(file_buffer[t_start + 2])) << 16 |
+        uint32_t(uint8_t(file_buffer[t_start + 3])) << 24;
 }
 
 void decodeFileHeader() {
@@ -252,8 +241,8 @@ void decodeSoundHeader() {
     se_4_size = get32BitInt(ksn_offset + 0x18);
 }
 
-int readBits(int num_bits) {
-    if (bit_index + num_bits > 16) {
+int readBits(int t_num_bits) {
+    if (bit_index + t_num_bits > 16) {
         // readUint16() would read an uint16 from the compressed layer buffer, 
         // then increment the layer buffer pointer by 2
         uint16_t next_bits = get16BitInt(layer_buffer_pointer);
@@ -261,14 +250,14 @@ int readBits(int num_bits) {
         bit_value |= next_bits << (16 - bit_index);
         bit_index -= 16;
     }
-    int result = bit_value & ((1 << num_bits) - 1);
-    bit_value >>= num_bits;
-    bit_index += num_bits;
+    int result = bit_value & ((1 << t_num_bits) - 1);
+    bit_value >>= t_num_bits;
+    bit_index += t_num_bits;
     return result;
 }
 
-void decodeFrame(int frame_index) {
-    offset = kmi_offset + (frame_index * 28);
+void decodeFrame(int t_frame_index) {
+    offset = kmi_offset + (t_frame_index * 28);
 
     int skip_value = 0;
     int x;
@@ -644,53 +633,59 @@ void decodeFrame(int frame_index) {
     
     // Convert table[8] to a pixel 
 
-    prev_decoded_frame = frame_index;
+    prev_decoded_frame = t_frame_index;
 }
 
-void decodeAudioTrack(int track_index, int track_length, int track_offset) {
-    // Need to implement track mixing at some point.
-    for (track_offset; track_offset < track_length; track_offset += 1) {
-        int byte = file_buffer[track_offset];
-        int bit_pos = 0;
+void decodeAudioTrack(int t_track_length, int t_track_offset) {
+    int output_offset = 0;
+    int bit_pos = 0;
+
+    int16_t byte = 0;
+
+    int16_t predictor = initial_predictor;
+    int16_t step_index = initial_step_index;
+    int16_t sample = initial_sample;
+    int16_t step = initial_step;
+    int16_t diff = initial_diff;
+
+    for (int track_offset = t_track_offset; track_offset <= (t_track_offset + t_track_length); track_offset++) {
+        byte = get8BitInt(track_offset);
+        bit_pos = 0;
         while (bit_pos < 8) {
-            if (prev_step_index < 18 || bit_pos == 6) {
-                // read 2 - bit sample
-                int16_t sample = (byte >> bit_pos) & 0x3;
-                // get diff
-                int16_t step = adpcm_step_table[prev_step_index];
-                int16_t diff = step >> 3;
+            // 2 bit sample
+            if (step_index < variable_threshold || bit_pos > 4) {
+                sample = byte & 0x3;
+                step = adpcm_step_table[step_index];
+                diff = step >> 3;
                 if (sample & 1) diff += step;
                 if (sample & 2) diff = -diff;
-                diff = prev_diff + diff;
-                // get step index
-                int step_index = prev_step_index + adpcm_index_table_2b[sample];
+                predictor += diff;
+                step_index += adpcm_index_table_2_bit[sample];
+                byte >>= 2;
                 bit_pos += 2;
             }
+            // 4 bit sample
             else {
-                // read 4 - bit sample
-                int16_t sample = (byte >> bit_pos) & 0xF;
-                // get diff
-                int16_t step = adpcm_step_table[prev_step_index];
-                int16_t diff = step >> 3;
-                if (sample & 4) diff += step; 
-                if (sample & 2) diff += step >> 1;
+                sample = byte & 0xF;
+                step = adpcm_step_table[step_index];
+                diff = step >> 3;
                 if (sample & 1) diff += step >> 2;
+                if (sample & 2) diff += step >> 1;
+                if (sample & 4) diff += step;
                 if (sample & 8) diff = -diff;
-                diff = prev_diff + diff;
-                // get step index
-                int step_index = prev_step_index + adpcm_index_table_4b[sample];
+                predictor += diff;
+                step_index += adpcm_index_table_4_bit[sample];
+                byte >>= 4;
                 bit_pos += 4;
-                // clamp step index and diff
-                step_index = std::max(0, std::min(step_index, 79));
-                diff = std::max(-2048, std::min((int) diff, 2047)) * 16;
-
-                output_buffer[output_offset] = (char) diff;
-                output_offset += 1;
-
-                // set prev decoder state
-                prev_step_index = (int) step_index;
-                prev_diff = (int) diff;
             }
+            // clamp step index and predictor
+            step_index = clampValue(step_index, step_index_clamp_min, step_index_clamp_max);
+            predictor = clampValue(predictor, predictor_clamp_min, predictor_clamp_max);
+
+            audio_buffer[output_offset] = predictor * predictor_scale;
+            output_offset++;
+
+            audio_buffer_length++;
         }
     }
 }
@@ -712,7 +707,6 @@ int main() {
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
-    generateSampleTables();
     decodeSoundHeader();
 
     // Valid KWZ files start with KFH
@@ -733,7 +727,8 @@ int main() {
         std::cout << "Is locked? " << is_locked << std::endl;
 
         // Automatically extracting track 0
-        decodeAudioTrack(0, 0, 0);
+        decodeAudioTrack(bgm_size, bgm_size + 0x24);
+        writeWAV("");
     }
     else {
         std::cout << "File is not a valid KWZ file." << std::endl;
