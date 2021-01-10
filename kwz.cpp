@@ -4,23 +4,18 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
-#include <algorithm>
-#include <climits>
 #include "kwz.hpp" 
 
 char* readFile(std::string t_file_name) {
-    // Read file to a char* buffer
     std::ifstream file(t_file_name, std::ifstream::binary);
     if (file) {
-        // get length of file:
         file.seekg(0, file.end);
         file_size = (int)file.tellg();
         file.seekg(0, file.beg);
-        // Make buffer and read data
         char* output_buffer = new char[file_size];
         file.read(output_buffer, file_size);
         file.close();
-        //std::cout << "File read succesfully." << std::endl << std::endl;
+        std::cout << "File read succesfully." << std::endl << std::endl;
         return output_buffer;
     }
     else {
@@ -30,7 +25,6 @@ char* readFile(std::string t_file_name) {
 }
 
 void writeFile(std::string t_path, char* t_output_buffer, int t_length) {
-    // Write a char* buffer to a file
     std::ofstream file(t_path, std::ifstream::binary);
     file.write(t_output_buffer, t_length);
     file.close();
@@ -43,7 +37,6 @@ void writeWAV(std::string t_file_name) {
     wav.chunk_size = audio_buffer_length + 36;
     wav.subchunk_2_size = audio_buffer_length * 2;
     output_file.write(reinterpret_cast<const char*>(&wav), sizeof(wav));
-    //output_file.write(reinterpret_cast<const char*>(&audio_buffer), sizeof(audio_buffer));
     for (uint32_t i = 0; i < (uint32_t)audio_buffer_length; i++) {
         output_file.write(reinterpret_cast<const char*>(&audio_buffer[i]), sizeof(audio_buffer[i]));
     }
@@ -73,15 +66,13 @@ std::string getHexString(int t_start, int t_end) {
 int findSectionOffset(std::string t_section) {
     int sectionOffset = 0;
     while (std::string(getSubCharArray(sectionOffset, sectionOffset + 2), 3) != t_section) {
-        // Unsure about 8 byte skipping, may skip data.
         sectionOffset += 4;
     }
     return sectionOffset;
 }
 
 void getSectionOffsets() {
-    // 1MB cutoff for now
-    // TODO: find better value
+    // 1MB cutoff for now, find better value in the future for optimization.
     kfh_offset = 8; // Constant
     if (file_size > 1000000) {
         // Go through the entire file to find each section header
@@ -201,25 +192,25 @@ uint32_t get32BitInt(int t_start) {
 
 void decodeFileHeader() {
     kfh_section_size = get32BitInt(kfh_offset - 4);
-    file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
-    file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
-    app_version = get32BitInt(kfh_offset + 0xC);
-    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
-    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
-    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
-    root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
-    parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
-    current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
-    root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
-    parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
-    current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
+    //file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
+    //file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
+    //app_version = get32BitInt(kfh_offset + 0xC);
+    //root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
+    //parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
+    //current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
+    //root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
+    //parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
+    //current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
+    //root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
+    //parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
+    //current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
     frame_count = get16BitInt(kfh_offset + 0xC4);
-    thumbnail_frame_index = get16BitInt(kfh_offset + 0xC6);
+    //thumbnail_frame_index = get16BitInt(kfh_offset + 0xC6);
     framerate = framerates[get8BitInt(kfh_offset + 0xCA)];
-    uint16_t raw_kfh_flags = get16BitInt(kfh_offset + 0xC8);
-    is_locked = (raw_kfh_flags & 0x1) == 0;
-    is_loop_playback = (raw_kfh_flags & 0x2) == 0;
-    is_toolset = (raw_kfh_flags & 0x4) == 0;
+    //uint16_t raw_kfh_flags = get16BitInt(kfh_offset + 0xC8);
+    //is_locked = (raw_kfh_flags & 0x1) == 0;
+    //is_loop_playback = (raw_kfh_flags & 0x2) == 0;
+    //is_toolset = (raw_kfh_flags & 0x4) == 0;
     uint8_t raw_layer_visibility_flags = get8BitInt(kfh_offset + 0xCB);
     layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
     layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
@@ -243,8 +234,7 @@ void decodeSoundHeader() {
 
 int readBits(int t_num_bits) {
     if (bit_index + t_num_bits > 16) {
-        // readUint16() would read an uint16 from the compressed layer buffer, 
-        // then increment the layer buffer pointer by 2
+        // read uint16_t then increment the layer buffer pointer by 2
         uint16_t next_bits = get16BitInt(layer_buffer_pointer);
         layer_buffer_pointer += 2;
         bit_value |= next_bits << (16 - bit_index);
@@ -446,7 +436,6 @@ void decodeFrame(int t_frame_index) {
                             for (int i = 0; i < 8; i++) {
                                 a[i] = line_table[line_index_a][i];
                             }
-
                             for (int i = 0; i < 8; i++) {
                                 b[i] = line_table[line_index_b][i];
                             }
@@ -614,7 +603,7 @@ void decodeFrame(int t_frame_index) {
                         // Copy from tile to pixel array
                         for (int line = 0; line < 8; line++) {
                             for (int i = 0; i < 8; i++) {
-                                layer_pixels[layer_index][y + line][(int)(x / 8)][i] = tile[line][i];
+                                pixel_buffer[layer_index][y + line][(int)(x / 8)][i] = tile[line][i];
                             }
                         }
                     }
@@ -636,19 +625,55 @@ void decodeFrame(int t_frame_index) {
     prev_decoded_frame = t_frame_index;
 }
 
-void decodeAudioTrack(int t_track_length, int t_track_offset) {
+void getFrameImage(int t_frame_index) {
+    decodeFrame(t_frame_index);
+
+    for (int y = 0; y < 240; y++) {
+        for (int x = 0; x < 320; x++) {
+            //for () {
+            
+            //}
+        }
+    }
+}
+
+void decodeAudioTrack(int t_track_index) {
+    int track_length = 0;
+    int track_offset = 0;
     int output_offset = 0;
+    
     int bit_pos = 0;
-
     int16_t byte = 0;
-
     int16_t predictor = initial_predictor;
     int16_t step_index = initial_step_index;
     int16_t sample = initial_sample;
     int16_t step = initial_step;
     int16_t diff = initial_diff;
 
-    for (int track_offset = t_track_offset; track_offset <= (t_track_offset + t_track_length); track_offset++) {
+    switch (t_track_index) {
+    case 0:
+        track_length = bgm_size;
+        track_offset = ksn_offset + 0x24;
+        break;
+    case 1:
+        track_length = se_1_size;
+        track_offset = ksn_offset + 0x24 + bgm_size;
+        break;
+    case 2:
+        track_length = se_2_size;
+        track_offset = ksn_offset + 0x24 + bgm_size + se_1_size;
+        break;
+    case 3:
+        track_length = se_3_size;
+        track_offset = ksn_offset + 0x24 + bgm_size + se_1_size + se_2_size;
+        break;
+    case 4:
+        track_length = se_4_size;
+        track_offset = ksn_offset + 0x24 + bgm_size + se_1_size + se_2_size + se_3_size;
+        break;
+    }
+
+    for (int track_offset = track_offset; track_offset <= (track_offset + track_length); track_offset++) {
         byte = get8BitInt(track_offset);
         bit_pos = 0;
         while (bit_pos < 8) {
@@ -694,15 +719,14 @@ void extractThumbnail() {
     std::string file_name = "C:\\Users\\user\\Desktop\\kwz-cpp\\output\\" + current_file_name + ".jpg";
     int ktn_offset = findSectionOffset("KTN");
     int start_offset = ktn_offset + 12;
-    // Need to verify KMC is always after KTN, or maybe check for smallest unused
-    // offset and set that as end?
+    // Need to verify KMC is always after KTN
     int end_offset = kmc_offset;
     writeFile(file_name, getSubCharArray(start_offset, end_offset), end_offset - start_offset);
 }
 
 int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("C:\\Users\\Meemo\\Desktop\\Projects\\kwz-cpp\\samples\\cmtpkbxgqmxcccc53sztrd5b4aen.kwz");
+    file_buffer = readFile("file path here.kwz");
     
     getSectionOffsets();
     decodeFileHeader();
@@ -726,9 +750,10 @@ int main() {
         std::cout << "Framerate: " << framerate << std::endl;
         std::cout << "Is locked? " << is_locked << std::endl;
 
-        // Automatically extracting track 0
-        decodeAudioTrack(bgm_size, bgm_size + 0x24);
-        writeWAV("");
+        //decodeAudioTrack(0);
+        //writeWAV("");
+
+        decodeFrame(0);
     }
     else {
         std::cout << "File is not a valid KWZ file." << std::endl;
