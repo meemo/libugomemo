@@ -15,7 +15,7 @@ char* readFile(std::string t_file_name) {
         char* output_buffer = new char[file_size];
         file.read(output_buffer, file_size);
         file.close();
-        std::cout << "File read succesfully." << std::endl << std::endl;
+        //std::cout << "File read succesfully." << std::endl << std::endl;
         return output_buffer;
     }
     else {
@@ -600,6 +600,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         }
+
                         // Copy from tile to pixel array
                         for (int line = 0; line < 8; line++) {
                             for (int i = 0; i < 8; i++) {
@@ -715,13 +716,13 @@ void decodeAudioTrack(int t_track_index) {
     }
 }
 
-void extractThumbnail() {
-    std::string file_name = "C:\\Users\\user\\Desktop\\kwz-cpp\\output\\" + current_file_name + ".jpg";
+void extractThumbnail(std::string t_file_name) {
     int ktn_offset = findSectionOffset("KTN");
+    // The size of the output JPG file is 4 bytes less than the KTN section size
+    int section_size = get16BitInt(ktn_offset + 0x4) - 4;
     int start_offset = ktn_offset + 12;
-    // Need to verify KMC is always after KTN
-    int end_offset = kmc_offset;
-    writeFile(file_name, getSubCharArray(start_offset, end_offset), end_offset - start_offset);
+    int end_offset = start_offset + section_size;
+    writeFile(t_file_name, getSubCharArray(start_offset, end_offset), section_size);
 }
 
 int main() {
@@ -751,7 +752,7 @@ int main() {
         std::cout << "Is locked? " << is_locked << std::endl;
 
         //decodeAudioTrack(0);
-        //writeWAV("");
+        //writeWAV("file path here.wav");
 
         decodeFrame(0);
     }
