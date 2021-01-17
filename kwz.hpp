@@ -1,44 +1,45 @@
 #pragma once
 
-// General file variables
 char* file_buffer;
 int file_size;
 
 int offset;
+
 int kfh_offset;
+uint32_t kfh_section_size;
 int kmi_offset;
 int ksn_offset;
 int kmc_offset;
 
-// Video processing variables
+// Video processing
 uint8_t pixel_buffer[3][240][40][8] = { 0 };
-uint8_t image_buffer[240][320] = { 0 };
+uint8_t rgb_buffer[320][240][3] = { 0 };
 int layer_buffer_pointer;
 int current_layer;
 uint16_t bit_value;
 int bit_index;
 int prev_decoded_frame;
 
-// File meta
-uint32_t kfh_section_size;
+// Meta
 uint32_t file_creation_timestamp;
 uint32_t file_last_edit_timestap;
 uint32_t app_version;
 
-// Not formatted as xxxx-xxxx-xxxx-xxxxxx
 std::string root_author_ID;
 std::string parent_author_ID;
 std::string current_author_ID;
 
-// Need to implement conversion from UTF-16 LE to something else, storing as char* for now
+// Need to implement conversion from UTF-16 LE to UTF 8 strings to be readable
 char* root_author_name_raw;
 char* parent_author_name_raw;
 char* current_author_name_raw;
 
-// Sometimes file names are unconverted from PPM in DSi library notes, may need to implement conversion
+// Sometimes file names are unconverted from PPM in DSi library notes
+// TODO: Detect unconverted names an automatically convert (preserving what data?)
 std::string root_file_name;
 std::string parent_file_name;
 std::string current_file_name;
+
 uint16_t frame_count;
 uint16_t thumbnail_frame_index;
 double framerate;
@@ -83,7 +84,7 @@ struct sfx_flags_struct {
 	bool sfx_4_used;
 };
 
-// All framerate values
+// All framerates
 const double framerates[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
 
 // Line tables
@@ -109,7 +110,7 @@ const uint8_t palette[7][3] = { {0xff, 0xff, 0xff},   // White
 								{0xff, 0xff, 0xff} }; // Transparent 
 
 
-// Audio processing variables
+// Audio processing
 // Initial ADPCM State
 const int initial_step_index = 40;
 const int initial_predictor = 0;

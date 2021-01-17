@@ -72,7 +72,9 @@ int findSectionOffset(std::string t_section) {
 }
 
 void getSectionOffsets() {
-    // 1MB cutoff for now, find better value in the future for optimization.
+    // 1MB cutoff for now
+    // TODO: find better value in the future for optimization.
+    // OR traverse using section sizes
     kfh_offset = 8; // Constant
     if (file_size > 1000000) {
         // Go through the entire file to find each section header
@@ -192,25 +194,25 @@ uint32_t get32BitInt(int t_start) {
 
 void decodeFileHeader() {
     kfh_section_size = get32BitInt(kfh_offset - 4);
-    //file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
-    //file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
-    //app_version = get32BitInt(kfh_offset + 0xC);
-    //root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
-    //parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
-    //current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
-    //root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
-    //parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
-    //current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
-    //root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
-    //parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
-    //current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
+    file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
+    file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
+    app_version = get32BitInt(kfh_offset + 0xC);
+    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
+    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
+    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
+    root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
+    parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
+    current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
+    root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
+    parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
+    current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
     frame_count = get16BitInt(kfh_offset + 0xC4);
-    //thumbnail_frame_index = get16BitInt(kfh_offset + 0xC6);
+    thumbnail_frame_index = get16BitInt(kfh_offset + 0xC6);
     framerate = framerates[get8BitInt(kfh_offset + 0xCA)];
-    //uint16_t raw_kfh_flags = get16BitInt(kfh_offset + 0xC8);
-    //is_locked = (raw_kfh_flags & 0x1) == 0;
-    //is_loop_playback = (raw_kfh_flags & 0x2) == 0;
-    //is_toolset = (raw_kfh_flags & 0x4) == 0;
+    uint16_t raw_kfh_flags = get16BitInt(kfh_offset + 0xC8);
+    is_locked = (raw_kfh_flags & 0x1) == 0;
+    is_loop_playback = (raw_kfh_flags & 0x2) == 0;
+    is_toolset = (raw_kfh_flags & 0x4) == 0;
     uint8_t raw_layer_visibility_flags = get8BitInt(kfh_offset + 0xCB);
     layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
     layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
@@ -247,8 +249,6 @@ int readBits(int t_num_bits) {
 }
 
 void decodeFrame(int t_frame_index) {
-    offset = kmi_offset + (t_frame_index * 28);
-
     int skip_value = 0;
     int x;
     int y;
@@ -261,27 +261,28 @@ void decodeFrame(int t_frame_index) {
     uint8_t a[8] = { 0 };
     uint8_t b[8] = { 0 };
 
+    int frame_meta_offset = kmi_offset + (t_frame_index * 28);
     struct frame_meta_struct frame_meta {
         // Flags
-        get32BitInt(offset),
+        get32BitInt(frame_meta_offset),
         // Layer A size
-        get16BitInt(offset + 0x4),
+        get16BitInt(frame_meta_offset + 0x4),
         // Layer B size
-        get16BitInt(offset + 0x6),
+        get16BitInt(frame_meta_offset + 0x6),
         // Layer C size
-        get16BitInt(offset + 0x8),
+        get16BitInt(frame_meta_offset + 0x8),
         // Frame author ID
-        getHexString(offset + 0xA, offset + 0x14),
+        getHexString(frame_meta_offset + 0xA, frame_meta_offset + 0x14),
         // Layer A depth
-        get8BitInt(offset + 0x14),
+        get8BitInt(frame_meta_offset + 0x14),
         // Layer B depth
-        get8BitInt(offset + 0x15),
+        get8BitInt(frame_meta_offset + 0x15),
         // Layer C depth
-        get8BitInt(offset + 0x16),
+        get8BitInt(frame_meta_offset + 0x16),
         // Sound effect flags
-        get8BitInt(offset + 0x17),
+        get8BitInt(frame_meta_offset + 0x17),
         // Camera flags
-        get16BitInt(offset + 0x1A)
+        get16BitInt(frame_meta_offset + 0x1A)
     };
     struct diffing_flags_struct diffing_flags {
         // Paper color index
@@ -319,6 +320,9 @@ void decodeFrame(int t_frame_index) {
     //    (frame_meta.sound_effect_flags & 0x8) != 0
     //};
 
+    // Set frame data pointer location
+    layer_buffer_pointer = kmc_offset + 4;
+
     // Recurse through all 3 layers
     for (int layer_index = 0; layer_index < 3; layer_index++) {
         for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
@@ -344,6 +348,7 @@ void decodeFrame(int t_frame_index) {
 
                         switch (tile_type) {
                         case 0:
+                            std::cout << "Tile type 0" << std::endl;
                             // C++ does not allow clean setting of values in arrays
                             // so we must recurse through each position of the array 
                             // to assign values if we want things to look clean.
@@ -356,6 +361,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         case 1:
+                            std::cout << "Tile type 1" << std::endl;
                             line_index = readBits(13);
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
@@ -364,6 +370,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         case 2:
+                            std::cout << "Tile type 2" << std::endl;
                             line_index = readBits(5);
                             line_index_a = line_index_table_common[line_index];
                             line_index_b = line_index_table_common_shifted[line_index];
@@ -381,6 +388,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         case 3:
+                            std::cout << "Tile type 3" << std::endl;
                             line_index = readBits(13);
                             line_index_a = line_index_table_common[line_index];
                             line_index_b = line_index_table_common_shifted[line_index];
@@ -398,6 +406,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break; 
                         case 4:
+                            std::cout << "Tile type 4" << std::endl;
                             mask = readBits(8);
                             for (int line = 0; line < 8; line++) {
                                 if (mask & (1 << line)) {
@@ -412,12 +421,14 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         case 5:
+                            std::cout << "Tile type 5" << std::endl;
                             skip_value = readBits(5);
                             continue;
                         case 6:
                             std::cout << "Tile type 6 detected, type is not used." << std::endl;
                             break;
                         case 7:
+                            std::cout << "Tile type 7" << std::endl;
                             // This entire case could use major optimization in the future
                             // by removing for loops and replacing with individually setting values.
                             uint8_t pattern = readBits(2);
@@ -518,89 +529,232 @@ void decodeFrame(int t_frame_index) {
                                 break;
                             case 1:
                                 // A A B A A B A A 
-                                for (int j = 0; j < 8; j++) {
-                                    tile[0][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[1][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[2][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[3][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[4][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[5][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[6][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[7][j] = a[j];
-                                }
+                                // [0] A
+                                tile[0][0] = a[0];
+                                tile[0][1] = a[1];
+                                tile[0][2] = a[2];
+                                tile[0][3] = a[3];
+                                tile[0][4] = a[4];
+                                tile[0][5] = a[5];
+                                tile[0][6] = a[6];
+                                tile[0][7] = a[7];
+                                // [1] A
+                                tile[1][0] = a[0];
+                                tile[1][1] = a[1];
+                                tile[1][2] = a[2];
+                                tile[1][3] = a[3];
+                                tile[1][4] = a[4];
+                                tile[1][5] = a[5];
+                                tile[1][6] = a[6];
+                                tile[1][7] = a[7];
+                                // [2] B
+                                tile[2][2] = a[2];
+                                tile[2][1] = a[1];
+                                tile[2][2] = a[2];
+                                tile[2][3] = a[3];
+                                tile[2][4] = a[4];
+                                tile[2][5] = a[5];
+                                tile[2][6] = a[6];
+                                tile[2][7] = a[7];
+                                // [3] A
+                                tile[3][0] = a[0];
+                                tile[3][1] = a[1];
+                                tile[3][2] = a[2];
+                                tile[3][3] = a[3];
+                                tile[3][4] = a[4];
+                                tile[3][5] = a[5];
+                                tile[3][6] = a[6];
+                                tile[3][7] = a[7];
+                                // [4] A
+                                tile[4][0] = a[0];
+                                tile[4][1] = a[1];
+                                tile[4][2] = a[2];
+                                tile[4][3] = a[3];
+                                tile[4][4] = a[4];
+                                tile[4][5] = a[5];
+                                tile[4][6] = a[6];
+                                tile[4][7] = a[7];
+                                // [5] B
+                                tile[5][0] = b[0];
+                                tile[5][1] = b[1];
+                                tile[5][2] = b[2];
+                                tile[5][3] = b[3];
+                                tile[5][4] = b[4];
+                                tile[5][5] = b[5];
+                                tile[5][6] = b[6];
+                                tile[5][7] = b[7];
+                                // [6] A
+                                tile[6][0] = a[0];
+                                tile[6][1] = a[1];
+                                tile[6][2] = a[2];
+                                tile[6][3] = a[3];
+                                tile[6][6] = a[6];
+                                tile[6][5] = a[5];
+                                tile[6][6] = a[6];
+                                tile[6][7] = a[7];
+                                // [7] A
+                                tile[7][0] = a[0];
+                                tile[7][1] = a[1];
+                                tile[7][2] = a[2];
+                                tile[7][3] = a[3];
+                                tile[7][4] = a[4];
+                                tile[7][5] = a[5];
+                                tile[7][6] = a[6];
+                                tile[7][7] = a[7];
                                 break;
                             case 2:
                                 // A B A A B A A B
-                                for (int j = 0; j < 8; j++) {
-                                    tile[0][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[1][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[2][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[3][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[4][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[5][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[6][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[7][j] = b[j];
-                                }
+                                // [0] A
+                                tile[0][0] = a[0];
+                                tile[0][1] = a[1];
+                                tile[0][2] = a[2];
+                                tile[0][3] = a[3];
+                                tile[0][4] = a[4];
+                                tile[0][5] = a[5];
+                                tile[0][6] = a[6];
+                                tile[0][7] = a[7];
+                                // [1] B
+                                tile[1][0] = b[0];
+                                tile[1][1] = b[1];
+                                tile[1][2] = b[2];
+                                tile[1][3] = b[3];
+                                tile[1][4] = b[4];
+                                tile[1][5] = b[5];
+                                tile[1][6] = b[6];
+                                tile[1][7] = b[7];
+                                // [2] A
+                                tile[2][2] = a[2];
+                                tile[2][1] = a[1];
+                                tile[2][2] = a[2];
+                                tile[2][3] = a[3];
+                                tile[2][4] = a[4];
+                                tile[2][5] = a[5];
+                                tile[2][6] = a[6];
+                                tile[2][7] = a[7];
+                                // [3] A
+                                tile[3][0] = a[0];
+                                tile[3][1] = a[1];
+                                tile[3][2] = a[2];
+                                tile[3][3] = a[3];
+                                tile[3][4] = a[4];
+                                tile[3][5] = a[5];
+                                tile[3][6] = a[6];
+                                tile[3][7] = a[7];
+                                // [4] B
+                                tile[4][0] = b[0];
+                                tile[4][1] = b[1];
+                                tile[4][2] = b[2];
+                                tile[4][3] = b[3];
+                                tile[4][4] = b[4];
+                                tile[4][5] = b[5];
+                                tile[4][6] = b[6];
+                                tile[4][7] = b[7];
+                                // [5] A
+                                tile[5][0] = a[0];
+                                tile[5][1] = a[1];
+                                tile[5][2] = a[2];
+                                tile[5][3] = a[3];
+                                tile[5][4] = a[4];
+                                tile[5][5] = a[5];
+                                tile[5][6] = a[6];
+                                tile[5][7] = a[7];
+                                // [6] A
+                                tile[6][0] = a[0];
+                                tile[6][1] = a[1];
+                                tile[6][2] = a[2];
+                                tile[6][3] = a[3];
+                                tile[6][6] = a[6];
+                                tile[6][5] = a[5];
+                                tile[6][6] = a[6];
+                                tile[6][7] = a[7];
+                                // [7] B
+                                tile[7][0] = b[0];
+                                tile[7][1] = b[1];
+                                tile[7][2] = b[2];
+                                tile[7][3] = b[3];
+                                tile[7][4] = b[4];
+                                tile[7][5] = b[5];
+                                tile[7][6] = b[6];
+                                tile[7][7] = b[7];
                                 break;
                             case 3:
                                 // A B B A B B B A B
-                                for (int j = 0; j < 8; j++) {
-                                    tile[0][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[1][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[2][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[3][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[4][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[5][j] = b[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[6][j] = a[j];
-                                }
-                                for (int j = 0; j < 8; j++) {
-                                    tile[7][j] = b[j];
-                                }
+                                // [0] A
+                                tile[0][0] = a[0];
+                                tile[0][1] = a[1];
+                                tile[0][2] = a[2];
+                                tile[0][3] = a[3];
+                                tile[0][4] = a[4];
+                                tile[0][5] = a[5];
+                                tile[0][6] = a[6];
+                                tile[0][7] = a[7];
+                                // [1] B
+                                tile[1][0] = b[0];
+                                tile[1][1] = b[1];
+                                tile[1][2] = b[2];
+                                tile[1][3] = b[3];
+                                tile[1][4] = b[4];
+                                tile[1][5] = b[5];
+                                tile[1][6] = b[6];
+                                tile[1][7] = b[7];
+                                // [2] B
+                                tile[2][2] = b[2];
+                                tile[2][1] = b[1];
+                                tile[2][2] = b[2];
+                                tile[2][3] = b[3];
+                                tile[2][4] = b[4];
+                                tile[2][5] = b[5];
+                                tile[2][6] = b[6];
+                                tile[2][7] = b[7];
+                                // [3] A
+                                tile[3][0] = a[0];
+                                tile[3][1] = a[1];
+                                tile[3][2] = a[2];
+                                tile[3][3] = a[3];
+                                tile[3][4] = a[4];
+                                tile[3][5] = a[5];
+                                tile[3][6] = a[6];
+                                tile[3][7] = a[7];
+                                // [4] B
+                                tile[4][0] = b[0];
+                                tile[4][1] = b[1];
+                                tile[4][2] = b[2];
+                                tile[4][3] = b[3];
+                                tile[4][4] = b[4];
+                                tile[4][5] = b[5];
+                                tile[4][6] = b[6];
+                                tile[4][7] = b[7];
+                                // [5] B
+                                tile[5][0] = b[0];
+                                tile[5][1] = b[1];
+                                tile[5][2] = b[2];
+                                tile[5][3] = b[3];
+                                tile[5][4] = b[4];
+                                tile[5][5] = b[5];
+                                tile[5][6] = b[6];
+                                tile[5][7] = b[7];
+                                // [6] A
+                                tile[6][0] = a[0];
+                                tile[6][1] = a[1];
+                                tile[6][2] = a[2];
+                                tile[6][3] = a[3];
+                                tile[6][6] = a[6];
+                                tile[6][5] = a[5];
+                                tile[6][6] = a[6];
+                                tile[6][7] = a[7];
+                                // [7] B
+                                tile[7][0] = b[0];
+                                tile[7][1] = b[1];
+                                tile[7][2] = b[2];
+                                tile[7][3] = b[3];
+                                tile[7][4] = b[4];
+                                tile[7][5] = b[5];
+                                tile[7][6] = b[6];
+                                tile[7][7] = b[7];
                                 break;
                             }
                             break;
                         }
-
                         // Copy from tile to pixel array
                         for (int line = 0; line < 8; line++) {
                             for (int i = 0; i < 8; i++) {
@@ -612,30 +766,20 @@ void decodeFrame(int t_frame_index) {
             }
         }
     }
-    // Create output image
-    uint8_t output_image[320][240] = { 0 };
-
-    uint32_t layer_depths[3] = { frame_meta.layer_a_depth,
-                                 frame_meta.layer_b_depth,
-                                 frame_meta.layer_c_depth };
-    //std::sort(layer_depths, layer_depths + 3);
-    // Sort depths 
-    
-    // Convert table[8] to a pixel 
-
     prev_decoded_frame = t_frame_index;
 }
 
 void getFrameImage(int t_frame_index) {
     decodeFrame(t_frame_index);
 
-    for (int y = 0; y < 240; y++) {
-        for (int x = 0; x < 320; x++) {
-            //for () {
-            
-            //}
-        }
-    }
+    // Convert tile buffer to RGB pixels in image_buffer here
+
+    /*uint32_t layer_depths[3] = { frame_meta.layer_a_depth,
+                                 frame_meta.layer_b_depth,
+                                 frame_meta.layer_c_depth };*/
+
+    // Write raw rgb data to file
+    // https://superuser.com/questions/469273/ffmpeg-convert-rgb-images-to-video
 }
 
 void decodeAudioTrack(int t_track_index) {
@@ -674,8 +818,8 @@ void decodeAudioTrack(int t_track_index) {
         break;
     }
 
-    for (int track_offset = track_offset; track_offset <= (track_offset + track_length); track_offset++) {
-        byte = get8BitInt(track_offset);
+    for (int current_track_offset = track_offset; current_track_offset <= (track_offset + track_length); current_track_offset++) {
+        byte = get8BitInt(current_track_offset);
         bit_pos = 0;
         while (bit_pos < 8) {
             // 2 bit sample
@@ -732,7 +876,7 @@ int main() {
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
-    decodeSoundHeader();
+    
 
     // Valid KWZ files start with KFH
     if (file_buffer[2] == 'H') {
@@ -743,17 +887,19 @@ int main() {
         std::cout << "File size: " << file_size << std::endl;
         std::cout << "Creation timestamp unconverted: " << file_creation_timestamp << std::endl;
         std::cout << "Last edit timestamp unconverted: " << file_last_edit_timestap << std::endl;
-        std::cout << "File size: " << file_size << std::endl;
         std::cout << "Root author ID: " << root_author_ID << std::endl;
         std::cout << "Parent author ID: " << parent_author_ID << std::endl;
         std::cout << "Current author ID: " << current_author_ID << std::endl;
         std::cout << "Frame count: " << frame_count << std::endl;
         std::cout << "Framerate: " << framerate << std::endl;
         std::cout << "Is locked? " << is_locked << std::endl;
-
+        
+        // Audio debugging
+        //decodeSoundHeader();
         //decodeAudioTrack(0);
         //writeWAV("file path here.wav");
 
+        // Frame debugging
         decodeFrame(0);
     }
     else {
