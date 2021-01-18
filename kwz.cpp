@@ -15,7 +15,7 @@ char* readFile(std::string t_file_name) {
         char* output_buffer = new char[file_size];
         file.read(output_buffer, file_size);
         file.close();
-        //std::cout << "File read succesfully." << std::endl << std::endl;
+        std::cout << "File read succesfully." << std::endl;
         return output_buffer;
     }
     else {
@@ -174,17 +174,17 @@ int16_t clampValue(int16_t t_input, int16_t t_min, int16_t t_max) {
     }
 }
 
-uint8_t get8BitInt(int t_start) {
+uint8_t getUint8(int t_start) {
     return uint8_t(file_buffer[t_start]);
 }
 
-uint16_t get16BitInt(int t_start) {
+uint16_t getUint16(int t_start) {
     // Starts at `start` and gets a little endian uint16 (2 bytes)
     return uint16_t(uint8_t(file_buffer[t_start])) |
         uint16_t(uint8_t(file_buffer[t_start + 1])) << 8;
 }
 
-uint32_t get32BitInt(int t_start) {
+uint32_t getUint32(int t_start) {
     // Starts at `start` and gets a little endian uint32 (4 bytes)
     return uint32_t(uint8_t(file_buffer[t_start])) |
         uint32_t(uint8_t(file_buffer[t_start + 1])) << 8 |
@@ -193,10 +193,10 @@ uint32_t get32BitInt(int t_start) {
 }
 
 void decodeFileHeader() {
-    kfh_section_size = get32BitInt(kfh_offset - 4);
-    file_creation_timestamp = get32BitInt(kfh_offset + 0x4);
-    file_last_edit_timestap = get32BitInt(kfh_offset + 0x8);
-    app_version = get32BitInt(kfh_offset + 0xC);
+    kfh_section_size = getUint32(kfh_offset - 4);
+    file_creation_timestamp = getUint32(kfh_offset + 0x4);
+    file_last_edit_timestap = getUint32(kfh_offset + 0x8);
+    app_version = getUint32(kfh_offset + 0xC);
     root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
     parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
     current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
@@ -206,14 +206,14 @@ void decodeFileHeader() {
     root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
     parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
     current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
-    frame_count = get16BitInt(kfh_offset + 0xC4);
-    thumbnail_frame_index = get16BitInt(kfh_offset + 0xC6);
-    framerate = framerates[get8BitInt(kfh_offset + 0xCA)];
-    uint16_t raw_kfh_flags = get16BitInt(kfh_offset + 0xC8);
+    frame_count = getUint16(kfh_offset + 0xC4);
+    thumbnail_frame_index = getUint16(kfh_offset + 0xC6);
+    framerate = framerates[getUint8(kfh_offset + 0xCA)];
+    uint16_t raw_kfh_flags = getUint16(kfh_offset + 0xC8);
     is_locked = (raw_kfh_flags & 0x1) == 0;
     is_loop_playback = (raw_kfh_flags & 0x2) == 0;
     is_toolset = (raw_kfh_flags & 0x4) == 0;
-    uint8_t raw_layer_visibility_flags = get8BitInt(kfh_offset + 0xCB);
+    uint8_t raw_layer_visibility_flags = getUint8(kfh_offset + 0xCB);
     layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
     layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
     layer_c_invisible = (raw_layer_visibility_flags & 0x4) == 0;
@@ -221,23 +221,23 @@ void decodeFileHeader() {
 
 void decodeSoundHeader() {
     // Flipnote speed when recorded
-    flipnote_speed_when_recorded = get32BitInt(ksn_offset + 0x4);
+    flipnote_speed_when_recorded = getUint32(ksn_offset + 0x4);
     // BGM size
-    bgm_size =  get32BitInt(ksn_offset + 0x8);
+    bgm_size =  getUint32(ksn_offset + 0x8);
     // Sound effect 1 (A) size
-    se_1_size = get32BitInt(ksn_offset + 0xC);
+    se_1_size = getUint32(ksn_offset + 0xC);
     // Sound effect 2 (X) size
-    se_2_size = get32BitInt(ksn_offset + 0x10);
+    se_2_size = getUint32(ksn_offset + 0x10);
     // Sound effect 3 (Y) size
-    se_3_size = get32BitInt(ksn_offset + 0x14);
+    se_3_size = getUint32(ksn_offset + 0x14);
     // Sound effect 4 (up) size
-    se_4_size = get32BitInt(ksn_offset + 0x18);
+    se_4_size = getUint32(ksn_offset + 0x18);
 }
 
 int readBits(int t_num_bits) {
     if (bit_index + t_num_bits > 16) {
         // read uint16_t then increment the layer buffer pointer by 2
-        uint16_t next_bits = get16BitInt(layer_buffer_pointer);
+        uint16_t next_bits = getUint16(layer_buffer_pointer);
         layer_buffer_pointer += 2;
         bit_value |= next_bits << (16 - bit_index);
         bit_index -= 16;
@@ -249,7 +249,7 @@ int readBits(int t_num_bits) {
 }
 
 void decodeFrame(int t_frame_index) {
-    int skip_value = 0;
+    int skip_counter = 0;
     int x;
     int y;
     int line_index;
@@ -262,84 +262,80 @@ void decodeFrame(int t_frame_index) {
     uint8_t b[8] = { 0 };
 
     int frame_meta_offset = kmi_offset + (t_frame_index * 28);
-    struct frame_meta_struct frame_meta {
-        // Flags
-        get32BitInt(frame_meta_offset),
-        // Layer A size
-        get16BitInt(frame_meta_offset + 0x4),
-        // Layer B size
-        get16BitInt(frame_meta_offset + 0x6),
-        // Layer C size
-        get16BitInt(frame_meta_offset + 0x8),
-        // Frame author ID
-        getHexString(frame_meta_offset + 0xA, frame_meta_offset + 0x14),
-        // Layer A depth
-        get8BitInt(frame_meta_offset + 0x14),
-        // Layer B depth
-        get8BitInt(frame_meta_offset + 0x15),
-        // Layer C depth
-        get8BitInt(frame_meta_offset + 0x16),
-        // Sound effect flags
-        get8BitInt(frame_meta_offset + 0x17),
-        // Camera flags
-        get16BitInt(frame_meta_offset + 0x1A)
-    };
+    uint16_t layer_sizes[3] = { getUint16(frame_meta_offset + 0x4),
+                                getUint16(frame_meta_offset + 0x6), 
+                                getUint16(frame_meta_offset + 0x8) };
+
+    uint8_t layer_depth[3] = { getUint8(frame_meta_offset + 0x14),
+                               getUint8(frame_meta_offset + 0x15),
+                               getUint8(frame_meta_offset + 0x16) };
+    
+    uint32_t raw_flags = getUint32(frame_meta_offset);
     struct diffing_flags_struct diffing_flags {
         // Paper color index
-        frame_meta.flags & 0xF,
+        raw_flags & 0xF,
         // Layer A diffing flag
-        (frame_meta.flags >> 4) & 0x1,
+        (raw_flags >> 4) & 0x1,
         // Layer A diffing flag
-        (frame_meta.flags >> 5) & 0x1,
+        (raw_flags >> 5) & 0x1,
         // Layer A diffing flag
-        (frame_meta.flags >> 6) & 0x1,
+        (raw_flags >> 6) & 0x1,
         // Is frame based on prev frame
-        (frame_meta.flags >> 7) & 0x1,
+        (raw_flags >> 7) & 0x1,
         // Layer A first color index
-        (frame_meta.flags >> 8) & 0xF,
+        (raw_flags >> 8) & 0xF,
         // Layer A first color index
-        (frame_meta.flags >> 12) & 0xF,
+        (raw_flags >> 12) & 0xF,
         // Layer B first color index
-        (frame_meta.flags >> 16) & 0xF,
+        (raw_flags >> 16) & 0xF,
         // Layer B first color index
-        (frame_meta.flags >> 20) & 0xF,
+        (raw_flags >> 20) & 0xF,
         // Layer C first color index
-        (frame_meta.flags >> 24) & 0xF,
+        (raw_flags >> 24) & 0xF,
         // Layer C first color index
-        (frame_meta.flags >> 28) & 0xF
+        (raw_flags >> 28) & 0xF
     };
     // Not needed until sfx mixing is implemented.
+    //uint8_t sfx_flags_raw = get8BitInt(frame_meta_offset + 0x17);
     //struct sfx_flags_struct sfx_flags {
     //    // Is SFX1 used on this frame
-    //    (frame_meta.sound_effect_flags & 0x1) != 0,
+    //    (sfx_flags_raw & 0x1) != 0,
     //    // Is SFX2 used on this frame
-    //    (frame_meta.sound_effect_flags & 0x2) != 0,
+    //    (sfx_flags_raw & 0x2) != 0,
     //    // Is SFX3 used on this frame
-    //    (frame_meta.sound_effect_flags & 0x4) != 0,
+    //    (sfx_flags_raw & 0x4) != 0,
     //    // Is SFX4 used on this frame
-    //    (frame_meta.sound_effect_flags & 0x8) != 0
+    //    (sfx_flags_raw & 0x8) != 0
     //};
 
     // Set frame data pointer location
     layer_buffer_pointer = kmc_offset + 4;
 
-    // Recurse through all 3 layers
     for (int layer_index = 0; layer_index < 3; layer_index++) {
+        layer_buffer_pointer += layer_sizes[layer_index];
+
+        int layer_size = layer_sizes[layer_index];
+
+        // Reset readBits() state
+        bit_index = 16;
+        bit_value = 0;
+
+        skip_counter = 0;
+
         for (int large_tile_y = 0; large_tile_y < 240; large_tile_y += 128) {
             for (int large_tile_x = 0; large_tile_x < 320; large_tile_x += 128) {
                 for (int tile_y = 0; tile_y < 128; tile_y += 8) {
                     y = large_tile_y + tile_y;
                     // if the tile falls off the bottom of the frame, jump to the next large tile
                     if (y >= 240) break;
-
                     for (int tile_x = 0; tile_x < 128; tile_x += 8) {
                         x = large_tile_x + tile_x;
                         // if the tile falls off the right of the frame, jump to the next small tile row
                         if (x >= 320) break;
                         // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
 
-                        if (skip_value) {
-                            skip_value -= 1;
+                        if (skip_counter > 0) {
+                            skip_counter -= 1;
                             break;
                         }
 
@@ -422,15 +418,13 @@ void decodeFrame(int t_frame_index) {
                             break;
                         case 5:
                             std::cout << "Tile type 5" << std::endl;
-                            skip_value = readBits(5);
+                            skip_counter = readBits(5);
                             continue;
                         case 6:
                             std::cout << "Tile type 6 detected, type is not used." << std::endl;
                             break;
                         case 7:
                             std::cout << "Tile type 7" << std::endl;
-                            // This entire case could use major optimization in the future
-                            // by removing for loops and replacing with individually setting values.
                             uint8_t pattern = readBits(2);
                             uint8_t is_common = readBits(1);
 
@@ -819,7 +813,7 @@ void decodeAudioTrack(int t_track_index) {
     }
 
     for (int current_track_offset = track_offset; current_track_offset <= (track_offset + track_length); current_track_offset++) {
-        byte = get8BitInt(current_track_offset);
+        byte = getUint8(current_track_offset);
         bit_pos = 0;
         while (bit_pos < 8) {
             // 2 bit sample
@@ -861,9 +855,10 @@ void decodeAudioTrack(int t_track_index) {
 }
 
 void extractThumbnail(std::string t_file_name) {
+    // TODO: Verify thumbnail is valid JPG, some corrupted headers have been found.
     int ktn_offset = findSectionOffset("KTN");
     // The size of the output JPG file is 4 bytes less than the KTN section size
-    int section_size = get16BitInt(ktn_offset + 0x4) - 4;
+    int section_size = getUint16(ktn_offset + 0x4) - 4;
     int start_offset = ktn_offset + 12;
     int end_offset = start_offset + section_size;
     writeFile(t_file_name, getSubCharArray(start_offset, end_offset), section_size);
@@ -876,23 +871,22 @@ int main() {
     getSectionOffsets();
     decodeFileHeader();
     generateLineTables();
-    
 
     // Valid KWZ files start with KFH
     if (file_buffer[2] == 'H') {
-        std::cout << "Root file name: " << root_file_name << std::endl;
-        std::cout << "Parent file name: " << parent_file_name << std::endl;
+        //std::cout << "Root file name: " << root_file_name << std::endl;
+        //std::cout << "Parent file name: " << parent_file_name << std::endl;
         std::cout << "Current file name: " << current_file_name << std::endl;
-        std::cout << "App version: " << app_version << std::endl;
-        std::cout << "File size: " << file_size << std::endl;
-        std::cout << "Creation timestamp unconverted: " << file_creation_timestamp << std::endl;
-        std::cout << "Last edit timestamp unconverted: " << file_last_edit_timestap << std::endl;
-        std::cout << "Root author ID: " << root_author_ID << std::endl;
-        std::cout << "Parent author ID: " << parent_author_ID << std::endl;
+        //std::cout << "App version: " << app_version << std::endl;
+        std::cout << "File size: " << file_size  << " bytes" << std::endl;
+        //std::cout << "Creation timestamp unconverted: " << file_creation_timestamp << std::endl;
+        //std::cout << "Last edit timestamp unconverted: " << file_last_edit_timestap << std::endl;
+        //std::cout << "Root author ID: " << root_author_ID << std::endl;
+        //std::cout << "Parent author ID: " << parent_author_ID << std::endl;
         std::cout << "Current author ID: " << current_author_ID << std::endl;
         std::cout << "Frame count: " << frame_count << std::endl;
         std::cout << "Framerate: " << framerate << std::endl;
-        std::cout << "Is locked? " << is_locked << std::endl;
+        //std::cout << "Is locked? " << is_locked << std::endl;
         
         // Audio debugging
         //decodeSoundHeader();
