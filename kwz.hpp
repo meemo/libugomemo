@@ -11,15 +11,6 @@ int kmi_offset;
 int ksn_offset;
 int kmc_offset;
 
-// Video processing
-uint8_t pixel_buffer[3][240][40][8] = { 0 };
-uint8_t rgb_buffer[320][240][3] = { 0 };
-int layer_buffer_pointer;
-int current_layer;
-uint16_t bit_value;
-int bit_index;
-int prev_decoded_frame;
-
 // Meta
 uint32_t file_creation_timestamp;
 uint32_t file_last_edit_timestap;
@@ -50,39 +41,40 @@ bool layer_a_invisible;
 bool layer_b_invisible;
 bool layer_c_invisible;
 
-struct frame_meta_struct {
-	uint32_t flags;
-	uint16_t layer_a_size;
-	uint16_t layer_b_size;
-	uint16_t layer_c_size;
-	std::string frame_author_id;
-	uint8_t layer_a_depth;
-	uint8_t layer_b_depth;
-	uint8_t layer_c_depth;
-	uint8_t sound_effect_flags;
-	uint16_t camera_flags;
-};
+// Video processing
+uint8_t pixel_buffer[3][240][40][8] = { 0 };
+uint8_t rgb_buffer[320][240][3] = { 0 };
+int layer_buffer_pointer;
+int layer_buffer_offset = 0;
+int current_layer;
+uint16_t bit_value;
+int bit_index;
+int prev_decoded_frame;
 
-struct diffing_flags_struct {
-	int paper_color_index;
-	int layer_a_diffing_flag;
-	int layer_b_diffing_flag;
-	int layer_c_diffing_flag;
-	int is_prev_frame;
-	int layer_a_first_color_index;
-	int layer_a_second_color_index;
-	int layer_b_first_color_index;
-	int layer_b_second_color_index;
-	int layer_c_first_color_index;
-	int layer_c_second_color_index;
-};
+// Frame meta
+uint32_t flags;
+uint16_t layer_sizes[3] = { 0 };
+std::string frame_author_ID;
+uint8_t layer_depths[3] = { 0 };
+uint8_t sound_effect_flags;
+uint16_t camera_flags;
 
-struct sfx_flags_struct {
-	bool sfx_1_used;
-	bool sfx_2_used;
-	bool sfx_3_used;
-	bool sfx_4_used;
-};
+uint32_t paper_color_index;
+uint32_t layer_a_diff_flag;
+uint32_t layer_b_diff_flag;
+uint32_t layer_c_diff_flag;
+uint32_t is_prev_frame;
+uint32_t layer_a_first_color_index;
+uint32_t layer_a_second_color_index;
+uint32_t layer_b_first_color_index;
+uint32_t layer_b_second_color_index;
+uint32_t layer_c_first_color_index;
+uint32_t layer_c_second_color_index;
+
+//bool frame_sfx_1_used;
+//bool frame_sfx_2_used;
+//bool frame_sfx_3_used;
+//bool frame_sfx_4_used;
 
 // All framerates
 const double framerates[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
@@ -141,12 +133,12 @@ const uint16_t adpcm_step_table[96] = { 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19,
 										12635, 13899, 15289, 16818, 18500, 20350,
 										22385, 24623, 27086, 29794, 32767, 0 };
 
-uint32_t flipnote_speed_when_recorded = 0;
-int bgm_size = 0;
-int se_1_size = 0;
-int se_2_size = 0;
-int se_3_size = 0;
-int se_4_size = 0;
+//uint32_t flipnote_speed_when_recorded = 0;
+uint32_t bgm_size = 0;
+uint32_t se_1_size = 0;
+uint32_t se_2_size = 0;
+uint32_t se_3_size = 0;
+uint32_t se_4_size = 0;
 
 const int16_t adpcm_step_table_2_bit[4] = { -1, 2, -1, 2 };
 

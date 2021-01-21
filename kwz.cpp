@@ -63,6 +63,48 @@ std::string getHexString(int t_start, int t_end) {
     return ss.str();
 }
 
+int16_t clampValue(int16_t t_input, int16_t t_min, int16_t t_max) {
+    if (t_input > t_max) {
+    else if (t_input < t_min) {
+        return t_min;
+    }
+    else {
+        return t_input;
+    }
+}
+
+uint8_t getUint8(int t_start) {
+    return uint8_t(file_buffer[t_start]);
+}
+
+uint16_t getUint16(int t_start) {
+    // Starts at `start` and gets a little endian uint16 (2 bytes)
+    return uint16_t(uint8_t(file_buffer[t_start])) |
+        uint16_t(uint8_t(file_buffer[t_start + 1])) << 8;
+}
+
+uint32_t getUint32(int t_start) {
+    // Starts at `start` and gets a little endian uint32 (4 bytes)
+    return uint32_t(uint8_t(file_buffer[t_start])) |
+        uint32_t(uint8_t(file_buffer[t_start + 1])) << 8 |
+        uint32_t(uint8_t(file_buffer[t_start + 2])) << 16 |
+        uint32_t(uint8_t(file_buffer[t_start + 3])) << 24;
+}
+
+int readBits(int t_num_bits) {
+    if (bit_index + t_num_bits > 16) {
+        // read uint16_t then increment the layer buffer pointer by 2
+        uint16_t next_bits = getUint16(layer_buffer_pointer);
+        layer_buffer_pointer += 2;
+        bit_value |= next_bits << (16 - bit_index);
+        bit_index -= 16;
+    }
+    int result = bit_value & ((1 << t_num_bits) - 1);
+    bit_value >>= t_num_bits;
+    bit_index += t_num_bits;
+    return result;
+}
+
 int findSectionOffset(std::string t_section) {
     int sectionOffset = 0;
     while (std::string(getSubCharArray(sectionOffset, sectionOffset + 2), 3) != t_section) {
@@ -105,6 +147,16 @@ void getSectionOffsets() {
         kmi_offset = findSectionOffset("KMI");
         kmc_offset = findSectionOffset("KMC");
     }
+}
+
+void extractThumbnail(std::string t_file_name) {
+    // TODO: Verify thumbnail is valid JPG, some corrupted headers have been found.
+    int ktn_offset = findSectionOffset("KTN");
+    // The size of the output JPG file is 4 bytes less than the KTN section size
+    int section_size = getUint16(ktn_offset + 0x4) - 4;
+    int start_offset = ktn_offset + 12;
+    int end_offset = start_offset + section_size;
+    writeFile(t_file_name, getSubCharArray(start_offset, end_offset), section_size);
 }
 
 void generateLineTables() {
@@ -162,90 +214,42 @@ void generateLineTables() {
     };
 }
 
-int16_t clampValue(int16_t t_input, int16_t t_min, int16_t t_max) {
-    if (t_input > t_max) {
-        return t_max;
-    }
-    else if (t_input < t_min) {
-        return t_min;
-    }
-    else {
-        return t_input;
-    }
-}
+void decodeFrameMeta(int t_frame_index) {
+    int frame_meta_offset = kmi_offset + (t_frame_index * 28);
+    
+    uint32_t raw_diffing_flags = getUint32(frame_meta_offset);
 
-uint8_t getUint8(int t_start) {
-    return uint8_t(file_buffer[t_start]);
-}
+    layer_sizes[0] = getUint16(frame_meta_offset + 0x4);
+    layer_sizes[1] = getUint16(frame_meta_offset + 0x6);
+    layer_sizes[2] = getUint16(frame_meta_offset + 0x8);
 
-uint16_t getUint16(int t_start) {
-    // Starts at `start` and gets a little endian uint16 (2 bytes)
-    return uint16_t(uint8_t(file_buffer[t_start])) |
-        uint16_t(uint8_t(file_buffer[t_start + 1])) << 8;
-}
+    //frame_author_ID = getHexString(frame_meta_offset + 0x9, frame_meta_offset + 0x14);
 
-uint32_t getUint32(int t_start) {
     // Starts at `start` and gets a little endian uint32 (4 bytes)
     return uint32_t(uint8_t(file_buffer[t_start])) |
-        uint32_t(uint8_t(file_buffer[t_start + 1])) << 8 |
-        uint32_t(uint8_t(file_buffer[t_start + 2])) << 16 |
-        uint32_t(uint8_t(file_buffer[t_start + 3])) << 24;
-}
+    layer_depths[0] = getUint8(frame_meta_offset + 0x14);
+    layer_depths[1] = getUint8(frame_meta_offset + 0x15);
+    layer_depths[2] = getUint8(frame_meta_offset + 0x16);
 
-void decodeFileHeader() {
-    kfh_section_size = getUint32(kfh_offset - 4);
-    file_creation_timestamp = getUint32(kfh_offset + 0x4);
-    file_last_edit_timestap = getUint32(kfh_offset + 0x8);
-    app_version = getUint32(kfh_offset + 0xC);
-    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
-    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
-    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
-    root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
-    parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
-    current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
-    root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
-    parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
-    current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
-    frame_count = getUint16(kfh_offset + 0xC4);
-    thumbnail_frame_index = getUint16(kfh_offset + 0xC6);
-    framerate = framerates[getUint8(kfh_offset + 0xCA)];
-    uint16_t raw_kfh_flags = getUint16(kfh_offset + 0xC8);
-    is_locked = (raw_kfh_flags & 0x1) == 0;
-    is_loop_playback = (raw_kfh_flags & 0x2) == 0;
-    is_toolset = (raw_kfh_flags & 0x4) == 0;
-    uint8_t raw_layer_visibility_flags = getUint8(kfh_offset + 0xCB);
-    layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
-    layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
-    layer_c_invisible = (raw_layer_visibility_flags & 0x4) == 0;
-}
+    //uint8_t sfx_flags_raw = getUint8(frame_meta_offset + 0x17)
 
-void decodeSoundHeader() {
-    // Flipnote speed when recorded
-    flipnote_speed_when_recorded = getUint32(ksn_offset + 0x4);
-    // BGM size
-    bgm_size =  getUint32(ksn_offset + 0x8);
-    // Sound effect 1 (A) size
-    se_1_size = getUint32(ksn_offset + 0xC);
-    // Sound effect 2 (X) size
-    se_2_size = getUint32(ksn_offset + 0x10);
-    // Sound effect 3 (Y) size
-    se_3_size = getUint32(ksn_offset + 0x14);
-    // Sound effect 4 (up) size
-    se_4_size = getUint32(ksn_offset + 0x18);
-}
+    paper_color_index = raw_diffing_flags & 0xF;
+    layer_a_diff_flag = (raw_diffing_flags >> 4) & 0x1;
+    layer_b_diff_flag = (raw_diffing_flags >> 5) & 0x1;
+    layer_c_diff_flag = (raw_diffing_flags >> 6) & 0x1;
+    is_prev_frame = (raw_diffing_flags >> 7) & 0x1;
+    layer_a_first_color_index = (raw_diffing_flags >> 8) & 0xF;
+    layer_a_second_color_index = (raw_diffing_flags >> 12) & 0xF;
+    layer_b_first_color_index = (raw_diffing_flags >> 16) & 0xF;
+    layer_b_second_color_index = (raw_diffing_flags >> 20) & 0xF;
+    layer_c_first_color_index = (raw_diffing_flags >> 24) & 0xF;
+    layer_c_second_color_index = (raw_diffing_flags >> 28) & 0xF;
 
-int readBits(int t_num_bits) {
-    if (bit_index + t_num_bits > 16) {
-        // read uint16_t then increment the layer buffer pointer by 2
-        uint16_t next_bits = getUint16(layer_buffer_pointer);
-        layer_buffer_pointer += 2;
-        bit_value |= next_bits << (16 - bit_index);
-        bit_index -= 16;
-    }
-    int result = bit_value & ((1 << t_num_bits) - 1);
-    bit_value >>= t_num_bits;
-    bit_index += t_num_bits;
-    return result;
+    // Not needed until sfx mixing is implemented.
+    //frame_sfx_1_used = (sfx_flags_raw & 0x1) != 0;
+    //frame_sfx_2_used = (sfx_flags_raw & 0x2) != 0;
+    //frame_sfx_3_used = (sfx_flags_raw & 0x4) != 0;
+    //frame_sfx_4_used = (sfx_flags_raw & 0x8) != 0;
 }
 
 void decodeFrame(int t_frame_index) {
@@ -261,55 +265,10 @@ void decodeFrame(int t_frame_index) {
     uint8_t a[8] = { 0 };
     uint8_t b[8] = { 0 };
 
-    int frame_meta_offset = kmi_offset + (t_frame_index * 28);
-    uint16_t layer_sizes[3] = { getUint16(frame_meta_offset + 0x4),
-                                getUint16(frame_meta_offset + 0x6), 
-                                getUint16(frame_meta_offset + 0x8) };
-
-    uint8_t layer_depth[3] = { getUint8(frame_meta_offset + 0x14),
-                               getUint8(frame_meta_offset + 0x15),
-                               getUint8(frame_meta_offset + 0x16) };
-    
-    uint32_t raw_flags = getUint32(frame_meta_offset);
-    struct diffing_flags_struct diffing_flags {
-        // Paper color index
-        raw_flags & 0xF,
-        // Layer A diffing flag
-        (raw_flags >> 4) & 0x1,
-        // Layer A diffing flag
-        (raw_flags >> 5) & 0x1,
-        // Layer A diffing flag
-        (raw_flags >> 6) & 0x1,
-        // Is frame based on prev frame
-        (raw_flags >> 7) & 0x1,
-        // Layer A first color index
-        (raw_flags >> 8) & 0xF,
-        // Layer A first color index
-        (raw_flags >> 12) & 0xF,
-        // Layer B first color index
-        (raw_flags >> 16) & 0xF,
-        // Layer B first color index
-        (raw_flags >> 20) & 0xF,
-        // Layer C first color index
-        (raw_flags >> 24) & 0xF,
-        // Layer C first color index
-        (raw_flags >> 28) & 0xF
-    };
-    // Not needed until sfx mixing is implemented.
-    //uint8_t sfx_flags_raw = get8BitInt(frame_meta_offset + 0x17);
-    //struct sfx_flags_struct sfx_flags {
-    //    // Is SFX1 used on this frame
-    //    (sfx_flags_raw & 0x1) != 0,
-    //    // Is SFX2 used on this frame
-    //    (sfx_flags_raw & 0x2) != 0,
-    //    // Is SFX3 used on this frame
-    //    (sfx_flags_raw & 0x4) != 0,
-    //    // Is SFX4 used on this frame
-    //    (sfx_flags_raw & 0x8) != 0
-    //};
+    decodeFrameMeta(t_frame_index);
 
     // Set frame data pointer location
-    layer_buffer_pointer = kmc_offset + 4;
+    layer_buffer_pointer = (kmc_offset + 4);
 
     for (int layer_index = 0; layer_index < 3; layer_index++) {
         layer_buffer_pointer += layer_sizes[layer_index];
@@ -333,7 +292,6 @@ void decodeFrame(int t_frame_index) {
                         // if the tile falls off the right of the frame, jump to the next small tile row
                         if (x >= 320) break;
                         // (x, y) is the position of the tile's top-left corner relative to the top-left of the image
-
                         if (skip_counter > 0) {
                             skip_counter -= 1;
                             break;
@@ -345,10 +303,6 @@ void decodeFrame(int t_frame_index) {
                         switch (tile_type) {
                         case 0:
                             std::cout << "Tile type 0" << std::endl;
-                            // C++ does not allow clean setting of values in arrays
-                            // so we must recurse through each position of the array 
-                            // to assign values if we want things to look clean.
-                            // For optimization, listing out each value is faster.
                             line_index = line_index_table_common[readBits(5)];
                             for (int i = 0; i < 8; i++) {
                                 for (int j = 0; j < 8; j++) {
@@ -768,12 +722,17 @@ void getFrameImage(int t_frame_index) {
 
     // Convert tile buffer to RGB pixels in image_buffer here
 
-    /*uint32_t layer_depths[3] = { frame_meta.layer_a_depth,
-                                 frame_meta.layer_b_depth,
-                                 frame_meta.layer_c_depth };*/
-
     // Write raw rgb data to file
     // https://superuser.com/questions/469273/ffmpeg-convert-rgb-images-to-video
+}
+
+void decodeSoundHeader() {
+    //flipnote_speed_when_recorded = getUint32(ksn_offset + 0x4);
+    bgm_size = getUint32(ksn_offset + 0x8);
+    se_1_size = getUint32(ksn_offset + 0xC);
+    se_2_size = getUint32(ksn_offset + 0x10);
+    se_3_size = getUint32(ksn_offset + 0x14);
+    se_4_size = getUint32(ksn_offset + 0x18);
 }
 
 void decodeAudioTrack(int t_track_index) {
@@ -854,19 +813,37 @@ void decodeAudioTrack(int t_track_index) {
     }
 }
 
-void extractThumbnail(std::string t_file_name) {
-    // TODO: Verify thumbnail is valid JPG, some corrupted headers have been found.
-    int ktn_offset = findSectionOffset("KTN");
-    // The size of the output JPG file is 4 bytes less than the KTN section size
-    int section_size = getUint16(ktn_offset + 0x4) - 4;
-    int start_offset = ktn_offset + 12;
-    int end_offset = start_offset + section_size;
-    writeFile(t_file_name, getSubCharArray(start_offset, end_offset), section_size);
+void decodeFileHeader() {
+    kfh_section_size = getUint32(kfh_offset - 4);
+    file_creation_timestamp = getUint32(kfh_offset + 0x4);
+    file_last_edit_timestap = getUint32(kfh_offset + 0x8);
+    app_version = getUint32(kfh_offset + 0xC);
+    root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
+    parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
+    current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
+    root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
+    parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
+    current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
+    root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
+    parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
+    current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
+    frame_count = getUint16(kfh_offset + 0xC4);
+    thumbnail_frame_index = getUint16(kfh_offset + 0xC6);
+    framerate = framerates[getUint8(kfh_offset + 0xCA)];
+    uint16_t raw_kfh_flags = getUint16(kfh_offset + 0xC8);
+    is_locked = (raw_kfh_flags & 0x1) == 0;
+    is_loop_playback = (raw_kfh_flags & 0x2) == 0;
+    is_toolset = (raw_kfh_flags & 0x4) == 0;
+    uint8_t raw_layer_visibility_flags = getUint8(kfh_offset + 0xCB);
+    layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
+    layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
+    layer_c_invisible = (raw_layer_visibility_flags & 0x4) == 0;
 }
 
 int main() {
+    // Timing execution for optimization purposes
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("file path here.kwz");
+    file_buffer = readFile("D:\\jkz-dsidata.s3.amazonaws.com\\kwz\\000A88B0AA37F686\\cmfsal3gqmjcycm2vepwmummaivn.kwz");
     
     getSectionOffsets();
     decodeFileHeader();
