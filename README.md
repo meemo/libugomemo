@@ -3,7 +3,7 @@ A work in progress Flipnote Studio 3D .kwz file processing program made in C++. 
 
 # Installation
 
-Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to process then compile with your favorite compiler (Visual Studio 2019, GCC, etc.) and run.
+Edit the `input_file_path` string in `main()` in `kwz.cpp` to specify your input file (remember to escape back slashes if on windows!) to process then compile with Visual Studio 2019, GCC, etc. and run.
 
 # Progress
 
@@ -11,7 +11,7 @@ Edit `file_name`  in `main()` in `kwz.cpp` to specify your target file to proces
 - ✅ Thumbnail extraction - fully implemented
 - ✅ Audio track decoding - fully implemented wav file output
 - 🟩 Frame decoding - rough skeleton implemented
-- ❌ Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the raw timestamp, the number of seconds from 00:00:00 1/1/2000 epoch.
+- ❌ Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the raw timestamp, the number of seconds from 00:00:00 1/1/2000.
 - ❌ Converting author names from UTF-16 to readable encoding
 - ❌ Frame output to file
 - ❌ Audio track output to file

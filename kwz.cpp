@@ -703,7 +703,7 @@ void decodeFrame(int t_frame_index) {
                             }
                             break;
                         }
-                        // Copy from tile to pixel array
+                        // Copy from tile array to main pixel array
                         for (int line = 0; line < 8; line++) {
                             for (int i = 0; i < 8; i++) {
                                 pixel_buffer[layer_index][y + line][(int)(x / 8)][i] = tile[line][i];
@@ -843,7 +843,11 @@ void decodeFileHeader() {
 int main() {
     // Timing execution for optimization purposes
     auto start_time = std::chrono::high_resolution_clock::now();
-    file_buffer = readFile("D:\\jkz-dsidata.s3.amazonaws.com\\kwz\\000A88B0AA37F686\\cmfsal3gqmjcycm2vepwmummaivn.kwz");
+    
+    // Edit this variable to be the path to your file! Remember to escape back slashes (`\` to `\\`) on windows
+    std::string input_file_path = "D:\\jkz-dsidata.s3.amazonaws.com\\kwz\\000A88B0AA37F686\\cmfsal3gqmjcycm2vepwmummaivn.kwz";
+
+    file_buffer = readFile(input_file_path);
     
     getSectionOffsets();
     decodeFileHeader();
