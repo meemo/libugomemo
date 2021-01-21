@@ -65,6 +65,8 @@ std::string getHexString(int t_start, int t_end) {
 
 int16_t clampValue(int16_t t_input, int16_t t_min, int16_t t_max) {
     if (t_input > t_max) {
+        return t_max;
+    }
     else if (t_input < t_min) {
         return t_min;
     }
@@ -225,8 +227,6 @@ void decodeFrameMeta(int t_frame_index) {
 
     //frame_author_ID = getHexString(frame_meta_offset + 0x9, frame_meta_offset + 0x14);
 
-    // Starts at `start` and gets a little endian uint32 (4 bytes)
-    return uint32_t(uint8_t(file_buffer[t_start])) |
     layer_depths[0] = getUint8(frame_meta_offset + 0x14);
     layer_depths[1] = getUint8(frame_meta_offset + 0x15);
     layer_depths[2] = getUint8(frame_meta_offset + 0x16);
