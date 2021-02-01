@@ -13,3 +13,6 @@ output/
 *.vcxproj.filters
 *.vcxproj.user
 
+.vscode/
+
+kwz

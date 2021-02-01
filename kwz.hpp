@@ -1,19 +1,26 @@
 #pragma once
 
 char* file_buffer;
-int file_size;
+int file_size = 0;
 
-int offset;
+int offset = 0;
 
-int kfh_offset;
-uint32_t kfh_section_size;
-int kmi_offset;
-int ksn_offset;
-int kmc_offset;
+int kfh_offset = 0x8;
+uint32_t kfh_section_size = 0;
+int kmi_offset = 0;
+uint32_t kmi_section_size = 0;
+int ksn_offset = 0;
+uint32_t ksn_section_size = 0;
+int kmc_offset = 0;
+uint32_t kmc_section_size = 0;
+int ktn_offset = 0;
+uint32_t ktn_section_size = 0;
 
 // Meta
 uint32_t file_creation_timestamp;
+uint32_t file_creation_timestamp_unix;
 uint32_t file_last_edit_timestap;
+uint32_t file_last_edit_timestap_unix;
 uint32_t app_version;
 
 std::string root_author_ID;
@@ -26,7 +33,6 @@ char* parent_author_name_raw;
 char* current_author_name_raw;
 
 // Sometimes file names are unconverted from PPM in DSi library notes
-// TODO: Detect unconverted names an automatically convert (preserving what data?)
 std::string root_file_name;
 std::string parent_file_name;
 std::string current_file_name;
@@ -103,8 +109,11 @@ const uint8_t palette[7][3] = { {0xff, 0xff, 0xff},   // White
 
 
 // Audio processing
+
+long clipped_sample_count = 0;
+
 // Initial ADPCM State
-const int initial_step_index = 40;
+int initial_step_index = 0;
 const int initial_predictor = 0;
 const int initial_sample = 0;
 const int initial_step = 0;

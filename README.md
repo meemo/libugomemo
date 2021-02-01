@@ -11,7 +11,7 @@ Edit the `input_file_path` string in `main()` in `kwz.cpp` to specify your input
 - ✅ Thumbnail extraction - fully implemented
 - ✅ Audio track decoding - fully implemented wav file output
 - 🟩 Frame decoding - rough skeleton implemented
-- ❌ Conversion of timestamps (to unix epoch? to formatted date/time?) currently outputs the raw timestamp, the number of seconds from 00:00:00 1/1/2000.
+- ❌ Outputting all metadata as JSON
 - ❌ Converting author names from UTF-16 to readable encoding
 - ❌ Frame output to file
 - ❌ Audio track output to file

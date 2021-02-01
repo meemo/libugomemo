@@ -115,50 +115,47 @@ int findSectionOffset(std::string t_section) {
     return sectionOffset;
 }
 
-void getSectionOffsets() {
-    // 1MB cutoff for now
-    // TODO: find better value in the future for optimization.
-    // OR traverse using section sizes
-    kfh_offset = 8; // Constant
-    if (file_size > 1000000) {
-        // Go through the entire file to find each section header
-        // Faster on large files
-        int section_offset = 0;
-        while (section_offset < file_size) {
-            std::string section = std::string(getSubCharArray(section_offset, section_offset + 2), 3);
-            if (section == "KMI") {
-                kmi_offset = section_offset;
-            }
-            else if (section == "KSN") {
-                ksn_offset = section_offset;
-            }
-            else if (section == "KMC") {
-                kmc_offset = section_offset;
-            }
-            else if (kmi_offset > 0 && ksn_offset > 0 && kmc_offset > 0) {
-                // Early break if all are filled, saves a few cycles
-                break;
-            }
-            section_offset += 4;
+void findSectionOffsets() {
+    int section_offset = 0;
+    while (section_offset < file_size) {
+        std::string section = std::string(getSubCharArray(section_offset, section_offset + 2), 3);
+        if (section == "KMI") {
+            kmi_offset = section_offset;
+            kmi_section_size = getUint32(section_offset + 0x4);
+            section_offset += kmi_section_size;
         }
-    }
-    else {
-        // Go through the file to find each header from the start
-        // Faster on small files
-        ksn_offset = findSectionOffset("KSN");
-        kmi_offset = findSectionOffset("KMI");
-        kmc_offset = findSectionOffset("KMC");
+        else if (section == "KSN") {
+            ksn_offset = section_offset;
+            ksn_section_size = getUint32(section_offset + 0x4);
+            section_offset += ksn_section_size;
+        }
+        else if (section == "KMC") {
+            kmc_offset = section_offset;
+            kmc_section_size = getUint32(section_offset + 0x4);
+            section_offset += kmc_section_size;
+        }
+        else if (section == "KTN") {
+            ktn_offset = section_offset;
+            ktn_section_size = getUint32(section_offset + 0x4);
+            section_offset += ktn_section_size;
+        }
+        // Break if all values are found
+        else if (kmi_offset > 0 && ksn_offset > 0 && kmc_offset > 0 && ktn_offset > 0) break;
+
+        section_offset += 4;
     }
 }
 
+void outputJSONMeta() {
+    
+}
+
 void extractThumbnail(std::string t_file_name) {
-    // TODO: Verify thumbnail is valid JPG, some corrupted headers have been found.
-    int ktn_offset = findSectionOffset("KTN");
-    // The size of the output JPG file is 4 bytes less than the KTN section size
-    int section_size = getUint16(ktn_offset + 0x4) - 4;
+    // TODO: Verify thumbnail is valid JPG, some corrupted data has been found in FG:W notes
+    int data_size = ktn_section_size - 4;
     int start_offset = ktn_offset + 12;
-    int end_offset = start_offset + section_size;
-    writeFile(t_file_name, getSubCharArray(start_offset, end_offset), section_size);
+    int end_offset = start_offset + data_size;
+    writeFile(t_file_name, getSubCharArray(start_offset, end_offset), data_size);
 }
 
 void generateLineTables() {
@@ -180,14 +177,14 @@ void generateLineTables() {
                                     line_table[index][6] = h;
                                     line_table[index][7] = g;
                                     index++;
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     index = 0;
     for (uint8_t a = 0; a < 3; a++) {
         for (uint8_t b = 0; b < 3; b++) {
@@ -206,14 +203,14 @@ void generateLineTables() {
                                     line_table_shifted[index][6] = g;
                                     line_table_shifted[index][7] = b;
                                     index++;
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void decodeFrameMeta(int t_frame_index) {
@@ -233,6 +230,7 @@ void decodeFrameMeta(int t_frame_index) {
 
     //uint8_t sfx_flags_raw = getUint8(frame_meta_offset + 0x17)
 
+    // Decode extracted flags
     paper_color_index = raw_diffing_flags & 0xF;
     layer_a_diff_flag = (raw_diffing_flags >> 4) & 0x1;
     layer_b_diff_flag = (raw_diffing_flags >> 5) & 0x1;
@@ -736,6 +734,9 @@ void decodeSoundHeader() {
 }
 
 void decodeAudioTrack(int t_track_index) {
+    clipped_sample_count = 0;
+    int16_t output_sample = 0;
+
     int track_length = 0;
     int track_offset = 0;
     int output_offset = 0;
@@ -749,23 +750,23 @@ void decodeAudioTrack(int t_track_index) {
     int16_t diff = initial_diff;
 
     switch (t_track_index) {
-    case 0:
+    case 0: // BGM
         track_length = bgm_size;
         track_offset = ksn_offset + 0x24;
         break;
-    case 1:
+    case 1: // SE 1
         track_length = se_1_size;
         track_offset = ksn_offset + 0x24 + bgm_size;
         break;
-    case 2:
+    case 2: // SE 2
         track_length = se_2_size;
         track_offset = ksn_offset + 0x24 + bgm_size + se_1_size;
         break;
-    case 3:
+    case 3: // SE 3
         track_length = se_3_size;
         track_offset = ksn_offset + 0x24 + bgm_size + se_1_size + se_2_size;
         break;
-    case 4:
+    case 4: // SE 4
         track_length = se_4_size;
         track_offset = ksn_offset + 0x24 + bgm_size + se_1_size + se_2_size + se_3_size;
         break;
@@ -805,9 +806,14 @@ void decodeAudioTrack(int t_track_index) {
             step_index = clampValue(step_index, step_index_clamp_min, step_index_clamp_max);
             predictor = clampValue(predictor, predictor_clamp_min, predictor_clamp_max);
 
-            audio_buffer[output_offset] = predictor * predictor_scale;
-            output_offset++;
+            output_sample = predictor * predictor_scale;
+            audio_buffer[output_offset] = output_sample;
 
+            if (output_sample <= -32768 || output_sample >= 32767) {
+                clipped_sample_count += 1;
+            }
+
+            output_offset++;
             audio_buffer_length++;
         }
     }
@@ -815,25 +821,35 @@ void decodeAudioTrack(int t_track_index) {
 
 void decodeFileHeader() {
     kfh_section_size = getUint32(kfh_offset - 4);
+
     file_creation_timestamp = getUint32(kfh_offset + 0x4);
+    file_creation_timestamp_unix = file_creation_timestamp + 946684800;
     file_last_edit_timestap = getUint32(kfh_offset + 0x8);
+    file_last_edit_timestap_unix = file_last_edit_timestap_unix + 946684800;
+
     app_version = getUint32(kfh_offset + 0xC);
+
     root_author_ID = getHexString(kfh_offset + 0x10, kfh_offset + 0x19);
     parent_author_ID = getHexString(kfh_offset + 0x1A, kfh_offset + 0x23);
     current_author_ID = getHexString(kfh_offset + 0x24, kfh_offset + 0x2D);
+
     root_author_name_raw = getSubCharArray(offset + 0x2E, offset + 0x44);
     parent_author_name_raw = getSubCharArray(offset + 0x44, offset + 0x5A);
     current_author_name_raw = getSubCharArray(offset + 0x5A, offset + 0x70);
+
     root_file_name = std::string(getSubCharArray(kfh_offset + 0x70, kfh_offset + 0x8C), 28);
     parent_file_name = std::string(getSubCharArray(kfh_offset + 0x8C, kfh_offset + 0xA8), 28);
     current_file_name = std::string(getSubCharArray(kfh_offset + 0xA8, kfh_offset + 0xC4), 28);
+
     frame_count = getUint16(kfh_offset + 0xC4);
     thumbnail_frame_index = getUint16(kfh_offset + 0xC6);
     framerate = framerates[getUint8(kfh_offset + 0xCA)];
+
     uint16_t raw_kfh_flags = getUint16(kfh_offset + 0xC8);
     is_locked = (raw_kfh_flags & 0x1) == 0;
     is_loop_playback = (raw_kfh_flags & 0x2) == 0;
     is_toolset = (raw_kfh_flags & 0x4) == 0;
+
     uint8_t raw_layer_visibility_flags = getUint8(kfh_offset + 0xCB);
     layer_a_invisible = (raw_layer_visibility_flags & 0x1) == 0;
     layer_b_invisible = (raw_layer_visibility_flags & 0x2) == 0;
@@ -844,12 +860,12 @@ int main() {
     // Timing execution for optimization purposes
     auto start_time = std::chrono::high_resolution_clock::now();
     
-    // Edit this variable to be the path to your file! Remember to escape back slashes (`\` to `\\`) on windows
-    std::string input_file_path = "D:\\jkz-dsidata.s3.amazonaws.com\\kwz\\000A88B0AA37F686\\cmfsal3gqmjcycm2vepwmummaivn.kwz";
+    // Edit this variable to be the absolute path to your file. Remember to escape back slashes (`\` to `\\`) on  ndows
+    std::string input_file_path = "/run/media/meemo/Seagate5TB/kwz-cpp/samples/cmwneiharww2jcmrkqxwrtpxxven.kwz";
 
     file_buffer = readFile(input_file_path);
     
-    getSectionOffsets();
+    findSectionOffsets();
     decodeFileHeader();
     generateLineTables();
 
@@ -857,11 +873,13 @@ int main() {
     if (file_buffer[2] == 'H') {
         //std::cout << "Root file name: " << root_file_name << std::endl;
         //std::cout << "Parent file name: " << parent_file_name << std::endl;
-        std::cout << "Current file name: " << current_file_name << std::endl;
+        std::cout << "Current file name: " << current_file_name << ".kwz" << std::endl;
         //std::cout << "App version: " << app_version << std::endl;
         std::cout << "File size: " << file_size  << " bytes" << std::endl;
         //std::cout << "Creation timestamp unconverted: " << file_creation_timestamp << std::endl;
+        //std::cout << "Creation timestamp unix epoch: " << file_creation_timestamp_unix << std::endl;
         //std::cout << "Last edit timestamp unconverted: " << file_last_edit_timestap << std::endl;
+        //std::cout << "Last edit timestamp unix epoch: " << file_last_edit_timestap_unix << std::endl;
         //std::cout << "Root author ID: " << root_author_ID << std::endl;
         //std::cout << "Parent author ID: " << parent_author_ID << std::endl;
         std::cout << "Current author ID: " << current_author_ID << std::endl;
@@ -875,7 +893,7 @@ int main() {
         //writeWAV("file path here.wav");
 
         // Frame debugging
-        decodeFrame(0);
+        //decodeFrame(0);
     }
     else {
         std::cout << "File is not a valid KWZ file." << std::endl;
