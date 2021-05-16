@@ -1,5 +1,8 @@
 #pragma once
 
+// All framerates
+const float framerates[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
+
 /// ADPCM decoder tables
 const int adpcm_index_table_2_bit[4] = { -1, 2, -1, 2 };
 

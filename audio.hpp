@@ -18,3 +18,14 @@ typedef struct wav_header {
     uint8_t data_header[4] = { 'd', 'a', 't', 'a' };
     uint32_t subchunk_2_size = 0; // Data size in bytes (*2 for 16 bit)
 } wav_hdr;
+
+// Define functions
+s16 clampValue(s16 value, int min, int max);
+
+void writeWAV(std::string t_path, std::vector<s16> t_input);
+
+double findRMS(std::vector<int16_t> input);
+
+std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index);
+
+int findCorrectStepIndex(int track_size, int track_offset);

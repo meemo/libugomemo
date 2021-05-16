@@ -103,3 +103,27 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
 
     return output;
 }
+
+int findCorrectStepIndex(int track_size, int track_offset) {
+    int result = -1;
+
+    if (track_size > 0) {
+        double step_index_rms[41] = { 0 };
+        double least_rms_value = 0xDEADBEEF;  // Arbitrarily higher than highest possible RMS
+
+        // Decode the BGM track using every step index from 0-40 and record the RMS of the decoded samples
+        for (int i = 0; i < 41; i++) {
+            step_index_rms[i] = findRMS(decodeTrack(track_size, track_offset, i));
+        }
+
+        // Find the lowest RMS value recorded, which is the best initial step index
+        for (int i = 0; i < 41; i++) {
+            if (step_index_rms[i] < least_rms_value) {
+                least_rms_value = step_index_rms[i];
+                result = i;
+            }
+        }
+    }
+
+    return result;
+}
