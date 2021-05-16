@@ -12,36 +12,68 @@ s16 clampValue(s16 value, int min, int max) {
     return value;
 }
 
-void writeWAV(std::string t_path, std::vector<s16> t_input) {
-    std::ofstream output_file(t_path, std::ios::binary);
+/*
+ * Writes audio data to a .wav file at the location specified.
+ *
+ * Intended only to be used with the output from decodeTrack()
+ *
+ * Parameters:
+ * - path: the path that the file will be saved at, including fie name
+ * - input: a signed 16 bit int vector containing audio data to write
+ *
+ */
+void writeWAV(std::string path, std::vector<s16> input) {
+    std::ofstream output_file(path, std::ios::binary);
 
     // Generate and write WAV header
     wav_hdr wav;
-    wav.chunk_size = (uint32_t)(t_input.size() + 36);
-    wav.subchunk_2_size = (uint32_t)(t_input.size() * 2);
+    wav.chunk_size = (uint32_t)(input.size() + 36);
+    wav.subchunk_2_size = (uint32_t)(input.size() * 2);
     output_file.write(reinterpret_cast<const char*>(&wav), sizeof(wav));
 
     // Write audio data
-    output_file.write(reinterpret_cast<const char*>(&t_input[0]), t_input.size() * 2);
+    output_file.write(reinterpret_cast<const char*>(&input[0]), input.size() * 2);
 
     output_file.close();
 }
 
-double findRMS(std::vector<int16_t> input) {
+/*
+ * Finds the RMS (root mean square) value of the input vector.
+ * 
+ * Parameters:
+ * - input: a signed 16 bit int vector
+ *
+ * Returns:
+ * RMS of input as a double.
+ *
+ */
+double findRMS(std::vector<s16> input) {
     double rms = 0.0;
 
     // Square each value and add them together
     for (auto i = 0; i < (int)input.size(); i++) {
-        rms += input[i] * input[i];
+        rms += (double) input[i] * input[i];
     }
 
     // The square root of the sum of the squares divided by the number of values
     return std::sqrt(rms / (double)input.size());
 }
 
+/*
+ * Decodes the variable sample size IMA ADPCM-derviced audio from a flipnote.
+ *
+ * Parameters:
+ * - track_size: the size of the track to decode
+ * - track_offset: the location in file_buffer where the track is located
+ * - step_index: the initial step index to decode the track with.
+ *   - Use 40 if flipnote is from Flipnote Studio 3D
+ *   - Use findCorrectStepIndex() to find value if flipnote is from FG:W
+ *
+ * Returns:
+ * Signed 16 bit little endian PCM audio in a vector
+ * - Little endian is CPU platform based, most platforms are little endian.
+ */
 std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
-    // https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#ksn-sound-data
-
     std::vector<s16> output;
 
     s16 predictor = 0;
@@ -57,6 +89,7 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
         bit_pos = 0;
 
         while (bit_pos < 8) {
+	    // Variable sample size conditions
             if (step_index < 18 || bit_pos > 4) {
                 // Decode 2 bit sample
                 sample = byte & 0x3;
@@ -104,6 +137,21 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
     return output;
 }
 
+/*
+ * Finds the correct initial step index for Flipnote Hatena .kwz converted flipnotes from FG:W.
+ *
+ * See https://github.com/meemo/kwz-restoration for more details.
+ * 
+ * Only needs to be called on FG:W notes, however the difference will be minimal for other normal
+ * Flipnotes.
+ *
+ * Parameters:
+ * - track_size: the size of the track to process
+ * - track_offfset: the position of the start of the track in file_buffer
+ *
+ * Returns:
+ * The correct step index to decode the track specified to get the best audio.
+ */
 int findCorrectStepIndex(int track_size, int track_offset) {
     int result = -1;
 
@@ -127,3 +175,4 @@ int findCorrectStepIndex(int track_size, int track_offset) {
 
     return result;
 }
+
