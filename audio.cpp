@@ -6,12 +6,6 @@
 #include "kwz.hpp"
 #include "audio.hpp"
 
-s16 clampValue(s16 value, int min, int max) {
-    if (value < min) value = min;
-    if (value > max) value = max;
-    return value;
-}
-
 /*
  * Writes audio data to a .wav file at the location specified.
  *
@@ -20,7 +14,6 @@ s16 clampValue(s16 value, int min, int max) {
  * Parameters:
  * - path: the path that the file will be saved at, including fie name
  * - input: a signed 16 bit int vector containing audio data to write
- *
  */
 void writeWAV(std::string path, std::vector<s16> input) {
     std::ofstream output_file(path, std::ios::binary);
@@ -39,13 +32,12 @@ void writeWAV(std::string path, std::vector<s16> input) {
 
 /*
  * Finds the RMS (root mean square) value of the input vector.
- * 
+ *
  * Parameters:
  * - input: a signed 16 bit int vector
  *
  * Returns:
  * RMS of input as a double.
- *
  */
 double findRMS(std::vector<s16> input) {
     double rms = 0.0;
@@ -71,7 +63,7 @@ double findRMS(std::vector<s16> input) {
  *
  * Returns:
  * Signed 16 bit little endian PCM audio in a vector
- * - Little endian is CPU platform based, most platforms are little endian.
+ * - Endianness is based on the platform, however almost all platforms are little endian.
  */
 std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
     std::vector<s16> output;
@@ -138,10 +130,11 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
 }
 
 /*
- * Finds the correct initial step index for Flipnote Hatena .kwz converted flipnotes from FG:W.
+ * Finds the correct initial step index for a given nIMA ADPCM
+ * Intended for use with Flipnote Hatena flipnotes converted to .KWZ for Flipnote Gallery: World.
  *
  * See https://github.com/meemo/kwz-restoration for more details.
- * 
+ *
  * Only needs to be called on FG:W notes, however the difference will be minimal for other normal
  * Flipnotes.
  *
@@ -175,4 +168,3 @@ int findCorrectStepIndex(int track_size, int track_offset) {
 
     return result;
 }
-

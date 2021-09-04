@@ -1,9 +1,11 @@
 #pragma once
 
-// All framerates
+/// Video decoding tables
+// All framerate values
 const float framerates[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
 
-/// ADPCM decoder tables
+/// ADPCM decoding tables
+// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#sound-data
 const int adpcm_index_table_2_bit[4] = { -1, 2, -1, 2 };
 
 const int adpcm_index_table_4_bit[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
@@ -26,7 +28,10 @@ const s16 adpcm_step_table[89] = {     7,     8,     9,    10,    11,    12,
                                    22385, 24623, 27086, 29794, 32767 };
 
 /// Line tables
-// Common index values
+
+// Common line index table
+//
+// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#common-line-index-table
 const u16 line_index_table[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x088B, 0x0051, 0x00F3, 0x0009,
                                    0x001B, 0x0001, 0x0003, 0x05B2,
@@ -37,6 +42,8 @@ const u16 line_index_table[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x0668, 0x1338, 0x1004, 0x166C };
 
 // Common index values, shifted
+//
+// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#common-shifted-line-index-table
 const u16 line_index_table_shifted[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
                                            0x02D9, 0x088B, 0x0051, 0x00F3,
 										   0x0009, 0x001B, 0x0001, 0x0006,

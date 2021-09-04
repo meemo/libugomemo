@@ -50,4 +50,4 @@ Ensure `build-essential` or equivalent is installed.
 
 # Credits
 
-The Flipnote Collective's [documentation](https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format) and individual assistance that made this program possible.
+ - Everyone mentioned in [flipnote.js acknowledgments](https://flipnote.js.org/pages/docs/acknowledgements.html)

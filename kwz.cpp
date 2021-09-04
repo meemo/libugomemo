@@ -8,8 +8,12 @@
 #include <iomanip>
 
 #include "kwz.hpp"
+
 /*
- * Read file contents at `path` into file_buffer
+ * Read file contents in to file_buffer
+ *
+ * Parameters:
+ * - path: the file path to be read
  */
 void readFile(std::string path) {
     std::ifstream file(path, std::ios::binary);
@@ -38,6 +42,9 @@ void readFile(std::string path) {
 /*
  * Verify file is a valid KWZ file.
  * TODO: Implement RSA signature verification; last 256 bytes of file.
+ *
+ * Returns:
+ * Boolean of if file is valid.
  */
 bool verifyFile() {
     bool result = false;
@@ -48,6 +55,16 @@ bool verifyFile() {
     return result;
 }
 
+/*
+ * Get the hex in text of a certain section in file_buffer
+ *
+ * Parameters:
+ * - start_pos: the starting position in file_buffer
+ * - lenth: how many bytes to get the hex of
+ *
+ * Returns:
+ * String of the hex of the given region of file_buffer
+ */
 std::string getHexString(int start_pos, int length) {
     std::stringstream ss;
 

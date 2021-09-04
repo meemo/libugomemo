@@ -1,5 +1,14 @@
 #pragma once
 
+/*
+ * A wav header preconfirgured for signed 16 bit PCM audio.
+ *
+ * Only 2 values need to be set before the header is ready to be written:
+ * - chunk_size: audio buffer size + 36
+ * - subchunk_2_size: audio buffer size * 2
+ *
+ * Write the header then write each byte of the audio buffer to write a complete wav file.
+ */
 typedef struct wav_header {
     // RIFF chunk
     uint8_t riff_header[4] = { 'R', 'I', 'F', 'F' };
@@ -19,9 +28,26 @@ typedef struct wav_header {
     uint32_t subchunk_2_size = 0; // Data size in bytes (*2 for 16 bit)
 } wav_hdr;
 
-// Define functions
-s16 clampValue(s16 value, int min, int max);
+/*
+ * Clamp value between min and max
+ *
+ * Parameters:
+ * - <type>: the type of the input and output
+ * - value: the value to clamp
+ * - min: the min of the clamp
+ * - max: the max of the clamp
+ *
+ * Returns:
+ * <type> value of the clamp
+ */
+template<typename T>
+T clampValue(T value, int min, int max) {
+    if (value < min) value = (T)min;
+    if (value > max) value = (T)max;
+    return value;
+}
 
+// Define functions
 void writeWAV(std::string t_path, std::vector<s16> t_input);
 
 double findRMS(std::vector<int16_t> input);
