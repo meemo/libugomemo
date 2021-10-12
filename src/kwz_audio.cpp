@@ -4,7 +4,8 @@
 #include <cmath>
 
 #include "kwz.hpp"
-#include "audio.hpp"
+#include "types.hpp"
+#include "kwz_audio.hpp"
 
 /*
  * Writes audio data to a .wav file at the location specified.
@@ -57,43 +58,45 @@ double findRMS(std::vector<s16> input) {
  * Parameters:
  * - track_size: the size of the track to decode
  * - track_offset: the location in file_buffer where the track is located
- * - step_index: the initial step index to decode the track with.
+ * - initial_step_index: the initial step index to decode the audio track with.
  *   - Use 40 if flipnote is from Flipnote Studio 3D
  *   - Use findCorrectStepIndex() to find value if flipnote is from FG:W
  *
  * Returns:
  * Signed 16 bit little endian PCM audio in a vector
- * - Endianness is based on the platform, however almost all platforms are little endian.
  */
-std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
+std::vector<s16> decodeTrack(int track_size, int track_offset, int initial_step_index) {
+    // https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#ksn-sound-data
+
     std::vector<s16> output;
 
+    s16 step_index = (s16)initial_step_index;
     s16 predictor = 0;
-    s16 sample = 0;
     s16 step = 0;
     s16 diff = 0;
 
-    auto bit_pos = 0;
+    u8 sample = 0;
     u8 byte = 0;
+
+    int bit_pos = 0;
 
     for (auto buffer_pos = track_offset; buffer_pos <= (track_offset + track_size); buffer_pos++) {
         byte = file_buffer[buffer_pos];
         bit_pos = 0;
 
         while (bit_pos < 8) {
-	    // Variable sample size conditions
             if (step_index < 18 || bit_pos > 4) {
                 // Decode 2 bit sample
                 sample = byte & 0x3;
 
-                step = adpcm_step_table[step_index];
+                step = ADPCM_STEP_TABLE[step_index];
                 diff = step >> 3;
 
                 if (sample & 1) diff += step;
                 if (sample & 2) diff = -diff;
 
                 predictor += diff;
-                step_index += adpcm_index_table_2_bit[sample];
+                step_index += ADPCM_INDEX_TABLE_2[sample];
 
                 byte >>= 2;
                 bit_pos += 2;
@@ -102,7 +105,7 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
                 // Decode 4 bit sample
                 sample = byte & 0xF;
 
-                step = adpcm_step_table[step_index];
+                step = ADPCM_STEP_TABLE[step_index];
                 diff = step >> 3;
 
                 if (sample & 1) diff += step >> 2;
@@ -111,7 +114,7 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
                 if (sample & 8) diff = -diff;
 
                 predictor += diff;
-                step_index += adpcm_index_table_4_bit[sample];
+                step_index += ADPCM_INDEX_TABLE_4[sample];
 
                 byte >>= 4;
                 bit_pos += 4;
@@ -121,7 +124,7 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
             step_index = clampValue(step_index, 0, 79);
             predictor = clampValue(predictor, -2048, 2047);
 
-            // Scale sample and add to output buffer
+            // Add to output buffer
             output.push_back(predictor * 16);
         }
     }
@@ -130,7 +133,7 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int step_index) {
 }
 
 /*
- * Finds the correct initial step index for a given nIMA ADPCM
+ * Finds the correct initial step index for a given nIMA ADPCM audio track
  * Intended for use with Flipnote Hatena flipnotes converted to .KWZ for Flipnote Gallery: World.
  *
  * See https://github.com/meemo/kwz-restoration for more details.
@@ -150,7 +153,7 @@ int findCorrectStepIndex(int track_size, int track_offset) {
 
     if (track_size > 0) {
         double step_index_rms[41] = { 0 };
-        double least_rms_value = 0xDEADBEEF;  // Arbitrarily higher than highest possible RMS
+        double least_rms_value = 100000;  // Higher than highest possible RMS
 
         // Decode the BGM track using every step index from 0-40 and record the RMS of the decoded samples
         for (int i = 0; i < 41; i++) {

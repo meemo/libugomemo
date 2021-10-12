@@ -28,9 +28,7 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                    22385, 24623, 27086, 29794, 32767 };
 
 // Common line index table
-//
-// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#common-line-index-table
-const u16 line_index_table[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
+const u16 LINE_INDEX_TABLE[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x088B, 0x0051, 0x00F3, 0x0009,
                                    0x001B, 0x0001, 0x0003, 0x05B2,
                                    0x1116, 0x00A2, 0x01E6, 0x0012,
@@ -40,9 +38,7 @@ const u16 line_index_table[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x0668, 0x1338, 0x1004, 0x166C };
 
 // Common index values, shifted
-//
-// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#common-shifted-line-index-table
-const u16 line_index_table_shifted[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
+const u16 LINE_INDEX_TABLE_SHIFTED[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
                                            0x02D9, 0x088B, 0x0051, 0x00F3,
                                            0x0009, 0x001B, 0x0001, 0x0006,
                                            0x05B2, 0x1116, 0x00A2, 0x01E6,

@@ -2,7 +2,7 @@
 
 #include "types.hpp"
 
-// Defining functions
+// Functions
 void readFile(std::string path);
 std::string getHexString(int t_start, int t_end);
 

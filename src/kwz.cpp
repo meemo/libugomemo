@@ -57,7 +57,7 @@ bool verifyFile() {
 }
 
 /*
- * Get the hex in text of a certain section in file_buffer
+ * Get a hex string of a certain section of bytes in file_buffer
  *
  * `start` is the starting index in file_buffer
  * `length` how many bytes to get the hex string of
