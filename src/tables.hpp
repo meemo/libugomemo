@@ -1,17 +1,17 @@
 #pragma once
 
-/// Video decoding tables
-// All framerate values
-const float framerates[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
+#inlcude "types.hpp"
 
-/// ADPCM decoding tables
-// https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#sound-data
-const int adpcm_index_table_2_bit[4] = { -1, 2, -1, 2 };
+const float KWZ_FRAMERATES[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
 
-const int adpcm_index_table_4_bit[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
-                                          -1, -1, -1, -1, 2, 4, 6, 8 };
+// 2 bit sample index table
+const int ADPCM_INDEX_TABLE_2[4] = { -1, 2, -1, 2 };
 
-const s16 adpcm_step_table[89] = {     7,     8,     9,    10,    11,    12,
+// 4 bit sample index table
+const int ADPCM_INDEX_TABLE_4[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
+                                      -1, -1, -1, -1, 2, 4, 6, 8 };
+
+const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                       13,    14,    16,    17,    19,    21,
                                       23,    25,    28,    31,    34,    37,
                                       41,    45,    50,    55,    60,    66,
@@ -26,8 +26,6 @@ const s16 adpcm_step_table[89] = {     7,     8,     9,    10,    11,    12,
                                     7132,  7845,  8630,  9493, 10442, 11487,
                                    12635, 13899, 15289, 16818, 18500, 20350,
                                    22385, 24623, 27086, 29794, 32767 };
-
-/// Line tables
 
 // Common line index table
 //
@@ -46,9 +44,9 @@ const u16 line_index_table[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
 // https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#common-shifted-line-index-table
 const u16 line_index_table_shifted[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
                                            0x02D9, 0x088B, 0x0051, 0x00F3,
-										   0x0009, 0x001B, 0x0001, 0x0006,
+                                           0x0009, 0x001B, 0x0001, 0x0006,
                                            0x05B2, 0x1116, 0x00A2, 0x01E6,
-										   0x0012, 0x0036, 0x0002, 0x02DC,
+                                           0x0012, 0x0036, 0x0002, 0x02DC,
                                            0x0B64, 0x08DC, 0x0144, 0x00FC,
-										   0x0024, 0x001C, 0x099C, 0x0334,
+                                           0x0024, 0x001C, 0x099C, 0x0334,
                                            0x1338, 0x0668, 0x166C, 0x1004 };

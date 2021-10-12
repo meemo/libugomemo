@@ -1,15 +1,10 @@
 #pragma once
 
+#include "types.hpp"
+
 // Defining functions
 void readFile(std::string path);
 std::string getHexString(int t_start, int t_end);
-
-typedef uint8_t  u8;
-typedef int16_t  s16;
-typedef uint16_t u16;
-typedef uint32_t u32;
-
-#include "tables.hpp"
 
 std::vector<u8> file_buffer;
 

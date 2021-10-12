@@ -8,12 +8,12 @@
 #include <iomanip>
 
 #include "kwz.hpp"
+#include "tables.hpp"
 
 /*
- * Read file contents in to file_buffer
+ * Read file contents into file_buffer
  *
- * Parameters:
- * - path: the file path to be read
+ * `path` is the file path to be read
  */
 void readFile(std::string path) {
     std::ifstream file(path, std::ios::binary);
@@ -41,10 +41,11 @@ void readFile(std::string path) {
 
 /*
  * Verify file is a valid KWZ file.
- * TODO: Implement RSA signature verification; last 256 bytes of file.
+ *
+ * TODO: Implement RSA signature verification: the last 256 bytes of file.
  *
  * Returns:
- * Boolean of if file is valid.
+ * Boolean of if the file is a valid .kwz file.
  */
 bool verifyFile() {
     bool result = false;
@@ -58,21 +59,20 @@ bool verifyFile() {
 /*
  * Get the hex in text of a certain section in file_buffer
  *
- * Parameters:
- * - start_pos: the starting position in file_buffer
- * - lenth: how many bytes to get the hex of
+ * `start` is the starting index in file_buffer
+ * `length` how many bytes to get the hex string of
  *
  * Returns:
  * String of the hex of the given region of file_buffer
  */
-std::string getHexString(int start_pos, int length) {
-    std::stringstream ss;
+std::string getHexString(int start, int length) {
+    std::stringstream stream;
 
-    ss << std::hex << std::setfill('0');
+    stream << std::hex << std::setfill('0');
 
-    for (int i = start_pos; i < start_pos + length; i++) {
-        ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(file_buffer[i]));
+    for (int i = start; i < start + length; i++) {
+        stream << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(file_buffer[i]));
     }
 
-    return ss.str();
+    return stream.str();
 }

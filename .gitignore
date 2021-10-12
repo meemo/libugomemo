@@ -1,13 +1,1 @@
-# VS Code folder
 .vscode/
-
-# Sample files
-*.kwz
-
-# Output files
-*.wav
-*.jpg
-
-# Compiled binaries
-kwz
-kwz-audio
