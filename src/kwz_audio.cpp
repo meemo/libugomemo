@@ -3,71 +3,29 @@
 #include <fstream>
 #include <cmath>
 
-#include "kwz.hpp"
 #include "types.hpp"
+#include "tables.hpp"
+#include "templates.hpp"
 #include "kwz_audio.hpp"
 
-/*
- * Writes audio data to a .wav file at the location specified.
+/**
+ * Decode an audio track from a kwz format flipnote
  *
- * Intended only to be used with the output from decodeTrack()
+ * The audio is decoded from the IMA ADPCM-derived variable sample size format that the KWZ format uses
  *
- * Parameters:
- * - path: the path that the file will be saved at, including fie name
- * - input: a signed 16 bit int vector containing audio data to write
- */
-void writeWAV(std::string path, std::vector<s16> input) {
-    std::ofstream output_file(path, std::ios::binary);
-
-    // Generate and write WAV header
-    wav_hdr wav;
-    wav.chunk_size = (uint32_t)(input.size() + 36);
-    wav.subchunk_2_size = (uint32_t)(input.size() * 2);
-    output_file.write(reinterpret_cast<const char*>(&wav), sizeof(wav));
-
-    // Write audio data
-    output_file.write(reinterpret_cast<const char*>(&input[0]), input.size() * 2);
-
-    output_file.close();
-}
-
-/*
- * Finds the RMS (root mean square) value of the input vector.
- *
- * Parameters:
- * - input: a signed 16 bit int vector
- *
- * Returns:
- * RMS of input as a double.
- */
-double findRMS(std::vector<s16> input) {
-    double rms = 0.0;
-
-    // Square each value and add them together
-    for (auto i = 0; i < (int)input.size(); i++) {
-        rms += (double) input[i] * input[i];
-    }
-
-    // The square root of the sum of the squares divided by the number of values
-    return std::sqrt(rms / (double)input.size());
-}
-
-/*
- * Decodes the variable sample size IMA ADPCM-derviced audio from a flipnote.
+ * For more details see:
+ * https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#ksn-sound-data
  *
  * Parameters:
  * - track_size: the size of the track to decode
  * - track_offset: the location in file_buffer where the track is located
  * - initial_step_index: the initial step index to decode the audio track with.
- *   - Use 40 if flipnote is from Flipnote Studio 3D
- *   - Use findCorrectStepIndex() to find value if flipnote is from FG:W
- *
+ *   - Use 40 if flipnote is from Flipnote Studio 3D (and Gallery: World) or if you don't know what's correct
+ *   - Use findCorrectStepIndex() to find value if flipnote is from DSi Library
  * Returns:
- * Signed 16 bit little endian PCM audio in a vector
+ * - s16 little endian PCM audio in a vector
  */
-std::vector<s16> decodeTrack(int track_size, int track_offset, int initial_step_index) {
-    // https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#ksn-sound-data
-
+std::vector<s16> decodeTrack(std::vector<u8> buffer, int start_pos, int initial_step_index) {
     std::vector<s16> output;
 
     s16 step_index = (s16)initial_step_index;
@@ -80,8 +38,8 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int initial_step_
 
     int bit_pos = 0;
 
-    for (auto buffer_pos = track_offset; buffer_pos <= (track_offset + track_size); buffer_pos++) {
-        byte = file_buffer[buffer_pos];
+    for (int buffer_pos = start_pos; buffer_pos <= (start_pos + (int)buffer.size()); buffer_pos++) {
+        byte = buffer[buffer_pos];
         bit_pos = 0;
 
         while (bit_pos < 8) {
@@ -132,21 +90,22 @@ std::vector<s16> decodeTrack(int track_size, int track_offset, int initial_step_
     return output;
 }
 
-/*
- * Finds the correct initial step index for a given nIMA ADPCM audio track
- * Intended for use with Flipnote Hatena flipnotes converted to .KWZ for Flipnote Gallery: World.
+/**
+ * Finds the correct initial step index for a given kwz format audio track
+ * Intended for use with flipnote Flipnote Hatena that were converted to .kwz for Flipnote Studio 3D's DSi Library
  *
- * See https://github.com/meemo/kwz-restoration for more details.
+ * Only needs to be called on flipnotes with distorted audio as far as we know, however the difference when run
+ * on a normal flipnote is negligible and can be done without worrying about ruining audio.
  *
- * Only needs to be called on FG:W notes, however the difference will be minimal for other normal
- * Flipnotes.
+ * For more details see:
+ * https://github.com/meemo/kwz-restoration
  *
  * Parameters:
  * - track_size: the size of the track to process
  * - track_offfset: the position of the start of the track in file_buffer
  *
  * Returns:
- * The correct step index to decode the track specified to get the best audio.
+ * - the correct initial step index as an int
  */
 int findCorrectStepIndex(int track_size, int track_offset) {
     int result = -1;

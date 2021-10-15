@@ -1,13 +1,9 @@
 #pragma once
 
-#include <vector>
-
 #include "types.hpp"
 
-/* crc32.hpp
- *
- * This header contains a function to calculate the CRC32 of a vector of bytes (u8).
- * This is done using the getCRC32 function on a vector of u8 given the start index and the size of the data.
+/**
+ * This header contains a function and its poly8 table to calculate CRC32 checksums.
  */
 
 const u32 CRC_POLY_8_TABLE[] = { 0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
@@ -75,19 +71,22 @@ const u32 CRC_POLY_8_TABLE[] = { 0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
                                  0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94,
                                  0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d };
 
-/* 
- * This function gets the CRC32 of a vector of data, given the starting position and the legnth of data to calculate.
+/**
+ * Get the CRC32 checksum of the given sequence of data.
  *
- * `buffer` must be a u8 type vector
- * `start` is the starting index of the buffer, the start of the data being CRC'd
- * `start` is the number of bytes (positions in the buffer) to calculate
+ * Parameters:
+ * - buffer: an iterable object containing 1 byte (8 bit) values
+ * - start: the starting index of the iterable object to begin the CRC32 calculation on
+ * - length: the number of bytes (positions in the buffer) to calculate
+ * Returns:
+ * - the CRC32 checksum of the processed data as a u32
  */
-u32 getCRC32(std::vector<u8> buffer, int start, int length) {
-    // Gets the crc32 checksum of the data from the buffer from t_start to t_end (exclusive of t_end alue)
+template<typename Iterable>
+u32 getCRC32(Iterable buffer, int start, int length) {
     u32 crc32 = 0xFFFFFFFF;
 
     for (int i = start; i < start + length; i++) {
-        crc32 = CRC_POLY_8_TABLE[(crc32 ^ buffer[i]) & 0xff] ^ (crc32 >> 8);
+        crc32 = CRC_POLY_8_TABLE[(crc32 ^ (u8)buffer[i]) & 0xFF] ^ (crc32 >> 8);
     }
 
     return ~crc32;
