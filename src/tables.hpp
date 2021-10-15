@@ -1,13 +1,17 @@
 #pragma once
 
-#inlcude "types.hpp"
+#include "types.hpp"
 
 const float KWZ_FRAMERATES[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
+
+// 0 is a placeholder because ppm framerates are indexed from 1
+const float PPM_FRAMERATES[9] = { 0, 0.5, 1, 2, 4, 6, 12, 20, 30 };
 
 // 2 bit sample index table
 const int ADPCM_INDEX_TABLE_2[4] = { -1, 2, -1, 2 };
 
 // 4 bit sample index table
+// Values are repeated to optimize track decoding
 const int ADPCM_INDEX_TABLE_4[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
                                       -1, -1, -1, -1, 2, 4, 6, 8 };
 
@@ -27,7 +31,7 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                    12635, 13899, 15289, 16818, 18500, 20350,
                                    22385, 24623, 27086, 29794, 32767 };
 
-// Common line index table
+// Common line table index values table
 const u16 LINE_INDEX_TABLE[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x088B, 0x0051, 0x00F3, 0x0009,
                                    0x001B, 0x0001, 0x0003, 0x05B2,
@@ -37,7 +41,7 @@ const u16 LINE_INDEX_TABLE[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x001C, 0x0004, 0x0334, 0x099C,
                                    0x0668, 0x1338, 0x1004, 0x166C };
 
-// Common index values, shifted
+// Common line table index values table, shift-rotated one place to the left
 const u16 LINE_INDEX_TABLE_SHIFTED[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
                                            0x02D9, 0x088B, 0x0051, 0x00F3,
                                            0x0009, 0x001B, 0x0001, 0x0006,
