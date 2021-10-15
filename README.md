@@ -4,9 +4,5 @@ libugomemo is a work in progress Flipnote Studio 3D .kwz file parsing library ma
 Currently this repository just contains a bunch of files with static functions. Once all functionality is written out, this will be turned in to a library with an object oriented interface.
 
 
-# Endianness Note
-This program relies on your system's CPU to be little endian or to be operating in little endian mode. If you don't know what this means, you almost definitely do not need to worry since nearly all consumer electronics (especially phones and computers) have CPUs which are little endian.
-
-
 # Credits
 - Everyone mentioned in [flipnote.js acknowledgments](https://flipnote.js.org/pages/docs/acknowledgements.html)
