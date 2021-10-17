@@ -2,6 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
 
 #include "types.hpp"
 
@@ -10,17 +13,17 @@
  *
  * Parameters:
  * - <type>: the type of the input and output
- * - value: the value to clamp
+ * - input: the value to clamp
  * - min: the min of the clamp
  * - max: the max of the clamp
  * Returns:
  * <type> value of the clamp
  */
 template<typename T>
-T clampValue(T value, int min, int max) {
-    if (value < min) value = (T)min;+96
-    if (value > max) value = (T)max;
-    return value;
+T clampValue(T input, int min, int max) {
+    if (input < min) input = (T)min;
+    if (input > max) input = (T)max;
+    return input;
 }
 
 /**
@@ -31,14 +34,14 @@ T clampValue(T value, int min, int max) {
  *
  * Parameters
  * - <type>: the data type to be returned
- * - buffer: a u8 vector to get data from
+ * - input: a u8 vector to get data from
  * - pos: the starting location of the data in buffer to get an int from
  * Returns:
  * - an int of the specified size
  */
 template<typename T>
-T getInt(std::vector<u8> buffer, int pos) {
-    return *reinterpret_cast<T*>(buffer.data() + pos);
+T getInt(std::vector<u8> input, int pos) {
+    return *reinterpret_cast<T*>(input.data() + pos);
 }
 
 /**
@@ -70,7 +73,6 @@ double findRMS(std::vector<T> input) {
  * - input: an iterable object of
  * - start: the starting index in input
  * `length` how many bytes to get the hex string of
- *
  * Returns:
  * - the hex of the given data as a string
  */
@@ -81,7 +83,7 @@ std::string getHexString(Iterable input, int start, int length) {
     stream << std::hex << std::setfill('0');
 
     for (int i = start; i < start + length; i++) {
-        stream << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(file_buffer[i]));
+        stream << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(input[i]));
     }
 
     return stream.str();
