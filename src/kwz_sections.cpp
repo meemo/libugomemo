@@ -49,17 +49,30 @@ namespace KFH {
         return getHexString(input, 0x2C, 10);
     }
 
-    // TODO: Implement these
+    std::u16string getUsername(std::vector<u8> input, int start) {
+        std::u16string output;
+        char16_t character;
+
+        for (int i = start; i < start + 20; i += 2) {
+            character = getInt<char16_t>(input, i);
+
+            // Usernames are null padded, ignore padding.
+            if (character != 0) output += character;
+        }
+
+        return output;
+    }
+
     std::u16string getRootUsername(std::vector<u8> input) {
-        return;
+        return getUsername(input, 0x36);
     }
 
     std::u16string getParentUsername(std::vector<u8> input) {
-        return;
+        return getUsername(input, 0x4C);
     }
 
     std::u16string getCurrentUsername(std::vector<u8> input) {
-        return;
+        return getUsername(input, 0x62);
     }
 
     std::string getRootFileName(std::vector<u8> input) {

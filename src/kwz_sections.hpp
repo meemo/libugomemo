@@ -23,6 +23,8 @@ namespace KFH {
 
     std::string getCurrentFSID(std::vector<u8> input);
 
+    std::u16string getUsername(std::vector<u8> input, int start);
+
     std::u16string getRootUsername(std::vector<u8> input);
 
     std::u16string getParentUsername(std::vector<u8> input);
