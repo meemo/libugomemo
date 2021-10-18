@@ -43,7 +43,7 @@ namespace KFH {
 
     u16 getFlags(std::vector<u8> input);
 
-    u8 getFrameSpeed(std::vector<u8> input);
+    float getFrameSpeed(std::vector<u8> input);
 
     u8 getLayerVisibility(std::vector<u8> input);
 
