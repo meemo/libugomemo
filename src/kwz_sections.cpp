@@ -260,7 +260,7 @@ namespace KFH {
     }
 
     /**
-     * Get the framerate from a .kwz file buffer.
+     * Get the flipnote's framerate from a .kwz file buffer.
      *
      * See: https://github.com/Flipnote-Collective/flipnote-studio-3d-docs/wiki/kwz-format#flipnote-playback-speeds
      *
