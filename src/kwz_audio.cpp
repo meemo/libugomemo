@@ -25,7 +25,7 @@
  * Returns:
  * - s16 little endian PCM audio in a vector
  */
-std::vector<s16> decodeTrack(std::vector<u8> buffer, int start_pos, int initial_step_index) {
+std::vector<s16> decodeTrack(std::vector<u8> buffer, int start_pos, int track_length, int initial_step_index) {
     std::vector<s16> output;
 
     s16 step_index = (s16)initial_step_index;
@@ -38,7 +38,7 @@ std::vector<s16> decodeTrack(std::vector<u8> buffer, int start_pos, int initial_
 
     int bit_pos = 0;
 
-    for (int buffer_pos = start_pos; buffer_pos <= (start_pos + (int)buffer.size()); buffer_pos++) {
+    for (int buffer_pos = start_pos; buffer_pos <= (start_pos + track_length); buffer_pos++) {
         byte = buffer[buffer_pos];
         bit_pos = 0;
 
