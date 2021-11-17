@@ -1,0 +1,31 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.1.1}{What is TomsFastMath?}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{License}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{Building}{chapter.1}% 4
+\BOOKMARK [2][-]{subsection.1.3.1}{Intel CC}{section.1.3}% 5
+\BOOKMARK [2][-]{subsection.1.3.2}{MSVC}{section.1.3}% 6
+\BOOKMARK [2][-]{subsection.1.3.3}{Build Limitations}{section.1.3}% 7
+\BOOKMARK [2][-]{subsection.1.3.4}{Optimization Configuration}{section.1.3}% 8
+\BOOKMARK [2][-]{subsection.1.3.5}{Build Configurations}{section.1.3}% 9
+\BOOKMARK [2][-]{subsection.1.3.6}{Precision Configuration}{section.1.3}% 10
+\BOOKMARK [0][-]{chapter.2}{Getting Started}{}% 11
+\BOOKMARK [1][-]{section.2.1}{Data Types}{chapter.2}% 12
+\BOOKMARK [1][-]{section.2.2}{Initialization}{chapter.2}% 13
+\BOOKMARK [2][-]{subsection.2.2.1}{Simple Initialization}{section.2.2}% 14
+\BOOKMARK [2][-]{subsection.2.2.2}{Initialize Small Constants}{section.2.2}% 15
+\BOOKMARK [2][-]{subsection.2.2.3}{Initialize Copy}{section.2.2}% 16
+\BOOKMARK [2][-]{subsection.2.2.4}{Initialization with a random value}{section.2.2}% 17
+\BOOKMARK [0][-]{chapter.3}{Arithmetic Operations}{}% 18
+\BOOKMARK [1][-]{section.3.1}{Odds and Evens}{chapter.3}% 19
+\BOOKMARK [1][-]{section.3.2}{Sign Manipulation}{chapter.3}% 20
+\BOOKMARK [1][-]{section.3.3}{Comparisons}{chapter.3}% 21
+\BOOKMARK [1][-]{section.3.4}{Shifting}{chapter.3}% 22
+\BOOKMARK [1][-]{section.3.5}{Basic Algebra}{chapter.3}% 23
+\BOOKMARK [1][-]{section.3.6}{Modular Exponentiation}{chapter.3}% 24
+\BOOKMARK [1][-]{section.3.7}{Number Theoretic}{chapter.3}% 25
+\BOOKMARK [1][-]{section.3.8}{Prime Numbers}{chapter.3}% 26
+\BOOKMARK [0][-]{chapter.4}{Porting TomsFastMath}{}% 27
+\BOOKMARK [1][-]{section.4.1}{Getting Started}{chapter.4}% 28
+\BOOKMARK [1][-]{section.4.2}{Multiply with Comba}{chapter.4}% 29
+\BOOKMARK [1][-]{section.4.3}{Squaring with Comba}{chapter.4}% 30
+\BOOKMARK [1][-]{section.4.4}{Montgomery with Comba}{chapter.4}% 31
