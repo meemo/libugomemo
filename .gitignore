@@ -7,14 +7,3 @@ build/
 *.lo
 *.so
 *.a
-
-kwz_test
-ppm_test
-test
-
-# zlib
-*.so.1
-*.so.1.2.11
-example
-example64
-configure.log
