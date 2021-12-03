@@ -14,7 +14,7 @@ The goals of this library are as follows:
         - possibly no relying on stdlib (very low priority)
 
     - No mandatory asm inlines
-        - asm inlines will be added for specific platforms (ARM, x86 primarily), but all functions will to work without them
+        - asm inlines will be added for specific platforms (ARM, x86 primarily), but all functions will work without them
 
     - Reconfigurable malloc, realloc, free, etc.
 
