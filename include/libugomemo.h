@@ -6,4 +6,6 @@
 #include <macros.h>
 #include <functions.h>
 
+#include <config.h>
+
 #endif

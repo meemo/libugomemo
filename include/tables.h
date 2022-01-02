@@ -1,12 +1,25 @@
 #ifndef TABLES_H_
 #define TABLES_H_
 
+/* Misc constants */
+#define PPM_FRAME_WIDTH  256
+#define KWZ_FRAME_WIDTH  320
+
+#define KWZ_FRAME_HEIGHT 240
+#define PPM_FRAME_HEIGHT 192
+
+#define PPM_THUMBNAIL_WIDTH  64
+#define PPM_THUMBNAIL_HEIGHT 48
+
+#define PPM_SAMPLE_RATE  8192
+#define KWZ_SAMPLE_RATE 16384
+
 #include <types.h>
 
-const float KWZ_FRAMERATES[11] = { 0.2, 0.5, 1, 2, 4, 6, 8, 12, 20, 24, 30 };
+const float KWZ_FRAMERATES[11] = { 0.2f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 8.0f, 12.0f, 20.0f, 24.0f, 30.0f };
 
-/* 0 is a placeholder because ppm framerates are indexed from 1 */
-const float PPM_FRAMERATES[9] = { 0, 0.5, 1, 2, 4, 6, 12, 20, 30 };
+/* 0 is a placeholder; PPM framerates are indexed from 1 */
+const float PPM_FRAMERATES[9] = { 0.0f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 12.0f, 20.0f, 30.0f };
 
 /* 2 bit sample index table */
 const int ADPCM_INDEX_TABLE_2[4] = { -1, 2, -1, 2 };

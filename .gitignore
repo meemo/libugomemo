@@ -1,9 +1,12 @@
 .vscode/
+.idea/
 
 samples/
 build/
 
+keys/kwzprivate.pem
+keys/ppmprivate.pem
+
 *.o
-*.lo
 *.so
 *.a
