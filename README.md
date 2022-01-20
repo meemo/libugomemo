@@ -1,24 +1,39 @@
 # libugomemo
+
 libugomemo is a WIP Flipnote Studio and Flipnote Studio 3D animation file parsing library made in C.
 
-The goals of this library are as follows:
+Documentation is located in [docs/](docs/).
 
-- To have an implementation of every major function for processing .kwz and .ppm files, including metadata, audio, and video processing
 
-- To be as universally compatible with C compilers/SDKs by having the following:
+# Goals
 
-    - ANSI C compliant code
-        - full compliance is low priority until completion
+To have functions for:
 
-    - No libraries required except for stdlib
-        - reconfigurable malloc, realloc, free
+- extracting standardized data
+- converting standardized data to the file's native format
 
-    - No mandatory asm inlines
-        - they will be added for specific platforms (ARM, x86 primarily), but all functions will work without them
+for every file type produced by Flipnote Studio and Flipnote Studio 3D.
 
- - For each function to have as small of a memory footprint as possible
+Examples of standardized formats include:
+
+- converting audio to/from a s16le PCM data stream,
+- converting frames to/from raw RGB data
+
+File formats supported currently:
+
+- .kwz
+- .ppm
+
+To make as few assumptions about the target system and target compiler as possible to facilitate embeded system development including:
+
+- Not relying on any compiler defined behavior
+- Reconfigurable malloc, free, etc.
+- Not relying on any fixed width datatypes
+- Not assuming target endianness
+
 
 # Credits
+
 - Everyone mentioned in [flipnote.js acknowledgments](https://flipnote.js.org/pages/docs/acknowledgements.html)
 
 - The [Flipnote Collective](https://github.com/Flipnote-Collective) for their documentation on the formats used by:

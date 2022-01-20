@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_H_
-#define LIBUGOMEMO_H_
+#ifndef LIBUGOMEMO_H
+#define LIBUGOMEMO_H
 
 #include <types.h>
 #include <tables.h>

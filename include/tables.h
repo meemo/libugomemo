@@ -1,5 +1,5 @@
-#ifndef TABLES_H_
-#define TABLES_H_
+#ifndef LIBUGOMEMO_TABLES_H
+#define LIBUGOMEMO_TABLES_H
 
 /* Misc constants */
 #define PPM_FRAME_WIDTH  256

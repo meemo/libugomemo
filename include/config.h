@@ -1,4 +1,4 @@
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef LIBUGOMEMO_CONFIG_H
+#define LIBUGOMEMO_CONFIG_H
 
 #endif

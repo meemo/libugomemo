@@ -1,24 +1,19 @@
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef LIBUGOMEMO_TYPES_H
+#define LIBUGOMEMO_TYPES_H
 
 #include <stdint.h>
 
 typedef uint8_t  u8;
-typedef int8_t   s8;
 
 typedef uint16_t u16;
 typedef int16_t  s16;
 
 typedef uint32_t u32;
-typedef int32_t  s32;
-
-typedef uint64_t u64;
-typedef int64_t  s64;
 
 typedef wchar_t  wchr;
 
 typedef struct KFH {
-    char magic[4] = { 'K', 'F', 'H', 0x69 };  // The final value's purpose is unknown
+    /* char magic[4] = { 'K', 'F', 'H', 0x69 }; The final value's purpose is unknown */
     u32  size;   // Does not include magic and itself, from crc32 to the end
     u32  crc32;  // CRC32 checksum of the rest of the section after itself (size + until size - 12)
     u32  creation_timestamp;  // Epoch is January 1st, 2000
@@ -41,14 +36,14 @@ typedef struct KFH {
 } KFH;
 
 typedef struct KTN {
-    char magic[4] = { 'K', 'F', 'H', 0x69 };  // The final value's purpose is unknown
+    /* char magic[4] = { 'K', 'F', 'H', 0x69 };  The final value seems to be an unused flag */
     u32  size;   // Does not include magic and itself, from crc32 to the end
     u32  crc32;  // CRC32 checksum of the rest of the section after itself (size + until size - 12)
     u8  *thumbnail;  // JPG file data padding up to the nearest multiple of 4 in length.
 } KTN;
 
 typedef struct KSN {
-    char magic[4] = { 'K', 'S', 'N', 0x69 };  // The final value's purpose is unknown
+    /* char magic[4] = { 'K', 'S', 'N', 0x69 };  The final value seems to be an unused flag */
     u32  size;   // Does not include magic and itself, from flipnote speed to the end
     u32  recorded_flipnote_speed;  // The flipnote's speed when recorded
     u32  bgm_size;
@@ -59,7 +54,7 @@ typedef struct KSN {
 } KSN;
 
 typedef struct KMC {
-    char magic[4] = { 'K', 'M', 'C', 0x69 };  // The final value's purpose is unknown
+    /* char magic[4] = { 'K', 'M', 'C', 0x00 };  The final value seems to be an unused flag */
     u32  size;   // Does not include magic and itself, from crc32 to the end
     u32  crc32;  // CRC32 checksum of the rest of the section after itself (size + until size - 12)
     u8  *frame_data;  // Padded to the nearest multiple of 4?
@@ -75,26 +70,26 @@ typedef struct KMI_ENTRY {
     u8   layer_b_depth;
     u8   layer_c_depth;
     u8   sound_effect_flags;
-    u16  unknown;
+    /* u16  unknown; */
     u16  camera_flags;
 } KMI_ENTRY;
 
 typedef struct KMI {
-    char magic[4] = { 'K', 'M', 'I', 0x69 };  // The final value's purpose is unknown
-    u32  size;   // Does not include magic and itself, from the KMI entries to the end
-    KMI *KMI_entries;  // Each frame gets an entry
+    /* char     magic[4] = { 'K', 'M', 'I', 0x00 };  The final value seems to be an unused flag */
+    u32         size;   // Does not include magic and itself, from the KMI entries to the end
+    struct KMI *KMI_entries;  // Each frame gets an entry
 } KMI;
 
 typedef struct PPM_HEADER {
-    char magic[4] = { 'P', 'A', 'R', 'A' };
+    /* char magic[4] = { 'P', 'A', 'R', 'A' }; */
     u32  animation_data_size;
     u32  sound_data_size;
     u16  frame_count;
-    u16  format_version = 0x24;  // This is always 0x24
+    /* u16  format_version = 0x24; This is always 0x24 */
 } PPM_HEADER;
 
 typedef struct PPM_META {
-    u16  lock;  // 0 if unlocked, 1 if locked
+    u16  lock;  /* 0 if unlocked, 1 if locked */
     u16  thumbnail_frame_index;
     wchr root_author_name[11];
     wchr parent_author_name[11];
@@ -106,12 +101,12 @@ typedef struct PPM_META {
     u8   root_author_ID[8];
     u8   root_file_name_fragment[8];
     u32  timestamp;   // Epoch is Januray 1st, 2000
-    u16  unused = 0;  // Always 0x0000
+    /* u16  unused = 0;  Always null */
 } PPM_META;
 
 typedef struct PPM_ANIMATION_HEADER {
     u16 frame_offset_table_size;
-    u16 unknown;  // Always seen as 0x0000
+    /* u16 unknown;  Always seen as null */
     u16 flags;
 } PPM_ANIMATION_HEADER;
 
@@ -122,7 +117,7 @@ typedef struct PPM_SOUND_HEADER {
     u32 se3_size;
     u8  frame_playback_speed;
     u8  frame_playback_speed_bgm;
-    u8  padding[14] = { 0 };
+    /* u8  padding[14] = { 0 };  Always null*/
 } PPM_SOUND_HEADER;
 
 /*
