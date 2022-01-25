@@ -1,35 +1,8 @@
 # libugomemo
 
-libugomemo is a WIP Flipnote Studio and Flipnote Studio 3D animation file parsing library made in C.
+libugomemo is a WIP C library for processing the files created by Nintendo's Flipnote Studio and Flipnote Studio 3D animation apps.
 
 Documentation is located in [docs/](docs/).
-
-
-# Goals
-
-To have functions for:
-
-- extracting standardized data
-- converting standardized data to the file's native format
-
-for every file type produced by Flipnote Studio and Flipnote Studio 3D.
-
-Examples of standardized formats include:
-
-- converting audio to/from a s16le PCM data stream,
-- converting frames to/from raw RGB data
-
-File formats supported currently:
-
-- .kwz
-- .ppm
-
-To make as few assumptions about the target system and target compiler as possible to facilitate embeded system development including:
-
-- Not relying on any compiler defined behavior
-- Reconfigurable malloc, free, etc.
-- Not relying on any fixed width datatypes
-- Not assuming target endianness
 
 
 # Credits
