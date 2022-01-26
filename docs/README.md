@@ -20,7 +20,8 @@ Examples of standardized formats include:
 
 To make as few assumptions about the target system and target compiler as possible to facilitate embedded system development including:
 
-- Not relying on any compiler defined behavior
+- ANSI C compliant code
+- Not relying on any compiler/implementation defined behavior, and accounting for it where viable
 - Reconfigurable malloc, free, etc.
 - Not relying on any fixed width datatypes
 - Not assuming target endianness

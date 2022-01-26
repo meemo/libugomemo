@@ -16,6 +16,13 @@
 
 #include <types.h>
 
+/* Base 32 alphabet for .kwz filenames */
+char kwz_b32_alphabet[] = "cwmfjordvegbalksnthpyxquiz012345";
+
+/* Normal base 64 alphabet for decoding PEM format keys */
+char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/* All framerate values for */
 const float KWZ_FRAMERATES[11] = { 0.2f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 8.0f, 12.0f, 20.0f, 24.0f, 30.0f };
 
 /* 0 is a placeholder; PPM framerates are indexed from 1 */
