@@ -23,9 +23,16 @@ To make as few assumptions about the target system and target compiler as possib
 - ANSI C compliant code
 - Not relying on any compiler/implementation defined behavior, and accounting for it where viable
 - Reconfigurable malloc, free, etc.
-- Not relying on any fixed width datatypes
+- Not relying on fixed width datatypes where possible
 - Not assuming target endianness
+- Not using external libraries
+- (Low priority) Option to not use stdlib
 
+
+The assumptions that will be made are:
+
+- The target toolchain accepts ANSI C compliant code
+- The target is capable of floating point math (for some functions)
 
 # Layout
 

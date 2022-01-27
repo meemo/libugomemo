@@ -1,12 +1,53 @@
-#include <math.h>
-
 #include <libugomemo.h>
 
 /* math.c
  *
- * This file contains various math functions for use in the library, mainly for kwz_audio.c
+ * This file contains various math functions for use in the library.
  */
 
+/* isqrt()
+ *
+ * Take the square root of a number even if not using stdlib.
+ *
+ * The non-stdlib method is pretty, but it's functional, portable, will rarely be used in the library, and can be
+ * easily swapped out for a faster method if one exists in the target toolchain.
+ *
+ * Note: does not verify that the value is negative
+ *
+ * Parameters:
+ * - x: the number to take the square root of (double)
+ *
+ * Returns:
+ * - the square root of x (double)
+ */
+double isqrt(double x) {
+#ifdef __USE_STDLIB__
+    #include <math.h>
+    return sqrt(x);
+#else
+    double result = x / 2;
+    double temp = 0;
+
+    while (temp != result) {
+        temp = result;
+        result = (temp + x / temp) / 2;
+    }
+
+    return result;
+#endif
+}
+
+/* rms()
+ *
+ * Find the root mean square (RMS) of a set of numbers. Typed for use by decoded kwz audio.
+ *
+ * Parameters:
+ * - data: the data to calculate the RMS of (double*)
+ * - length: the length of `data` (int)
+ *
+ * Returns:
+ * - the RMS of the data (double)
+ */
 double rms(const s16 *data, int num_samples) {
     double sum = 0;
     int i;
@@ -15,9 +56,20 @@ double rms(const s16 *data, int num_samples) {
         sum += data[i] * data[i];
     }
 
-    return sqrt(sum / (double)num_samples);
+    return isqrt(sum / (double)num_samples);
 }
 
+/* std_dev()
+ *
+ * Find the standard deviation of a set of numbers. Typed for use by decoded kwz audio.
+ *
+ * Parameters:
+ * - data: the data to calculate the standard deviation of (double*)
+ * - length: the length of `data` (int)
+ *
+ * Returns:
+ * - the standard deviation of the data (double)
+ */
 double std_dev(const s16 *data, int num_samples) {
     double sum = 0;
     double mean = 0;
@@ -34,5 +86,5 @@ double std_dev(const s16 *data, int num_samples) {
         std_dev += (data[i] - mean) * (data[i] - mean);
     }
 
-    return sqrt(std_dev / (double)num_samples);
+    return isqrt(std_dev / (double)num_samples);
 }

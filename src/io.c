@@ -7,6 +7,10 @@
  * This file contains functions to extract specific endianness values from file buffers regardless of the
  * target system's native endianness.
  *
+ * On little endian targets it is possible to return a pointer to a specific point in the buffer to extract a value
+ * instead of having to read individual bytes and then combine them with several bitwise operations (slow). These
+ * functions provide both options, configurable by a single define.
+ *
  * The API is relatively simple:
  *
  *     getBuffer_{endianness}_{data type}({file buffer}, {starting position of desired value});
@@ -29,17 +33,26 @@
  */
 
 u8 getBuffer_LE_u8(const u8 *buffer, int pos) {
-    return (u8) buffer[pos];
+    /* u8 is too small for endianness to have a difference */
+    return *(u8 *) &buffer[pos];
 }
 
 u16 getBuffer_LE_u16(const u8 *buffer, int pos) {
-    return (u16) buffer[pos]
+#ifdef __LITTLE_ENDIAN__
+    return *(u16 *) &buffer[pos];
+#else
+    return (u16) buffer[pos + 0] << 0x0
                | buffer[pos + 1] << 0x8;
+#endif
 }
 
 u32 getBuffer_LE_u32(const u8 *buffer, int pos) {
-    return (u32) buffer[pos]
+#ifdef __LITTLE_ENDIAN__
+    return *(u32 *) &buffer[pos];
+#else
+    return (u32) buffer[pos + 0] << 0x00
                | buffer[pos + 1] << 0x08
                | buffer[pos + 2] << 0x10
                | buffer[pos + 3] << 0x18;
+#endif
 }
