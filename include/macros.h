@@ -10,6 +10,8 @@
  *     - The lower bound on the clamp
  * - high
  *     - The upper bound on the clamp
+ * Returns:
+ * - The clamped value
  */
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
@@ -40,13 +42,15 @@
  * }
  *
  * Parameters:
- * - x
- *     - The value to perform the shift on
- * - n
- *     - The number of positions (bits) to shift by
- * - r
- *     - The value for the shifted result to be stored in
+ * - x: the value to perform the shift on
+ * - n: the number of positions (bits) to shift by
+ * - r: the value for the shifted result to be stored in
+ * Returns:
+ * - Nothing, the result is stored in r
  */
 #define SAR(x, n, r)  (((x > 0) && (n > 0)) ? (r = ((x >> n) | ~(~0U >> n))) : (r = (x >> n)))
+
+/* Performs a logical right bit shift. x must be unsigned, otherwise this may be an arithmetic shift. */
+#define SHR(x, n)  ((x) >> (n))
 
 #endif

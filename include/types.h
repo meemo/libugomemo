@@ -124,10 +124,10 @@ typedef struct PPM_SOUND_HEADER {
  * - chunk_size: set to the audio buffer size + 36
  * - subchunk_2_size: set to the audio buffer size * 2
  * - sample_rate: set depending on audio's sample rate:
- *      - KWZ: 16384
+ *      - KWZ: 16364 (NOT 16384)
  *      - PPM: 8192
  * - byte_rate: set as sample rate * 2 (simplified process due to known values):
- *      - KWZ: 32728
+ *      - KWZ: 32728 (NOT 32768)
  *      - PPM: 16384
  *
  * Write the header then the audio buffer to write a complete wav file

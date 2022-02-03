@@ -3,9 +3,11 @@
 /* math.c
  *
  * This file contains various math functions for use in the library.
+ *
+ * Functions have the prefix of i_ to avoid potential name collisions.
  */
 
-/* isqrt()
+/* i_sqrt()
  *
  * Take the square root of a number even if not using stdlib.
  *
@@ -20,7 +22,7 @@
  * Returns:
  * - the square root of x (double)
  */
-double isqrt(double x) {
+double i_sqrt(double x) {
 #ifdef __USE_STDLIB__
     #include <math.h>
     return sqrt(x);
@@ -37,7 +39,7 @@ double isqrt(double x) {
 #endif
 }
 
-/* rms()
+/* i_rms()
  *
  * Find the root mean square (RMS) of a set of numbers. Typed for use by decoded kwz audio.
  *
@@ -48,7 +50,7 @@ double isqrt(double x) {
  * Returns:
  * - the RMS of the data (double)
  */
-double rms(const s16 *data, int num_samples) {
+double i_rms(const s16 *data, int num_samples) {
     double sum = 0;
     int i;
 
@@ -56,10 +58,10 @@ double rms(const s16 *data, int num_samples) {
         sum += data[i] * data[i];
     }
 
-    return isqrt(sum / (double)num_samples);
+    return i_sqrt(sum / (double)num_samples);
 }
 
-/* std_dev()
+/* i_std_dev()
  *
  * Find the standard deviation of a set of numbers. Typed for use by decoded kwz audio.
  *
@@ -70,7 +72,7 @@ double rms(const s16 *data, int num_samples) {
  * Returns:
  * - the standard deviation of the data (double)
  */
-double std_dev(const s16 *data, int num_samples) {
+double i_std_dev(const s16 *data, int num_samples) {
     double sum = 0;
     double mean = 0;
     double std_dev = 0;
@@ -86,5 +88,5 @@ double std_dev(const s16 *data, int num_samples) {
         std_dev += (data[i] - mean) * (data[i] - mean);
     }
 
-    return isqrt(std_dev / (double)num_samples);
+    return i_sqrt(std_dev / (double)num_samples);
 }
