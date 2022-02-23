@@ -2,25 +2,32 @@
 #define LIBUGOMEMO_TABLES_H
 
 /* Misc constants */
-#define PPM_FRAME_WIDTH  256
-#define KWZ_FRAME_WIDTH  320
+#define PPM_FRAME_WIDTH            256
+#define KWZ_FRAME_WIDTH            320
 
-#define KWZ_FRAME_HEIGHT 240
-#define PPM_FRAME_HEIGHT 192
+#define KWZ_FRAME_HEIGHT           240
+#define PPM_FRAME_HEIGHT           192
 
-#define PPM_THUMBNAIL_WIDTH  64
-#define PPM_THUMBNAIL_HEIGHT 48
+#define PPM_THUMBNAIL_WIDTH         64
+#define PPM_THUMBNAIL_HEIGHT        48
 
-#define PPM_SAMPLE_RATE  8192
-#define KWZ_SAMPLE_RATE 16384
+#define PPM_AUDIO_SAMPLE_RATE     8192
+#define KWZ_AUDIO_SAMPLE_RATE    16364
+
+/* ADPCM decoder constants */
+#define KWZ_AUDIO_STEP_INDEX_MIN     0
+#define KWZ_AUDIO_STEP_INDEX_MAX    79
+#define KWZ_AUDIO_PREDICTOR_MIN  -2048
+#define KWZ_AUDIO_PREDICTOR_MAX   2047
+#define KWZ_AUDIO_SCALING_FACTOR    16
 
 #include <types.h>
 
 /* Base 32 alphabet for .kwz filenames */
-char kwz_b32_alphabet[] = "cwmfjordvegbalksnthpyxquiz012345";
+const char kwz_b32_alphabet[] = "cwmfjordvegbalksnthpyxquiz012345";
 
 /* Normal base 64 alphabet for decoding PEM format keys */
-char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* All framerate values for */
 const float KWZ_FRAMERATES[11] = { 0.2f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 8.0f, 12.0f, 20.0f, 24.0f, 30.0f };

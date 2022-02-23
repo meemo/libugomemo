@@ -2,7 +2,7 @@
 #define LIBUGOMEMO_FUNCTIONS_H
 
 /* kwz/kwz_audio.c */
-
+int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, int track_offset, int step_index);
 
 /* kwz/kwz_meta.c */
 
@@ -31,9 +31,9 @@ u16 getBuffer_LE_U16(const char *buffer, int pos);
 u32 getBuffer_LE_U32(const char *buffer, int pos);
 
 /* math.c */
-double isqrt(double x);
-double rms(const s16 *data, int num_samples);
-double std_dev(const s16 *data, int num_samples);
+double sqrt_(double x);
+double rms_(const s16 *data, int num_samples);
+double stdDev_(const s16 *data, int num_samples);
 
 /* rsa.c */
 

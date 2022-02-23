@@ -6,7 +6,7 @@
  * decoder values in the case of decoding KWZ audio.
  */
 
-/* decodeKWZAudio
+/* decodeKWZAudio()
  *
  * Decodes kwz audio from a given buffer and position to a specified buffer.
  *
@@ -14,12 +14,12 @@
  * - file_buffer: The buffer containing the kwz audio (u8 pointer)
  * - audio_buffer: The buffer to store the decoded audio (u16 pointer)
  *      - We cannot predict the size of the decoded audio in advance, so we must allocate a buffer large enough to
- *        store the decoded audio, which is 16364Hz * 60 seconds
- * - track_length: The length of the track in bytes.
- * - track_offset: The starting position in the file buffer to start decoding from.
+ *        store the decoded audio, which is 16364Hz * 60 seconds bytes in length
+ * - track_length: The length of the track in bytes
+ * - track_offset: The starting position in the file buffer to start decoding from
  * - step_index: The starting step index value used to decode the audio
  *      - The optimal value varies especially on the origin audio, however the values of 0 and 40 are by far the most
- *      common.
+ *        common
  * Returns:
  * - To be implemented: error codes. For now it always returns 0.
  */
@@ -87,11 +87,11 @@ int decodeKWZAudio(const u8  *file_buffer,
             }
 
             /* Clamp step index and predictor */
-            step_index = CLAMP(step_index, 0, 79);
-            predictor = CLAMP(predictor, -2048, 2047);
+            step_index = CLAMP(step_index, KWZ_AUDIO_STEP_INDEX_MIN, KWZ_AUDIO_STEP_INDEX_MAX);
+            predictor  = CLAMP(predictor,  KWZ_AUDIO_PREDICTOR_MIN,  KWZ_AUDIO_PREDICTOR_MAX);
 
             /* Scale the predictor and add it to the output buffer */
-            audio_buffer[audio_buffer_pos++] = (s16)predictor * 16;
+            audio_buffer[audio_buffer_pos++] = (s16)predictor * KWZ_AUDIO_SCALING_FACTOR;
         }
     }
 

@@ -2,17 +2,15 @@
 
 /* math.c
  *
- * This file contains various math functions for use in the library.
- *
- * Functions have the prefix of i_ to avoid potential name collisions.
+ * This file contains various math functions for use in the library, primarily for .kwz audio.
  */
 
-/* i_sqrt()
+/* sqrt_()
  *
  * Take the square root of a number even if not using stdlib.
  *
- * The non-stdlib method is pretty, but it's functional, portable, will rarely be used in the library, and can be
- * easily swapped out for a faster method if one exists in the target toolchain.
+ * The non-stdlib implementation is slow, but it's functional, portable, will rarely be used in the library, and can be
+ * easily swapped out for a faster implementation if one exists in the target toolchain.
  *
  * Note: does not verify that the value is negative
  *
@@ -22,7 +20,7 @@
  * Returns:
  * - the square root of x (double)
  */
-double i_sqrt(double x) {
+double sqrt_(double x) {
 #ifdef __USE_STDLIB__
     #include <math.h>
     return sqrt(x);
@@ -39,7 +37,7 @@ double i_sqrt(double x) {
 #endif
 }
 
-/* i_rms()
+/* rms_()
  *
  * Find the root mean square (RMS) of a set of numbers. Typed for use by decoded kwz audio.
  *
@@ -50,7 +48,7 @@ double i_sqrt(double x) {
  * Returns:
  * - the RMS of the data (double)
  */
-double i_rms(const s16 *data, int num_samples) {
+double rms_(const s16 *data, int num_samples) {
     double sum = 0;
     int i;
 
@@ -61,9 +59,9 @@ double i_rms(const s16 *data, int num_samples) {
     return i_sqrt(sum / (double)num_samples);
 }
 
-/* i_std_dev()
+/* stdDev_()
  *
- * Find the standard deviation of a set of numbers. Typed for use by decoded kwz audio.
+ * Calculates the standard deviation of a set of numbers. Typed for use by decoded kwz audio.
  *
  * Parameters:
  * - data: the data to calculate the standard deviation of (double*)
@@ -72,7 +70,7 @@ double i_rms(const s16 *data, int num_samples) {
  * Returns:
  * - the standard deviation of the data (double)
  */
-double i_std_dev(const s16 *data, int num_samples) {
+double stdDev_(const s16 *data, int num_samples) {
     double sum = 0;
     double mean = 0;
     double std_dev = 0;
