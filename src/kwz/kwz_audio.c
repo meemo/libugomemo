@@ -11,15 +11,15 @@
  * Decodes kwz audio from a given buffer and position to a specified buffer.
  *
  * Parameters:
- * - file_buffer: The buffer containing the kwz audio (u8 pointer)
+ * - file_buffer: The buffer containing the kwz audio (const u8 pointer)
  * - audio_buffer: The buffer to store the decoded audio (u16 pointer)
  *      - We cannot predict the size of the decoded audio in advance, so we must allocate a buffer large enough to
- *        store the decoded audio, which is 16364Hz * 60 seconds bytes in length
+ *        store the decoded audio, which must be 16364 * 60 * 2 bytes in length
  * - track_length: The length of the track in bytes
  * - track_offset: The starting position in the file buffer to start decoding from
- * - step_index: The starting step index value used to decode the audio
- *      - The optimal value varies especially on the origin audio, however the values of 0 and 40 are by far the most
- *        common
+ * - initial_step_index: The starting step index value used to decode the audio
+ *      - The optimal value varies especially on the origin audio, however
+ *        the values of 0 and 40 are by far the most common
  * Returns:
  * - To be implemented: error codes. For now it always returns 0.
  */
@@ -27,33 +27,33 @@ int decodeKWZAudio(const u8  *file_buffer,
                          u16 *audio_buffer,
                          int  track_length,
                          int  track_offset,
-                         int  step_index) {
-    s16 predictor = 0;
-    s16 step = 0;
-    s16 diff = 0;
+                         int  initial_step_index) {
+    s16 step_index = initial_step_index;
+    s16 predictor = KWZ_AUDIO_INITIAL_PREDICTOR;
+    s16 step;
+    s16 diff;
 
-    u8 sample = 0;
+    u8 sample;
+    u8 byte;
 
-    u8 byte = 0;
-
-    int bit_pos = 0;
+    int bit_pos;
     int audio_buffer_pos = 0;
-    int buffer_pos;
+    int file_buffer_pos;
 
-    for (buffer_pos = track_offset; buffer_pos < (track_offset + track_length); buffer_pos++) {
-        byte = file_buffer[buffer_pos];
+    for (file_buffer_pos = track_offset; file_buffer_pos < track_offset + track_length; file_buffer_pos++) {
+        byte = file_buffer[file_buffer_pos];
         bit_pos = 0;
 
         while (bit_pos < 8) {
-            /* Determine if the sample is 2 or 4 bits.
+            /* Determine if the sample to be decoded is 2 or 4 bits.
              *
-             * If the step index is under 18, the track has been sufficiently flat to switch to 2 bit mode, otherwise
-             * we assume 4 bit mode.
+             * If the step index less than the variable threshold (18), the track has been sufficiently
+             * flat to switch to 2 bit mode, otherwise we assume 4 bit mode.
              *
-             * If bit_pos is greater than 4 (equal to 6), then there is no way to fit another 4 bit sample, so it must
-             * be 2 bits.
+             * If bit_pos is greater than 4 (equal to 6), then there is no way to fit another 4 bit sample,
+             * so it must be 2 bits.
              */
-            if (step_index < 18 || bit_pos > 4) {
+            if (step_index < KWZ_AUDIO_VARIABLE_THRESHOLD || bit_pos > 4) {
                 sample = byte & 0x3;
 
                 step = ADPCM_STEP_TABLE[step_index];

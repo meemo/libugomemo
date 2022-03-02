@@ -21,10 +21,11 @@
  * - the square root of x (double)
  */
 double sqrt_(double x) {
-#ifdef __USE_STDLIB__
+#ifdef USE_STDLIB_
     #include <math.h>
     return sqrt(x);
 #else
+    /* Newton's method */
     double result = x / 2;
     double temp = 0;
 
@@ -72,7 +73,6 @@ double rms_(const s16 *data, int num_samples) {
  */
 double stdDev_(const s16 *data, int num_samples) {
     double sum = 0;
-    double mean = 0;
     double std_dev = 0;
     int i;
 
@@ -80,7 +80,7 @@ double stdDev_(const s16 *data, int num_samples) {
         sum += data[i];
     }
 
-    mean = sum / (double)num_samples;
+    double mean = sum / (double)num_samples;
 
     for (i = 0; i < num_samples; i++) {
         std_dev += (data[i] - mean) * (data[i] - mean);

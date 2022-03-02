@@ -33,6 +33,8 @@ The assumptions that will be made are:
 
 - The target toolchain accepts ANSI C compliant code
 - The target is capable of floating point math (for some functions)
+- The target has an 8 bit unisgned type
+  - This may be changed in the future, however it is low priority because of how rare it is to not exist.
 
 # Layout
 
