@@ -1,11 +1,14 @@
 #include <libugomemo.h>
 
-/* math.c
+/**
+ * math.c
  *
  * This file contains various math functions for use in the library, primarily for .kwz audio.
  */
 
-/* sqrt_()
+
+/**
+ * sqrt_()
  *
  * Take the square root of a number even if not using stdlib.
  *
@@ -25,7 +28,7 @@ double sqrt_(double x) {
     #include <math.h>
     return sqrt(x);
 #else
-    /* Newton's method */
+    /* Newton's method. */
     double result = x / 2;
     double temp = 0;
 
@@ -38,7 +41,8 @@ double sqrt_(double x) {
 #endif
 }
 
-/* rms_()
+/**
+ * rms_()
  *
  * Find the root mean square (RMS) of a set of numbers. Typed for use by decoded kwz audio.
  *
@@ -60,7 +64,8 @@ double rms_(const s16 *data, int num_samples) {
     return i_sqrt(sum / (double)num_samples);
 }
 
-/* stdDev_()
+/**
+ * stdDev_()
  *
  * Calculates the standard deviation of a set of numbers. Typed for use by decoded kwz audio.
  *

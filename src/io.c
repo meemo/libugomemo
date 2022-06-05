@@ -2,7 +2,8 @@
 
 #include <libugomemo.h>
 
-/* io.c
+/**
+ * io.c
  *
  * This file contains functions to extract specific endianness values from file buffers regardless of the
  * target system's native endianness.
@@ -33,7 +34,7 @@
  */
 
 u8 getBuffer_LE_u8(const u8 *buffer, int pos) {
-    /* u8 is too small for endianness to have a difference */
+    /* u8 is too small for endianness to take effect. */
     return *(u8 *) &buffer[pos];
 }
 

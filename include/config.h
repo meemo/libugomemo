@@ -1,13 +1,15 @@
 #ifndef LIBUGOMEMO_CONFIG_H
 #define LIBUGOMEMO_CONFIG_H
 
-/* Remove/comment if stdlib is not available to be used.
+/**
+ * Remove/comment if stdlib is not available to be used.
  *
  * Note: complete support is not guaranteed until the library is finished (low priority).
  */
 #define USE_STDLIB_
 
-/* Remove/comment if the target's architecture is not little endian or isn't operating in little endian mode.
+/**
+ * Remove/comment if the target's architecture is not little endian or isn't operating in little endian mode.
  *
  * Most targets will be little endian, however if the target is big endian the library will not function correctly.
  *

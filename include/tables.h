@@ -1,7 +1,6 @@
 #ifndef LIBUGOMEMO_TABLES_H
 #define LIBUGOMEMO_TABLES_H
 
-/* Misc constants */
 #define PPM_FRAME_WIDTH             256
 #define KWZ_FRAME_WIDTH             320
 
@@ -14,7 +13,7 @@
 #define PPM_AUDIO_SAMPLE_RATE      8192
 #define KWZ_AUDIO_SAMPLE_RATE     16364
 
-/* ADPCM decoder constants */
+/* ADPCM decoder constants. */
 #define KWZ_AUDIO_STEP_INDEX_MIN      0
 #define KWZ_AUDIO_STEP_INDEX_MAX     79
 #define KWZ_AUDIO_PREDICTOR_MIN   -2048
@@ -25,22 +24,22 @@
 
 #include <types.h>
 
-/* Base 32 alphabet for .kwz filenames */
+/* Base 32 alphabet for .kwz filenames. */
 const char kwz_b32_alphabet[32] = "cwmfjordvegbalksnthpyxquiz012345";
 
-/* Normal base 64 alphabet for decoding PEM format keys */
+/* Normal base 64 alphabet for decoding PEM format keys. */
 const char b64_alphabet[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-/* All framerate values for */
+/* All framerate values for. */
 const float KWZ_FRAMERATES[11] = { 0.2f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 8.0f, 12.0f, 20.0f, 24.0f, 30.0f };
 
-/* 0.0f is a placeholder; PPM framerates are indexed from 1 */
+/* 0.0f is a placeholder; PPM framerates are indexed from 1. */
 const float PPM_FRAMERATES[9] = { 0.0f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 12.0f, 20.0f, 30.0f };
 
-/* 2 bit sample index table */
+/* 2 bit sample index table. */
 const int ADPCM_INDEX_TABLE_2[4] = { -1, 2, -1, 2 };
 
-/* 4 bit sample index table */
+/* 4 bit sample index table. */
 const int ADPCM_INDEX_TABLE_4[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
                                       -1, -1, -1, -1, 2, 4, 6, 8 };
 
@@ -60,7 +59,7 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                    12635, 13899, 15289, 16818, 18500, 20350,
                                    22385, 24623, 27086, 29794, 32767 };
 
-/* Common line table index values */
+/* Common line table index values. */
 const u16 LINE_INDEX_TABLE[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x088B, 0x0051, 0x00F3, 0x0009,
                                    0x001B, 0x0001, 0x0003, 0x05B2,
@@ -70,7 +69,7 @@ const u16 LINE_INDEX_TABLE[32] = { 0x0000, 0x0CD0, 0x19A0, 0x02D9,
                                    0x001C, 0x0004, 0x0334, 0x099C,
                                    0x0668, 0x1338, 0x1004, 0x166C };
 
-/* Common line table index values, shift-rotated one place to the left */
+/* Common line table index values, shift-rotated one place to the left. */
 const u16 LINE_INDEX_TABLE_SHIFTED[32] = { 0x0000, 0x0CD0, 0x19A0, 0x0003,
                                            0x02D9, 0x088B, 0x0051, 0x00F3,
                                            0x0009, 0x001B, 0x0001, 0x0006,

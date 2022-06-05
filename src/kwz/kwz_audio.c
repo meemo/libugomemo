@@ -1,12 +1,15 @@
 #include <libugomemo.h>
 
-/* kwz_audio.c
+/**
+ * kwz_audio.c
  *
  * This file contains functions relating to encoding and decoding kwz audio, as well as determining correct starting
  * decoder values in the case of decoding KWZ audio.
  */
 
-/* decodeKWZAudio()
+
+/**
+ * decodeKWZAudio()
  *
  * Decodes kwz audio from a given buffer and position to a specified buffer.
  *
@@ -45,14 +48,15 @@ int decodeKWZAudio(const u8  *file_buffer,
         bit_pos = 0;
 
         while (bit_pos < 8) {
-            /* Determine if the sample to be decoded is 2 or 4 bits.
-             *
-             * If the step index less than the variable threshold (18), the track has been sufficiently
-             * flat to switch to 2 bit mode, otherwise we assume 4 bit mode.
-             *
-             * If bit_pos is greater than 4 (equal to 6), then there is no way to fit another 4 bit sample,
-             * so it must be 2 bits.
-             */
+            /*
+               Determine if the sample to be decoded is 2 or 4 bits.
+
+               If the step index less than the variable threshold (18), the track has been sufficiently
+               flat to switch to 2 bit mode, otherwise we assume 4 bit mode.
+
+               If bit_pos is greater than 4 (equal to 6), then there is no way to fit another 4 bit sample,
+               so it must be 2 bits.
+            */
             if (step_index < KWZ_AUDIO_VARIABLE_THRESHOLD || bit_pos > 4) {
                 sample = byte & 0x3;
 
@@ -67,8 +71,7 @@ int decodeKWZAudio(const u8  *file_buffer,
 
                 byte >>= 2;
                 bit_pos += 2;
-            }
-            else {
+            } else {
                 sample = byte & 0xF;
 
                 step = ADPCM_STEP_TABLE[step_index];
@@ -86,11 +89,10 @@ int decodeKWZAudio(const u8  *file_buffer,
                 bit_pos += 4;
             }
 
-            /* Clamp step index and predictor */
             step_index = CLAMP(step_index, KWZ_AUDIO_STEP_INDEX_MIN, KWZ_AUDIO_STEP_INDEX_MAX);
-            predictor  = CLAMP(predictor,  KWZ_AUDIO_PREDICTOR_MIN,  KWZ_AUDIO_PREDICTOR_MAX);
+            predictor  = CLAMP(predictor,  KWZ_AUDIO_PREDICTOR_MIN,  KWZ_AUDIO_PREDICTOR_MAX );
 
-            /* Scale the predictor and add it to the output buffer */
+            /* Scale the predictor before adding it to the output buffer. */
             audio_buffer[audio_buffer_pos++] = (s16)predictor * KWZ_AUDIO_SCALING_FACTOR;
         }
     }

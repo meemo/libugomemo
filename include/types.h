@@ -10,8 +10,12 @@ typedef int16_t  s16;
 
 typedef uint32_t u32;
 
+/* ANSI C boolean definition. */
+typedef enum { false = 0, true = !false } bool;
 
-/* types.h
+
+/**
+ * types.h
  *
  * This file contains structs that describes the file formats and structures within those files, for use by the library.
  *
@@ -33,7 +37,8 @@ typedef uint32_t u32;
 */
 
 
-/* kfh_section_header
+/**
+ * kfh_section_header
  *
  * This header is always at the very start of a .kwz file. Only the position of this section and
  * the file sigature can have their positions assumed, all other sections interchange positions.
@@ -113,7 +118,8 @@ typedef struct kfh_section_header {
     u8   layer_flags;
 } kfh_section_header;
 
-/* ktn_section_header
+/**
+ * ktn_section_header
  *
  * The KTN section contains the thumbnail of the flipnote, which is just raw JPG data embedded in the file.
  *
@@ -133,7 +139,8 @@ typedef struct ktn_section_header {
     u32  crc32;
 } ktn_section_header;
 
-/* ksn_section_header
+/**
+ * ksn_section_header
  *
  * The KSN section contains the sound track data for the flipnote. Sound data is a customized version of IMA ADPCM
  * with a variable 2 or 4 bit sampling mode, and modified clamping values.

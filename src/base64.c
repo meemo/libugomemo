@@ -1,6 +1,7 @@
 #include <libugomemo.h>
 
-/* base64.c
+/**
+ * base64.c
  *
  * This file contains functions for decoding base64 data for use in rsa.c to decode PEM encoded keys.
  *
