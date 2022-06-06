@@ -38,8 +38,14 @@ double stdDev_(const s16 *data, int num_samples);
 /* rsa.c */
 
 
-/* sha1.c */
+/* crc32.c */
 
+
+/* sha1.c */
+void SHA1Init(sha1_ctx * context);
+void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len);
+void SHA1Final(u8 digest[20], sha1_ctx *context);
+void SHA1(u8 *hash_out, u8 *buffer, int len)
 
 /* sha256.c */
 

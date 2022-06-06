@@ -72,7 +72,7 @@ void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len) {
     memcpy(&context->buffer[j], &data[i], len - i);
 }
 
-void SHA1Final(u8 digest[20], sha1_ctx * context) {
+void SHA1Final(u8 digest[20], sha1_ctx *context) {
     unsigned int i;
     u8 finalcount[8];
     u8 c;
