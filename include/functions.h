@@ -32,8 +32,8 @@ u32 getBuffer_LE_U32(const char *buffer, int pos);
 
 /* math.c */
 double sqrt_(double x);
-double rms_(const s16 *data, int num_samples);
-double stdDev_(const s16 *data, int num_samples);
+double rms_(const s16 *data, unsigned int num_samples);
+double stdDev_(const s16 *data, unsigned int num_samples);
 
 /* rsa.c */
 
@@ -42,10 +42,11 @@ double stdDev_(const s16 *data, int num_samples);
 
 
 /* sha1.c */
-void SHA1Init(sha1_ctx * context);
-void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len);
+void SHA1Init(sha1_ctx *context);
+void SHA1Update(sha1_ctx *context, const u8 *data, uint32_t len);
+void SHA1Transform(u32 state[5], const u8 buffer[64]);
 void SHA1Final(u8 digest[20], sha1_ctx *context);
-void SHA1(u8 *hash_out, u8 *buffer, int len)
+void SHA1(u8 *hash_out, u8 *buffer, unsigned int len);
 
 /* sha256.c */
 
