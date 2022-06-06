@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <string.h>
 
 #include <libugomemo.h>
 
@@ -72,6 +72,83 @@ void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len) {
     memcpy(&context->buffer[j], &data[i], len - i);
 }
 
+/* Hash a single 512-bit block. This is the core of the algorithm. */
+
+void SHA1Transform(u32 state[5], const u8 buffer[64]) {
+    unsigned int i;
+    u32 a, b, c, d, e;
+
+    typedef union {
+        u8  c[64];
+        u32 l[16];
+    } CHAR64LONG16;
+
+    CHAR64LONG16 block[1];
+    memcpy(block, buffer, 64);
+
+    /* Copy context->state[] to working vars */
+    a = state[0];
+    b = state[1];
+    c = state[2];
+    d = state[3];
+    e = state[4];
+
+    /* R0 */
+    for (i = 0; i < 15; i += 5) {
+        R0(a, b, c, d, e, i);
+        R0(e, a, b, c, d, (i + 1));
+        R0(d, e, a, b, c, (i + 2));
+        R0(c, d, e, a, b, (i + 3));
+        R0(b, c, d, e, a, (i + 4));
+    }
+
+    R0(a, b, c, d, e, 15);
+
+    /* R1 */
+    R1(e, a, b, c, d, 16);
+    R1(d, e, a, b, c, 17);
+    R1(c, d, e, a, b, 18);
+    R1(b, c, d, e, a, 19);
+
+    /* R2 */
+    for (i = 20; i < 40; i += 5) {
+        R2(a, b, c, d, e, i);
+        R2(e, a, b, c, d, (i + 1));
+        R2(d, e, a, b, c, (i + 2));
+        R2(c, d, e, a, b, (i + 3));
+        R2(b, c, d, e, a, (i + 4));
+    }
+
+    /* R3 */
+    for (i = 40; i < 60; i += 5) {
+        R3(a, b, c, d, e, i);
+        R3(e, a, b, c, d, (i + 1));
+        R3(d, e, a, b, c, (i + 2));
+        R3(c, d, e, a, b, (i + 3));
+        R3(b, c, d, e, a, (i + 4));
+    }
+
+    /* R4 */
+    for (i = 60; i < 80; i += 5) {
+        R4(a, b, c, d, e, i);
+        R4(e, a, b, c, d, (i + 1));
+        R4(d, e, a, b, c, (i + 2));
+        R4(c, d, e, a, b, (i + 3));
+        R4(b, c, d, e, a, (i + 4));
+    }
+
+    /* Add the working vars back into context.state[] */
+    state[0] += a;
+    state[1] += b;
+    state[2] += c;
+    state[3] += d;
+    state[4] += e;
+
+    /* Wipe variables */
+    a = b = c = d = e = 0;
+    memset(block, '\0', sizeof(block));
+}
+
 void SHA1Final(u8 digest[20], sha1_ctx *context) {
     unsigned int i;
     u8 finalcount[8];
@@ -99,7 +176,7 @@ void SHA1Final(u8 digest[20], sha1_ctx *context) {
     memset(&finalcount, '\0', sizeof(finalcount));
 }
 
-void SHA1(u8 *hash_out, u8 *buffer, int len) {
+void SHA1(u8 *hash_out, u8 *buffer, unsigned int len) {
     sha1_ctx ctx;
     unsigned int i;
 
