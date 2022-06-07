@@ -34,7 +34,7 @@
 /* ============================================================================================== */
 
 
-void SHA1Init(sha1_ctx * context) {
+void SHA1Init(sha1_ctx *context) {
     /* SHA1 initialization constants. */
     context->state[0] = 0x67452301;
     context->state[1] = 0xEFCDAB89;
@@ -44,7 +44,7 @@ void SHA1Init(sha1_ctx * context) {
     context->count[0] = context->count[1] = 0;
 }
 
-void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len) {
+void SHA1Update(sha1_ctx *context, const u8 *data, u32 len) {
     u32 i;
     u32 j;
 
@@ -71,8 +71,6 @@ void SHA1Update(sha1_ctx * context, const u8 *data, uint32_t len) {
 
     memcpy(&context->buffer[j], &data[i], len - i);
 }
-
-/* Hash a single 512-bit block. This is the core of the algorithm. */
 
 void SHA1Transform(u32 state[5], const u8 buffer[64]) {
     unsigned int i;
@@ -176,7 +174,7 @@ void SHA1Final(u8 digest[20], sha1_ctx *context) {
     memset(&finalcount, '\0', sizeof(finalcount));
 }
 
-void SHA1(u8 *hash_out, u8 *buffer, unsigned int len) {
+void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len) {
     sha1_ctx ctx;
     unsigned int i;
 
