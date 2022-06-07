@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 
 #include <libugomemo.h>
@@ -5,8 +6,8 @@
 /**
  * sha1.c
  *
- * An implementation of the SHA-1 hash digest algorithm for use in PPM file signatures. This is heavily modified and
- * condensed version of Steve Reid <steve@edmweb.com>'s public domain SHA-1 implementation, which can be found in the
+ * An implementation of the SHA-1 hash digest algorithm for use in PPM file signatures. This is heavily modified
+ * version of Steve Reid <steve@edmweb.com>'s public domain SHA-1 implementation, which can be found in the
  * following repository: https://github.com/clibs/sha1
  *
  * Requires stdlib for memcpy and memset.
@@ -156,7 +157,7 @@ void SHA1Final(u8 digest[20], sha1_ctx *context) {
         finalcount[i] = (u8) ((context->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);
     }
 
-    c = 200;
+    c = 128;  /* Was originally octal 200, which is equivalent to base 10 128. */
     SHA1Update(context, &c, 1);
 
     while ((context->count[0] & 504) != 448) {
