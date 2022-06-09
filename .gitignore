@@ -12,3 +12,6 @@ keys/ppm_priv.pem
 *.o
 *.so
 *.a
+
+# Test executables
+sha1_test
