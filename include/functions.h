@@ -50,7 +50,5 @@ void SHA1Transform(u32 state[5], const u8 buffer[64]);
 void SHA1Final(u8 digest[20], sha1_ctx *context);
 void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len);
 
-/* sha256.c */
-
-
 #endif
+ 
