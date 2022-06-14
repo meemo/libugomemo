@@ -4,7 +4,7 @@
 #include <types.h>
 
 /* kwz/kwz_audio.c */
-int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, int track_offset, int step_index);
+void decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int len, int offset, int initial_step_index);
 
 /* kwz/kwz_meta.c */
 
@@ -27,11 +27,6 @@ int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, i
 /* base64.c */
 
 
-/* io.c */
-u8 getBuffer_LE_U8(const char *buffer, int pos);
-u16 getBuffer_LE_U16(const char *buffer, int pos);
-u32 getBuffer_LE_U32(const char *buffer, int pos);
-
 /* math.c */
 double sqrt_(double x);
 double rms_(const s16 *data, unsigned int num_samples);
@@ -51,4 +46,3 @@ void SHA1Final(u8 digest[20], sha1_ctx *context);
 void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len);
 
 #endif
- 

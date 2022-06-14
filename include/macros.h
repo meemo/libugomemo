@@ -44,7 +44,7 @@
 #ifdef LITTLE_ENDIAN_
 #define blk0(i)  (block->l[i] = (ROL(block->l[i], 24) & 0xFF00FF00) | (ROL(block->l[i], 8) & 0x00FF00FF))
 #else
-#define blk0(i) block->l[i]
+#define blk0(i)  block->l[i]
 #endif
 
 #define blk(i)  (block->l[i & 15] = ROL(block->l[(i + 13) & 15] ^ block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ \
