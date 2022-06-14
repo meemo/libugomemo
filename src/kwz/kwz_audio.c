@@ -60,8 +60,7 @@ void decodeKWZAudio(const u8  *file_buffer,
                          int  len,
                          int  offset,
                          int  initial_step_index) {
-    /* Ensure the initial step index is valid. */
-    s16 step_index = CLAMP(initial_step_index, 0, 40);
+    s16 step_index = initial_step_index;
     s16 predictor = INITIAL_PREDICTOR;
     s16 step;
     s16 diff;
@@ -74,7 +73,7 @@ void decodeKWZAudio(const u8  *file_buffer,
     int file_pos;
 
     for (file_pos = offset; file_pos < offset + len; file_pos++) {
-        byte = file_buffer[file_pos];
+        byte = READ_U8(file_buffer, file_pos);
         bit_pos = 0;
 
         while (bit_pos < 8) {
