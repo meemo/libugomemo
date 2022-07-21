@@ -13,7 +13,7 @@ void decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int len, int offse
 
 
 /* ppm/ppm_audio.c */
-
+void decodePPMAudio(const u8 *file_buffer, u8 *audio_buffer, int len, int offset);
 
 /* ppm/ppm_meta.c */
 

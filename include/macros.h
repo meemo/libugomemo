@@ -3,6 +3,12 @@
 
 
 /* =========================================== Misc. =========================================== */
+/* Finds the minimum value between the two parameters. */
+#define MIN(a, b)            (((a) < (b)) ? (a) : (b))
+
+/* Finds the maximum value between the two parameters. */
+#define MAX(a, b)            (((a) > (b)) ? (a) : (b))
+
 /**
  * Clamps a number to ensure the value is between an upper and lower bound.
  *
@@ -11,13 +17,7 @@
  * - low:  The lower bound on the clamp.
  * - high: The upper bound on the clamp.
  */
-#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
-
-/* Finds the minimum value between the two parameters. */
-#define MIN(a, b)            (((a) < (b)) ? (a) : (b))
-
-/* Finds the maximum value between the two parameters. */
-#define MAX(a, b)            (((a) > (b)) ? (a) : (b))
+#define CLAMP(x, low, high)  (MAX(high, MIN(low, x)))
 
 /* Rounds up a number to become a multiple of 4. */
 #define ROUND_MULT_4(x)      (((x) + 3) & ~3)
