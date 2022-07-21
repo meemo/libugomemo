@@ -65,8 +65,8 @@ void decodeKWZAudio(const u8 *file_buffer,
     s16 step;
     s16 diff;
 
-    u8 sample;
-    u8 byte;
+    u8  sample;
+    u8  byte;
 
     int bit_pos;
     int output_pos = 0;
@@ -95,10 +95,10 @@ void decodeKWZAudio(const u8 *file_buffer,
                 if (sample & 1) diff += step;
                 if (sample & 2) diff = -diff;
 
-                predictor += diff;
+                predictor  += diff;
                 step_index += ADPCM_INDEX_2BIT[sample];
 
-                byte >>= 2;
+                byte   >>= 2;
                 bit_pos += 2;
             } else {
                 sample = byte & 0xF;
@@ -111,10 +111,10 @@ void decodeKWZAudio(const u8 *file_buffer,
                 if (sample & 4) diff += step;
                 if (sample & 8) diff = -diff;
 
-                predictor += diff;
+                predictor  += diff;
                 step_index += ADPCM_INDEX_4BIT[sample];
 
-                byte >>= 4;
+                byte   >>= 4;
                 bit_pos += 4;
             }
 
@@ -122,7 +122,7 @@ void decodeKWZAudio(const u8 *file_buffer,
             predictor  = CLAMP(predictor,  PREDICTOR_MIN,  PREDICTOR_MAX );
 
             /* Scale the predictor before adding it to the output buffer. */
-            audio_buffer[output_pos++] = (s16)predictor * SCALING_FACTOR;
+            audio_buffer[output_pos++] = (s16) predictor * SCALING_FACTOR;
         }
     }
 }
