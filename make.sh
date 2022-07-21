@@ -21,3 +21,4 @@ cd ..
 
 # Build the tests.
 gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -Iinclude tests/sha1_test.c libugomemo.a -o tests/sha1_test
+gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -Iinclude tests/ppm_audio_test.c libugomemo.a -o tests/ppm_audio_test

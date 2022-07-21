@@ -15,3 +15,4 @@ keys/ppm_priv.pem
 
 # Test executables
 sha1_test
+ppm_audio_test
