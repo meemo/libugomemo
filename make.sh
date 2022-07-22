@@ -9,7 +9,7 @@ build_dir=$(pwd)/build
 
 # Compiler options
 cc="gcc"
-common_flags="-std=c89 -pedantic -Wall -Wextra -Werror"
+common_flags="-std=c89 -pedantic -Wall -Wextra -Werror -g"
 optimization="-march=native -O3"
 include="-I../include"
 
@@ -20,15 +20,17 @@ time {
     mkdir -p $build_dir
 
     (
-        cd $build_dir || exit
+        cd $build_dir || exit 1
 
         # Compile the library only if no arguments were passed.
         if (($# == 0)); then
             echo "Compiling library..."
-            $cc_command -c ../src/*.c   || exit
-            $cc_command -c ../src/*/*.c || exit
+            $cc_command -c ../src/*.c   || exit 1
+            $cc_command -c ../src/*/*.c || exit 1
 
             ar rcs ../libugomemo.a ./*.o
+
+            rm $build_dir/*.o
         fi
 
         echo "Compiling tests..."
@@ -37,6 +39,5 @@ time {
     )
 
     echo "Cleaning up..."
-    rm $build_dir/*.o
     rmdir $build_dir
 }
