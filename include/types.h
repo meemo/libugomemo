@@ -656,6 +656,7 @@ typedef struct ppm_sound_header {
     u8  frame_playback_speed_bgm;
     u8  padding[14];
 } ppm_sound_header;
+#define PPM_SOUND_HEADER_SIZE 32
 
 /* ppm_signature
  *
@@ -666,7 +667,7 @@ typedef struct ppm_sound_header {
  * - signature: The signature of a .ppm file as described above.
  */
 typedef struct ppm_signature {
-    u8 *signature[144];
+    u8 signature[144];
 } ppm_signature;
 
 /* ppm_file
@@ -787,7 +788,7 @@ typedef struct wav_header {
  */
 typedef struct wav_file {
     wav_header *header;
-    s16        *data;
+    s16         data;
 } wav_file;
 
 /**

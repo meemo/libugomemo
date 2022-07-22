@@ -15,7 +15,7 @@
 #define SCALING_FACTOR     16  /* 16 bits per sample in the output. */
 
 const int ADPCM_INDEX_4BIT[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
-                                   -1, -1, -1, -1, 2, 4, 6, 8  };
+                                   -1, -1, -1, -1, 2, 4, 6, 8  };  /* Values repeated to remove `& 7` */
 
 const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                       13,    14,    16,    17,    19,    21,
@@ -35,14 +35,14 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
 /* ============================================================================================== */
 
 
-void decodePPMAudio(const u8 *file_buffer,
-                          u8 *audio_buffer,
-                          int len,
-                          int offset) {
+int ppm_decode_track(const u8  *file_buffer,
+                           s16 *audio_buffer,
+                           int  offset,
+                           int  len) {
     u8   sample = 0;
 
     s16  step = 0;
-    s16  step_index = 0;
+    u8   step_index = 0;
     s16  diff = 0;
     s16  predictor = 0;
 
@@ -61,7 +61,6 @@ void decodePPMAudio(const u8 *file_buffer,
         low_nibble = !low_nibble;
 
         step = ADPCM_STEP_TABLE[step_index];
-
         diff = step >> 3;
 
         if (sample & 1) diff += step >> 2;
@@ -69,12 +68,27 @@ void decodePPMAudio(const u8 *file_buffer,
         if (sample & 4) diff += step;
         if (sample & 8) diff = -diff;
 
+        /* TODO: Fix clamp macro to remove these if statements. */
         predictor += diff;
-        predictor  = CLAMP(predictor, PREDICTOR_MIN, PREDICTOR_MAX);
+        if (predictor > PREDICTOR_MAX) {
+            predictor = PREDICTOR_MAX;
+        } else {
+            if (predictor < PREDICTOR_MIN) {
+                predictor = PREDICTOR_MIN;
+            }
+        }
 
         step_index += ADPCM_INDEX_4BIT[sample];
-        step_index  = CLAMP(step_index, STEP_INDEX_MIN, STEP_INDEX_MAX);
+        if (step_index > STEP_INDEX_MAX) {
+            step_index = STEP_INDEX_MAX;
+        } else {
+            if (step_index < STEP_INDEX_MIN) {
+                step_index = STEP_INDEX_MIN;
+            }
+        }
 
         audio_buffer[output_pos++] = predictor;
     }
+
+    return output_pos;
 }
