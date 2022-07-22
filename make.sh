@@ -1,24 +1,42 @@
 #!/bin/bash
 
-#
-# Temporary compilation script(tm).
-#
+#------------------------------------------------#
+# Temporary compilation script(tm).              #
+# Pass an argument to skip building the library. #
+#------------------------------------------------#
 
-# Make the build directory.
-mkdir -p build
-cd build
+build_dir=$(pwd)/build
 
-# Remove any previously compiled objects.
-rm *
+# Compiler options
+cc="gcc"
+common_flags="-std=c89 -pedantic -Wall -Wextra -Werror"
+optimization="-march=native -O3"
+include="-I../include"
 
-# Build the library.
-gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -c -I../include/ ../src/*.c
-gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -c -I../include/ ../src/*/*.c
+cc_command="$cc $common_flags $optimization $include"
 
-ar rcs ../libugomemo.a ./*.o
+TIMEFORMAT="Done in %R seconds."
+time {
+    mkdir -p $build_dir
 
-cd ..
+    (
+        cd $build_dir || exit
 
-# Build the tests.
-gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -Iinclude tests/sha1_test.c libugomemo.a -o tests/sha1_test
-gcc -std=c89 -Wall -Wextra -Werror -pedantic -O3 -Iinclude tests/ppm_audio_test.c libugomemo.a -o tests/ppm_audio_test
+        # Compile the library only if no arguments were passed.
+        if (($# == 0)); then
+            echo "Compiling library..."
+            $cc_command -c ../src/*.c   || exit
+            $cc_command -c ../src/*/*.c || exit
+
+            ar rcs ../libugomemo.a ./*.o
+        fi
+
+        echo "Compiling tests..."
+        $cc_command ../tests/sha1_test.c      ../libugomemo.a -o ../tests/sha1_test
+        $cc_command ../tests/ppm_audio_test.c ../libugomemo.a -o ../tests/ppm_audio_test
+    )
+
+    echo "Cleaning up..."
+    rm $build_dir/*.o
+    rmdir $build_dir
+}
