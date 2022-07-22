@@ -58,8 +58,6 @@ int write_ppm_track(u8 *file_buffer, int track_offset, int track_size) {
 
     output_size = ppm_decode_track(file_buffer, output_buffer, track_offset, track_size);
 
-    printf("[DEBUG] output_buffer[200] after: %d\n", output_buffer[200]);
-
     header.chunk_size = output_size + 36;
     header.subchunk_2_size = output_size;
 

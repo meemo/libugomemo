@@ -41,10 +41,10 @@ int ppm_decode_track(const u8  *file_buffer,
                            int  len) {
     u8   sample = 0;
 
-    s16  step = 0;
-    u8   step_index = 0;
-    s16  diff = 0;
-    s16  predictor = 0;
+    int  step = 0;
+    int  step_index = 0;
+    int  diff = 0;
+    int  predictor = 0;
 
     bool low_nibble = true;
 
