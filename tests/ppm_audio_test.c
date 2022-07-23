@@ -66,6 +66,8 @@ int write_ppm_track(u8 *file_buffer, int track_offset, int track_size) {
     fwrite(output_buffer, sizeof(s16), output_size, output_file);
     fclose(output_file);
 
+    free(output_buffer);
+
     return 0;
 }
 

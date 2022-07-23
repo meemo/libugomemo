@@ -14,8 +14,7 @@
 #define PREDICTOR_MAX   32767
 #define SCALING_FACTOR     16  /* 16 bits per sample in the output. */
 
-const int ADPCM_INDEX_4BIT[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
-                                   -1, -1, -1, -1, 2, 4, 6, 8  };  /* Values repeated to remove `& 7` */
+const int ADPCM_INDEX_4BIT[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
 
 const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                       13,    14,    16,    17,    19,    21,
@@ -78,7 +77,7 @@ int ppm_decode_track(const u8  *file_buffer,
             }
         }
 
-        step_index += ADPCM_INDEX_4BIT[sample];
+        step_index += ADPCM_INDEX_4BIT[sample & 7];
         if (step_index > STEP_INDEX_MAX) {
             step_index = STEP_INDEX_MAX;
         } else {
@@ -90,5 +89,5 @@ int ppm_decode_track(const u8  *file_buffer,
         audio_buffer[output_pos++] = predictor;
     }
 
-    return output_pos;
+    return output_pos * 2;
 }
