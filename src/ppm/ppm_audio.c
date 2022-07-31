@@ -3,16 +3,16 @@
 /**
  * ppm_audio.c
  *
- * This file contains functions for processing audio from a PPM file.
+ * Functions for decoding audio from a PPM file.
  */
 
 
 /* ========================================== Constants ========================================= */
-#define STEP_INDEX_MIN      0
-#define STEP_INDEX_MAX     88
-#define PREDICTOR_MIN  -32768
-#define PREDICTOR_MAX   32767
-#define SCALING_FACTOR     16  /* 16 bits per sample in the output. */
+#define STEP_INDEX_MIN     0
+#define STEP_INDEX_MAX    88
+#define PREDICTOR_MIN -32768
+#define PREDICTOR_MAX  32767
+#define SCALING_FACTOR    16  /* 16 bits per sample in the output. */
 
 const int ADPCM_INDEX_4BIT[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
 
@@ -34,7 +34,7 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
 /* ============================================================================================== */
 
 
-int ppm_decode_track(const u8  *file_buffer,
+int PPMDecodeTrack(const u8  *file_buffer,
                            s16 *audio_buffer,
                            int  offset,
                            int  len) {

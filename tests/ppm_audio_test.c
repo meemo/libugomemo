@@ -56,7 +56,7 @@ int write_ppm_track(u8 *file_buffer, int track_offset, int track_size) {
     /* Larger than the largest possible audio value */
     output_buffer = (s16 *) malloc(0x100000);
 
-    output_size = ppm_decode_track(file_buffer, output_buffer, track_offset, track_size);
+    output_size = PPMDecodeTrack(file_buffer, output_buffer, track_offset, track_size);
 
     header.chunk_size = output_size + 36;
     header.subchunk_2_size = output_size;

@@ -55,7 +55,7 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
  *      - The optimal value varies especially on the origin audio, however the values of 0 and 40 are by far the most
  *        common and should be used if you are unsure.
  */
-void decodeKWZAudio(const u8 *file_buffer,
+void KWZDecodeTrack(const u8 *file_buffer,
                          u16 *audio_buffer,
                          int  len,
                          int  offset,

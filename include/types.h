@@ -10,6 +10,8 @@ typedef int16_t  s16;
 
 typedef uint32_t u32;
 
+typedef unsigned int uint;
+
 /* ANSI C boolean definition. */
 typedef enum { false = 0, true = !false } bool;
 
