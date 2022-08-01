@@ -55,11 +55,11 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
  *      - The optimal value varies especially on the origin audio, however the values of 0 and 40 are by far the most
  *        common and should be used if you are unsure.
  */
-void KWZDecodeTrack(const u8 *file_buffer,
-                         u16 *audio_buffer,
-                         int  len,
-                         int  offset,
-                         int  initial_step_index) {
+void KWZDecodeTrack(const u8  *file_buffer,
+                         u16  *audio_buffer,
+                         uint  len,
+                         uint  offset,
+                         int   initial_step_index) {
     s16 step_index = initial_step_index;
     s16 predictor = INITIAL_PREDICTOR;
     s16 step;
@@ -68,9 +68,9 @@ void KWZDecodeTrack(const u8 *file_buffer,
     u8  sample;
     u8  byte;
 
-    int bit_pos;
-    int output_pos = 0;
-    int file_pos;
+    uint bit_pos;
+    uint output_pos = 0;
+    uint file_pos;
 
     for (file_pos = offset; file_pos < offset + len; file_pos++) {
         byte = READ_U8(file_buffer, file_pos);
@@ -118,8 +118,8 @@ void KWZDecodeTrack(const u8 *file_buffer,
                 bit_pos += 4;
             }
 
-            step_index = CLAMP(step_index, STEP_INDEX_MIN, STEP_INDEX_MAX);
-            predictor  = CLAMP(predictor,  PREDICTOR_MIN,  PREDICTOR_MAX );
+            CLAMP(STEP_INDEX_MIN, step_index, STEP_INDEX_MAX);
+            CLAMP(PREDICTOR_MIN, predictor, PREDICTOR_MAX);
 
             /* Scale the predictor before adding it to the output buffer. */
             audio_buffer[output_pos++] = (s16) predictor * SCALING_FACTOR;

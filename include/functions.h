@@ -4,7 +4,7 @@
 #include <types.h>
 
 /* kwz/kwz_audio.c */
-void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, int len, int offset, int initial_step_index);
+void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint len, uint offset, int initial_step_index);
 
 /* kwz/kwz_meta.c */
 
@@ -13,7 +13,7 @@ void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, int len, int offse
 
 
 /* ppm/ppm_audio.c */
-int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, int offset, int len);
+int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint len);
 
 /* ppm/ppm_meta.c */
 
@@ -28,6 +28,7 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, int offset, int len
 
 
 /* base64.c */
+
 
 /* crc32.c */
 

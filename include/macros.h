@@ -3,21 +3,15 @@
 
 
 /* =========================================== Misc. =========================================== */
-/* Finds the minimum value between the two parameters. */
-#define MIN(a, b)            (((a) < (b)) ? (a) : (b))
-
-/* Finds the maximum value between the two parameters. */
-#define MAX(a, b)            (((a) > (b)) ? (a) : (b))
-
 /**
- * Clamps a number to ensure the value is between an upper and lower bound.
+ * Clamps a number to ensure the value is between an upper and lower bound where low ≤ x ≤ high.
  *
  * Parameters:
  * - x:    The value to be clamped.
  * - low:  The lower bound on the clamp.
  * - high: The upper bound on the clamp.
  */
-#define CLAMP(x, low, high)  (MAX(high, MIN(low, x)))
+#define CLAMP(low, x, high)  (x < low ? (x = low) : (x > high ? (x = high) : (x = x)))
 
 /* Rounds up a number to become a multiple of 4. */
 #define ROUND_MULT_4(x)      (((x) + 3) & ~3)
@@ -33,7 +27,7 @@
  * - x: The value to perform the bit shift on.
  * - n: The number of bits to shift by.
  */
-#define SAR(x, n)            (((x > 0) && (n > 0)) ? ((x >> n) | ~(~0U >> n)) : (x >> n))
+#define SAR(x, n)  (((x > 0) && (n > 0)) ? ((x >> n) | ~(~0U >> n)) : (x >> n))
 /* ============================================================================================== */
 
 
@@ -44,7 +38,7 @@
 #ifdef LITTLE_ENDIAN_
 #define blk0(i)  (block->l[i] = (ROL(block->l[i], 24) & 0xFF00FF00) | (ROL(block->l[i], 8) & 0x00FF00FF))
 #else
-#define blk0(i)  block->l[i]
+#define blk0(i)  (block->l[i])
 #endif
 
 #define blk(i)  (block->l[i & 15] = ROL(block->l[(i + 13) & 15] ^ block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ \
@@ -74,19 +68,19 @@
  */
 
 /* Single bytes are too small for endianness to take effect. */
-#define READ_U8(buffer, pos)    (u8) buffer[pos]
+#define READ_U8(buffer, pos)    (u8) (buffer[pos])
 
 #ifdef LITTLE_ENDIAN_
 #define READ_U16(buffer, pos)  *(u16 *) &buffer[pos]
 #else
-#define READ_U16(buffer, pos)   (u16) buffer[pos] | buffer[pos + 1] << 0x8
+#define READ_U16(buffer, pos)   (u16) (buffer[pos] | buffer[pos + 1] << 0x8)
 #endif
 
 #ifdef LITTLE_ENDIAN_
 #define READ_U32(buffer, pos)  *(u32 *) &buffer[pos]
 #else
-#define READ_U32(buffer, pos)   (u32) buffer[pos]             | buffer[pos + 1] << 0x08 \
-                                    | buffer[pos + 2] << 0x10 | buffer[pos + 3] << 0x18
+#define READ_U32(buffer, pos)   (u32) (buffer[pos]             | buffer[pos + 1] << 0x08 \
+                                     | buffer[pos + 2] << 0x10 | buffer[pos + 3] << 0x18)
 #endif
 /* ============================================================================================== */
 

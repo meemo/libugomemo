@@ -14,7 +14,8 @@
 #define PREDICTOR_MAX  32767
 #define SCALING_FACTOR    16  /* 16 bits per sample in the output. */
 
-const int ADPCM_INDEX_4BIT[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
+const int ADPCM_INDEX_4BIT[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
+                                   -1, -1, -1, -1, 2, 4, 6, 8  };
 
 const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                       13,    14,    16,    17,    19,    21,
@@ -34,21 +35,21 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
 /* ============================================================================================== */
 
 
-int PPMDecodeTrack(const u8  *file_buffer,
-                           s16 *audio_buffer,
-                           int  offset,
-                           int  len) {
+int PPMDecodeTrack(const u8   *file_buffer,
+                         s16  *audio_buffer,
+                         uint  offset,
+                         uint  len) {
     u8   sample = 0;
 
-    int  step = 0;
-    int  step_index = 0;
-    int  diff = 0;
-    int  predictor = 0;
+    u32  step = 0;
+    s8   step_index = 0;
+    s32  diff = 0;
+    s32  predictor = 0;
 
     bool low_nibble = true;
 
-    int  buffer_pos = offset;
-    int  output_pos = 0;
+    uint buffer_pos = offset;
+    uint output_pos = 0;
 
     while (buffer_pos < (offset + len)) {
         if (low_nibble) {
@@ -62,29 +63,16 @@ int PPMDecodeTrack(const u8  *file_buffer,
         step = ADPCM_STEP_TABLE[step_index];
         diff = step >> 3;
 
-        if (sample & 1) diff += step >> 2;
-        if (sample & 2) diff += step >> 1;
-        if (sample & 4) diff += step;
-        if (sample & 8) diff = -diff;
+        if (sample & 1) diff +=  step >> 2;
+        if (sample & 2) diff +=  step >> 1;
+        if (sample & 4) diff +=  step;
+        if (sample & 8) diff  = -diff;
 
-        /* TODO: Fix clamp macro to remove these if statements. */
         predictor += diff;
-        if (predictor > PREDICTOR_MAX) {
-            predictor = PREDICTOR_MAX;
-        } else {
-            if (predictor < PREDICTOR_MIN) {
-                predictor = PREDICTOR_MIN;
-            }
-        }
+        CLAMP(PREDICTOR_MIN, predictor, PREDICTOR_MAX);
 
-        step_index += ADPCM_INDEX_4BIT[sample & 7];
-        if (step_index > STEP_INDEX_MAX) {
-            step_index = STEP_INDEX_MAX;
-        } else {
-            if (step_index < STEP_INDEX_MIN) {
-                step_index = STEP_INDEX_MIN;
-            }
-        }
+        step_index += ADPCM_INDEX_4BIT[sample];
+        CLAMP(STEP_INDEX_MIN, step_index, STEP_INDEX_MAX);
 
         audio_buffer[output_pos++] = predictor;
     }
