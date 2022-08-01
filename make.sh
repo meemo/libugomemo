@@ -8,36 +8,40 @@
 build_dir=$(pwd)/build
 
 # Compiler options
-cc="gcc"
+cc="clang"
 common_flags="-std=c89 -pedantic -Wall -Wextra -Werror -g"
 optimization="-march=native -O3"
 include="-I../include"
 
 cc_command="$cc $common_flags $optimization $include"
 
-TIMEFORMAT="Done in %R seconds."
+TIMEFORMAT="Finished in %R seconds."
 time {
-    mkdir -p $build_dir
+    # Compile the library only if no arguments were passed.
+    if (($# == 0)); then
+        mkdir -p $build_dir
 
-    (
-        cd $build_dir || exit 1
+        (
+            cd $build_dir || exit 1
 
-        # Compile the library only if no arguments were passed.
-        if (($# == 0)); then
             echo "Compiling library..."
-            $cc_command -c ../src/*.c   || exit 1
-            $cc_command -c ../src/*/*.c || exit 1
+            $cc_command -c ../src/*.c
+            $cc_command -c ../src/*/*.c
+        )
 
-            ar rcs ../libugomemo.a ./*.o
+        ar -r libugomemo.a $build_dir/*.o
 
-            rm $build_dir/*.o
-        fi
+        echo "Cleaning up..."
+        rm $build_dir/*.o
+        rmdir $build_dir
+    fi
 
+    # Only build tests if
+    if [ -e libugomemo.a ]; then
         echo "Compiling tests..."
-        $cc_command ../tests/sha1_test.c      ../libugomemo.a -o ../tests/sha1_test
-        $cc_command ../tests/ppm_audio_test.c ../libugomemo.a -o ../tests/ppm_audio_test
-    )
-
-    echo "Cleaning up..."
-    rmdir $build_dir
+        $cc_command tests/sha1_test.c      -Iinclude -L. -lugomemo -o tests/sha1_test
+        $cc_command tests/ppm_audio_test.c -Iinclude -L. -lugomemo -o tests/ppm_audio_test
+    else
+        echo "libugomemo.a not found! Have you run the script without any parameters yet?"
+    fi
 }
