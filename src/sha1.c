@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string.h>
 
 #include <libugomemo.h>
@@ -49,7 +48,7 @@ void SHA1Update(sha1_ctx *context, const u8 *data, u32 len) {
         i = 0;
     }
 
-    memcpy(&context->buffer[j], &data[i], len - i);
+    UGO_MEMCPY(&context->buffer[j], &data[i], len - i);
 }
 
 void SHA1Transform(u32 state[5], const u8 buffer[64]) {
@@ -124,7 +123,7 @@ void SHA1Transform(u32 state[5], const u8 buffer[64]) {
 
     /* Wipe variables */
     a = b = c = d = e = 0;
-    memset(block, '\0', sizeof(block));
+    UGO_MEMSET(block, '\0', sizeof(block));
 }
 
 void SHA1Final(u8 digest[20], sha1_ctx *context) {
@@ -150,8 +149,8 @@ void SHA1Final(u8 digest[20], sha1_ctx *context) {
         digest[i] = (u8) ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
     }
 
-    memset(context, '\0', sizeof(*context));
-    memset(&finalcount, '\0', sizeof(finalcount));
+    UGO_MEMSET(context, '\0', sizeof(*context));
+    UGO_MEMSET(&finalcount, '\0', sizeof(finalcount));
 }
 
 void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len) {
@@ -166,3 +165,4 @@ void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len) {
 
     SHA1Final((u8 *)hash_out, &ctx);
 }
+

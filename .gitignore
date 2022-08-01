@@ -13,5 +13,9 @@ keys/ppm_priv.pem
 *.so
 *.a
 
+*.mp3
+*.wav
+
 # Test executables
 sha1_test
+ppm_audio_test

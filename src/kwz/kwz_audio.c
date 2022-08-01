@@ -20,7 +20,7 @@
 const int ADPCM_INDEX_2BIT[4] = { -1, 2, -1, 2 };
 
 const int ADPCM_INDEX_4BIT[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
-                                   -1, -1, -1, -1, 2, 4, 6, 8 };
+                                   -1, -1, -1, -1, 2, 4, 6, 8  };
 
 const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
                                       13,    14,    16,    17,    19,    21,
@@ -45,38 +45,35 @@ const s16 ADPCM_STEP_TABLE[89] = {     7,     8,     9,    10,    11,    12,
  * endianness (little endian in the vast majority of cases).
  *
  * Parameters:
- * - file_buffer: The buffer containing the kwz audio (const u8 pointer)
- * - audio_buffer: The buffer to store the decoded audio (u16 pointer)
+ * - file_buffer: The buffer containing KWZ audio data to decode.
+ * - audio_buffer: The buffer to store the decoded audio data.
  *      - We cannot predict the size of the decoded audio in advance, so we must allocate a buffer large enough to
- *        store the decoded audio, which must be 16364 * 60 * 2 bytes in length
- * - track_length: The length of the track in bytes
- * - track_offset: The starting position in the file buffer to start decoding from
- * - initial_step_index: The starting step index value used to decode the audio
+ *        store the largest possible decoded audio data buffer; 16364 * 60 * 2 bytes in length.
+ * - track_length: The length of the encoded track in bytes.
+ * - track_offset: The position in the file buffer to start decoding audio data from.
+ * - initial_step_index: The starting step index value used to decode the audio. Must be an integer between 0 and 40.
  *      - The optimal value varies especially on the origin audio, however the values of 0 and 40 are by far the most
  *        common and should be used if you are unsure.
- *
- * Returns:
- * - To be implemented: error codes. For now it always returns 0.
  */
-int decodeKWZAudio(const u8  *file_buffer,
-                         u16 *audio_buffer,
-                         int  track_length,
-                         int  track_offset,
-                         int  initial_step_index) {
-    s16 step_index = CLAMP(initial_step_index, STEP_INDEX_MIN, STEP_INDEX_MAX);
+void KWZDecodeTrack(const u8  *file_buffer,
+                         u16  *audio_buffer,
+                         uint  len,
+                         uint  offset,
+                         int   initial_step_index) {
+    s16 step_index = initial_step_index;
     s16 predictor = INITIAL_PREDICTOR;
     s16 step;
     s16 diff;
 
-    u8 sample;
-    u8 byte;
+    u8  sample;
+    u8  byte;
 
-    int bit_pos;
-    int audio_buffer_pos = 0;
-    int file_buffer_pos;
+    uint bit_pos;
+    uint output_pos = 0;
+    uint file_pos;
 
-    for (file_buffer_pos = track_offset; file_buffer_pos < track_offset + track_length; file_buffer_pos++) {
-        byte = file_buffer[file_buffer_pos];
+    for (file_pos = offset; file_pos < offset + len; file_pos++) {
+        byte = READ_U8(file_buffer, file_pos);
         bit_pos = 0;
 
         while (bit_pos < 8) {
@@ -98,10 +95,10 @@ int decodeKWZAudio(const u8  *file_buffer,
                 if (sample & 1) diff += step;
                 if (sample & 2) diff = -diff;
 
-                predictor += diff;
+                predictor  += diff;
                 step_index += ADPCM_INDEX_2BIT[sample];
 
-                byte >>= 2;
+                byte   >>= 2;
                 bit_pos += 2;
             } else {
                 sample = byte & 0xF;
@@ -114,20 +111,18 @@ int decodeKWZAudio(const u8  *file_buffer,
                 if (sample & 4) diff += step;
                 if (sample & 8) diff = -diff;
 
-                predictor += diff;
+                predictor  += diff;
                 step_index += ADPCM_INDEX_4BIT[sample];
 
-                byte >>= 4;
+                byte   >>= 4;
                 bit_pos += 4;
             }
 
-            step_index = CLAMP(step_index, STEP_INDEX_MIN, STEP_INDEX_MAX);
-            predictor  = CLAMP(predictor,  PREDICTOR_MIN,  PREDICTOR_MAX );
+            CLAMP(STEP_INDEX_MIN, step_index, STEP_INDEX_MAX);
+            CLAMP(PREDICTOR_MIN, predictor, PREDICTOR_MAX);
 
             /* Scale the predictor before adding it to the output buffer. */
-            audio_buffer[audio_buffer_pos++] = (s16)predictor * SCALING_FACTOR;
+            audio_buffer[output_pos++] = (s16) predictor * SCALING_FACTOR;
         }
     }
-
-    return 0;
 }

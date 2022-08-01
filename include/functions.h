@@ -4,7 +4,7 @@
 #include <types.h>
 
 /* kwz/kwz_audio.c */
-int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, int track_offset, int step_index);
+void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint len, uint offset, int initial_step_index);
 
 /* kwz/kwz_meta.c */
 
@@ -13,12 +13,15 @@ int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, i
 
 
 /* ppm/ppm_audio.c */
-
+int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint len);
 
 /* ppm/ppm_meta.c */
 
 
 /* ppm/ppm_video.c */
+
+
+/* audio.c */
 
 
 /* base32.c */
@@ -27,20 +30,15 @@ int decodeKWZAudio(const u8 *file_buffer, u16 *audio_buffer, int track_length, i
 /* base64.c */
 
 
-/* io.c */
-u8 getBuffer_LE_U8(const char *buffer, int pos);
-u16 getBuffer_LE_U16(const char *buffer, int pos);
-u32 getBuffer_LE_U32(const char *buffer, int pos);
+/* crc32.c */
+
 
 /* math.c */
-double sqrt_(double x);
-double rms_(const s16 *data, unsigned int num_samples);
-double stdDev_(const s16 *data, unsigned int num_samples);
+double UGO_SQRT(double x);
+double UGO_RMS(const s16 *data, uint num_samples);
+double UGO_STDDEV(const s16 *data, uint num_samples);
 
 /* rsa.c */
-
-
-/* crc32.c */
 
 
 /* sha1.c */
@@ -48,7 +46,6 @@ void SHA1Init(sha1_ctx *context);
 void SHA1Update(sha1_ctx *context, const u8 *data, u32 len);
 void SHA1Transform(u32 state[5], const u8 buffer[64]);
 void SHA1Final(u8 digest[20], sha1_ctx *context);
-void SHA1(u8 *hash_out, const u8 *buffer, unsigned int len);
+void SHA1(u8 *hash_out, const u8 *buffer, uint len);
 
 #endif
- 

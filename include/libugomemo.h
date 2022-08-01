@@ -2,10 +2,9 @@
 #define LIBUGOMEMO_H
 
 #include <types.h>
+#include <config.h>
 #include <macros.h>
 #include <functions.h>
-
-#include <config.h>
 
 #define PPM_FRAME_WIDTH             256
 #define KWZ_FRAME_WIDTH             320

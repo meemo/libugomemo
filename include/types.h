@@ -4,13 +4,17 @@
 #include <stdint.h>
 
 typedef uint8_t  u8;
+typedef int8_t   s8;
 
 typedef uint16_t u16;
 typedef int16_t  s16;
 
 typedef uint32_t u32;
+typedef int32_t  s32;
 
-/* ANSI C boolean definition. */
+typedef unsigned int uint;
+
+/* ANSI C boolean */
 typedef enum { false = 0, true = !false } bool;
 
 
@@ -656,6 +660,7 @@ typedef struct ppm_sound_header {
     u8  frame_playback_speed_bgm;
     u8  padding[14];
 } ppm_sound_header;
+#define PPM_SOUND_HEADER_SIZE 32
 
 /* ppm_signature
  *
@@ -666,7 +671,7 @@ typedef struct ppm_sound_header {
  * - signature: The signature of a .ppm file as described above.
  */
 typedef struct ppm_signature {
-    u8 *signature[144];
+    u8 signature[144];
 } ppm_signature;
 
 /* ppm_file
@@ -787,7 +792,7 @@ typedef struct wav_header {
  */
 typedef struct wav_file {
     wav_header *header;
-    s16        *data;
+    s16         data;
 } wav_file;
 
 /**

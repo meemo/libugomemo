@@ -4,35 +4,31 @@
  * math.c
  *
  * Math functions for use in the library, primarily for .kwz audio.
+ *
+ * Functions are named so that they will not interfere with stdlib functions.
  */
 
 
 /**
- * Takes the square root of a number. Has a secondary implementation for when the math library is not available.
- *
- * The secondary implementation is slow, but the function will rarely be used in the library and can be swapped out
- * for a faster implementation if one exists in the target toolchain.
- *
- * Note: the function does not verify that the value is negative.
+ * Takes the square root of a number. This implementation is slow, however the function will very rarely be used.
  *
  * Parameters:
- * - x: The number to take the square root of.
+ * - x: The number to take the square root of. Must be positive!
  *
  * Returns:
  * - The square root of x.
  */
-double sqrt_(double x) {
-#ifdef USE_STDLIB_
-    #include <math.h>
+double UGO_SQRT(double x) {
+#ifdef sqrt
     return sqrt(x);
 #else
     /* Newton's method. */
     double result = x / 2;
-    double temp = 0.0f;
+    double temp   = 0.0f;
 
     while (temp != result) {
         temp = result;
-        result = (temp + x / temp) / 2;
+        result = (temp + (x / temp)) / 2;
     }
 
     return result;
@@ -49,15 +45,15 @@ double sqrt_(double x) {
  * Returns:
  * - The RMS value of the data.
  */
-double rms_(const s16 *data, unsigned int num_samples) {
+double UGO_RMS(const s16 *data, uint num_samples) {
     double sum = 0.0f;
-    unsigned int i;
+    uint   i;
 
     for (i = 0; i < num_samples; i++) {
         sum += data[i] * data[i];
     }
 
-    return sqrt_(sum / (double)num_samples);
+    return UGO_SQRT(sum / (double)num_samples);
 }
 
 /**
@@ -70,11 +66,11 @@ double rms_(const s16 *data, unsigned int num_samples) {
  * Returns:
  * - The standard deviation of the data.
  */
-double stdDev_(const s16 *data, unsigned int num_samples) {
+double UGO_STDDEV(const s16 *data, uint num_samples) {
     double sum = 0.0f;
     double std_dev = 0.0f;
     double mean;
-    unsigned int i;
+    uint   i;
 
     for (i = 0; i < num_samples; i++) {
         sum += data[i];
@@ -86,5 +82,5 @@ double stdDev_(const s16 *data, unsigned int num_samples) {
         std_dev += (data[i] - mean) * (data[i] - mean);
     }
 
-    return sqrt_(std_dev / (double)num_samples);
+    return UGO_SQRT(std_dev / (double)num_samples);
 }
