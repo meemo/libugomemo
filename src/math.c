@@ -10,9 +10,7 @@
 
 
 /**
- * Takes the square root of a number. Has a secondary implementation for when the math library is not available.
- *
- * This implementation is slow, however the function will very rarely be used in the library.
+ * Takes the square root of a number. This implementation is slow, however the function will very rarely be used.
  *
  * Parameters:
  * - x: The number to take the square root of. Must be positive!
@@ -26,11 +24,11 @@ double UGO_SQRT(double x) {
 #else
     /* Newton's method. */
     double result = x / 2;
-    double temp = 0.0f;
+    double temp   = 0.0f;
 
     while (temp != result) {
         temp = result;
-        result = (temp + x / temp) / 2;
+        result = (temp + (x / temp)) / 2;
     }
 
     return result;
@@ -49,7 +47,7 @@ double UGO_SQRT(double x) {
  */
 double UGO_RMS(const s16 *data, uint num_samples) {
     double sum = 0.0f;
-    uint i;
+    uint   i;
 
     for (i = 0; i < num_samples; i++) {
         sum += data[i] * data[i];
@@ -72,7 +70,7 @@ double UGO_STDDEV(const s16 *data, uint num_samples) {
     double sum = 0.0f;
     double std_dev = 0.0f;
     double mean;
-    uint i;
+    uint   i;
 
     for (i = 0; i < num_samples; i++) {
         sum += data[i];
