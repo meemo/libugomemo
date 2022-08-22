@@ -16,12 +16,9 @@
  * - x: The number to take the square root of. Must be positive!
  *
  * Returns:
- * - The square root of x.
+ * - The square root of x. If the input is negative then negative infinity will be returned.
  */
 double UGO_SQRT(double x) {
-#ifdef sqrt
-    return sqrt(x);
-#else
     /* Newton's method. */
     double result = x / 2;
     double temp   = 0.0f;
@@ -32,7 +29,6 @@ double UGO_SQRT(double x) {
     }
 
     return result;
-#endif
 }
 
 /**

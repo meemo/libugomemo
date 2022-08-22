@@ -3,8 +3,7 @@
 libugomemo is a WIP ANSI C library for processing the files created by Nintendo's Flipnote Studio and Flipnote Studio
 3D animation apps.
 
-
-# Goals
+## Goals
 
 To have functions for:
 
@@ -34,8 +33,7 @@ The following are additional low priority goals that may or may not be implement
 - Optional assembly inlines for select targets
 - Overall speed of code
 
-
-# Documentation
+## Documentation
 
 For more extensive documentation of the formats and apps in this library, see [the Flipnote Collective's](https://github.com/Flipnote-Collective):
 
@@ -44,7 +42,6 @@ For more extensive documentation of the formats and apps in this library, see [t
 
 Documentation for usage of the library will be located in [docs/](docs/) once the layout of the functions has been finalized. For now, documentation is located in the comments above each function and  file.
 
-
-# Credits
+## Credits
 
 - Everyone mentioned in [flipnote.js acknowledgments](https://flipnote.js.org/pages/docs/acknowledgements.html)

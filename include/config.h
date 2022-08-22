@@ -2,7 +2,7 @@
 #define LIBUGOMEMO_CONFIG_H
 
 /**
- * If the target toolchain does not have standard C memory management functions then they can be redefine here.
+ * If the target toolchain does not have standard C memory management functions then they can be redefined here.
  *
  * Remember to include the header file that provides these new functions by replacing the appropriate #include.
  */

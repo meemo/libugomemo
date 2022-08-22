@@ -8,6 +8,6 @@
 
 
 /* ========================================== Constants ========================================= */
-/* Base 32 alphabet for .kwz filenames. */
+/* Non-standard base 32 alphabet that is used for .kwz filenames. */
 const char kwz_b32_alphabet[32] = "cwmfjordvegbalksnthpyxquiz012345";
 /* ============================================================================================== */
