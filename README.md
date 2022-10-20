@@ -20,9 +20,7 @@ code.
 The assumptions that will be made are:
 
 - The target toolchain has a compiler compatible with ANSI C code
-- The target is capable of floating point math (for some functions)
-- The target has fixed width datatypes (i.e. is byte addressed)
-  - This is unlikely to change due to how this affects structs and due to how uncommon it is.
+- The target is capable of floating point math (for some features)
 
 The following are additional low priority goals that may or may not be implemented in the future:
 

@@ -31,28 +31,6 @@
 /* ============================================================================================== */
 
 
-/* =========================================== SHA-1 =========================================== */
-/* Rotate (bits) left. */
-#define ROL(value, bits)  (((value) << (bits)) | ((value)  >>  (32 - (bits))))
-
-#ifdef LITTLE_ENDIAN_
-#define blk0(i)  (block->l[i] = (ROL(block->l[i], 24) & 0xFF00FF00) | (ROL(block->l[i], 8) & 0x00FF00FF))
-#else
-#define blk0(i)  (block->l[i])
-#endif
-
-#define blk(i)  (block->l[i & 15] = ROL(block->l[(i + 13) & 15] ^ block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ \
-                 block->l[i & 15], 1))
-
-/* Core operations. */
-#define R0(v, w, x, y, z, i)  z += ((w & (x ^ y)) ^ y)       + blk0(i) + 0x5A827999 + ROL(v, 5); w = ROL(w, 30);
-#define R1(v, w, x, y, z, i)  z += ((w & (x ^ y)) ^ y)       +  blk(i) + 0x5A827999 + ROL(v, 5); w = ROL(w, 30);
-#define R2(v, w, x, y, z, i)  z += (w ^ x ^ y)               +  blk(i) + 0x6ED9EBA1 + ROL(v, 5); w = ROL(w, 30);
-#define R3(v, w, x, y, z, i)  z += (((w | x) & y) | (w & x)) +  blk(i) + 0x8F1BBCDC + ROL(v, 5); w = ROL(w, 30);
-#define R4(v, w, x, y, z, i)  z += (w ^ x ^ y)               +  blk(i) + 0xCA62C1D6 + ROL(v, 5); w = ROL(w, 30);
-/* ============================================================================================== */
-
-
 /* ============================================ IO ============================================= */
 /**
  * The following macros are used for reading little endian integers of certain sizes from buffers regardless of the

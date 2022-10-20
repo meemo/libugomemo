@@ -795,15 +795,4 @@ typedef struct wav_file {
     s16         data;
 } wav_file;
 
-/**
- * sha1_ctx
- *
- * Used to store the state of a SHA-1 hash.
- */
-typedef struct {
-    u32 state[5];
-    u32 count[2];
-    u8 buffer[64];
-} sha1_ctx;
-
 #endif

@@ -36,7 +36,7 @@ double UGO_SQRT(double x) {
  *
  * Parameters:
  * - data: The data to calculate the RMS of.
- * - length: The number of elements in `data`.
+ * - num_samples: The number of elements in `data`.
  *
  * Returns:
  * - The RMS value of the data.
@@ -57,7 +57,7 @@ double UGO_RMS(const s16 *data, uint num_samples) {
  *
  * Parameters:
  * - data: The data to calculate the standard deviation of.
- * - length: The number of elements in `data`.
+ * - num_samples: The number of elements in `data`.
  *
  * Returns:
  * - The standard deviation of the data.

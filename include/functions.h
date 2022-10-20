@@ -24,12 +24,6 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint l
 /* audio.c */
 
 
-/* base32.c */
-
-
-/* base64.c */
-
-
 /* crc32.c */
 
 
@@ -37,15 +31,5 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint l
 double UGO_SQRT(double x);
 double UGO_RMS(const s16 *data, uint num_samples);
 double UGO_STDDEV(const s16 *data, uint num_samples);
-
-/* rsa.c */
-
-
-/* sha1.c */
-void SHA1Init(sha1_ctx *context);
-void SHA1Update(sha1_ctx *context, const u8 *data, u32 len);
-void SHA1Transform(u32 state[5], const u8 buffer[64]);
-void SHA1Final(u8 digest[20], sha1_ctx *context);
-void SHA1(u8 *hash_out, const u8 *buffer, uint len);
 
 #endif
