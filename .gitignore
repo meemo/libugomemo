@@ -1,21 +1,22 @@
 .vscode/
-.idea/
 
 samples/
 build/
 
-cmake-build-debug/
-
-keys/kwz_priv.pem
-keys/ppm_priv.pem
-
 *.o
 *.so
 *.a
+*.s
 
 *.mp3
 *.wav
 
+*.kwz
+*.ppm
+
+keys/kwz_priv.pem
+keys/ppm_priv.pem
+
 # Test executables
-sha1_test
+misc_test
 ppm_audio_test

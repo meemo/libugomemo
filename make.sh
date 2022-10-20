@@ -39,7 +39,6 @@ time {
     # Only build tests if the library has been compiled
     if [ -e libugomemo.a ]; then
         echo "Compiling tests..."
-        $cc_command tests/sha1_test.c      -Iinclude -L. -lugomemo -o tests/sha1_test
         $cc_command tests/ppm_audio_test.c -Iinclude -L. -lugomemo -o tests/ppm_audio_test
         $cc_command tests/misc_test.c      -Iinclude -L. -lugomemo -o tests/misc_test
     else
