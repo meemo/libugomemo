@@ -795,4 +795,31 @@ typedef struct wav_file {
     s16         data;
 } wav_file;
 
+/* kwz_audio_state
+ *
+ * This represents the state for an nIMA ADPCM (KWZ audio; modified IMA ADPCM) decoder.
+ *
+ * This is useful for decoding tracks sample by sample instead of all at once, so that
+ * you do not need to pass 8 parameters to the decoder.
+ */
+typedef struct kwz_audio_state {
+    /* Input and output locations */
+    const u8 *file_buffer;
+    uint track_len;
+    uint track_offset;
+
+    /* Decoder state */
+    s16 step_index;
+    s16 predictor;
+    s16 step;
+    s16 diff;
+    u8 sample;
+    u8 byte;
+
+    /* The position in the file buffer. */
+    uint file_pos;
+    uint bit_pos;
+    uint output_pos 
+} kwz_audio_state;
+
 #endif

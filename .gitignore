@@ -6,10 +6,12 @@ build/
 *.o
 *.so
 *.a
+*.dll
 *.s
 
-*.mp3
 *.wav
+*.mp3
+*.bmp
 
 *.kwz
 *.ppm
