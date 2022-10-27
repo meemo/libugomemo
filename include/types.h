@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_TYPES_H
-#define LIBUGOMEMO_TYPES_H
+#ifndef LIBUGOMEMO_TYPES_H_
+#define LIBUGOMEMO_TYPES_H_
 
 #include <stdint.h>
 
@@ -819,7 +819,12 @@ typedef struct kwz_audio_state {
     /* The position in the file buffer. */
     uint file_pos;
     uint bit_pos;
-    uint output_pos 
+    uint output_pos;
 } kwz_audio_state;
+
+/**
+ * An in-progress CRC32 is simply a u32, no need for fancy structs.
+ */
+typedef u32 crc32_state;
 
 #endif

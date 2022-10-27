@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_CONFIG_H
-#define LIBUGOMEMO_CONFIG_H
+#ifndef LIBUGOMEMO_CONFIG_H_
+#define LIBUGOMEMO_CONFIG_H_
 
 /**
  * If the target toolchain does not have standard C memory management functions then they can be redefined here.
@@ -25,6 +25,13 @@
  * Note: complete support is not guaranteed until the library is finished.
  * If support is missing for something required for your project then please create an issue on github.
  */
-#define LITTLE_ENDIAN_
+#define UGO_CFG_LITTLE_ENDIAN_TARGET
+
+/**
+ * Uncomment to remove optimizations that increase speed at the cost of adding size to the final binary.
+ *
+ * Currently this just removes the CRC32 poly-8 table optimization. This may include KWZ/PPM audio sample tables later.
+ */
+#define UGO_CFG_LARGE_BINARY_SIZE
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_FUNCTIONS_H
-#define LIBUGOMEMO_FUNCTIONS_H
+#ifndef LIBUGOMEMO_FUNCTIONS_H_
+#define LIBUGOMEMO_FUNCTIONS_H_
 
 #include <types.h>
 
@@ -25,7 +25,10 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint l
 
 
 /* crc32.c */
-
+void CRC32_init(crc32_state *state);
+void CRC32_update(crc32_state *state, u8 input_byte);
+void CRC32_finish(crc32_state *state, u32 *crc32_output);
+void CRC32_calculate(u8 *buffer, uint buffer_len, u32 *crc32_output);
 
 /* math.c */
 double UGO_SQRT(double x);

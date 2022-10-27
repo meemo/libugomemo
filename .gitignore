@@ -20,5 +20,6 @@ keys/kwz_priv.pem
 keys/ppm_priv.pem
 
 # Test executables
-misc_test
-ppm_audio_test
+tests/crc32_test
+tests/misc_test
+tests/ppm_audio_test

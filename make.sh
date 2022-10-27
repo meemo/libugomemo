@@ -41,6 +41,7 @@ time {
         echo "Compiling tests..."
         $cc_command tests/ppm_audio_test.c -Iinclude -L. -lugomemo -o tests/ppm_audio_test
         $cc_command tests/misc_test.c      -Iinclude -L. -lugomemo -o tests/misc_test
+        $cc_command tests/crc32_test.c     -Iinclude -L. -lugomemo -o tests/crc32_test
     else
         echo "libugomemo.a not found! Have you run the script without any parameters yet?"
     fi

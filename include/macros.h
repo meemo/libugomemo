@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_MACROS_H
-#define LIBUGOMEMO_MACROS_H
+#ifndef LIBUGOMEMO_MACROS_H_
+#define LIBUGOMEMO_MACROS_H_
 
 
 /* =========================================== Misc. =========================================== */
@@ -40,25 +40,27 @@
  * - size: A value of the format `{signed-ness}{number of bits}` like u32, where:
  *   - signed-ness: U is the only implemented value (representing unsigned integer).
  *   - number of bits: One of: 8, 16, or 32; the number of bits in the integer to extract.
- * - buffer: The buffer to extract the integer from. Unsigned 8 bit per element buffer expected.
+ * - buffer: The buffer to extract the integer from. u8 buffer expected.
  * - position: The position in the buffer to extract the integer from.
  *             MAKE SURE THIS WON'T EXCEED THE LENGTH OF THE BUFFER!
  */
 
 /* Single bytes are too small for endianness to take effect. */
-#define READ_U8(buffer, pos)    (u8) (buffer[pos])
+#define READ_U8(buffer, pos)    ((u8) (buffer[pos]))
 
-#ifdef LITTLE_ENDIAN_
-#define READ_U16(buffer, pos)  *(u16 *) &buffer[pos]
+#ifdef UGO_CFG_LITTLE_ENDIAN_TARGET
+#define READ_U16(buffer, pos)  (*(u16 *) &buffer[pos])
 #else
-#define READ_U16(buffer, pos)   (u16) (buffer[pos] | buffer[pos + 1] << 0x8)
+#define READ_U16(buffer, pos)   ((u16)(buffer[pos] | buffer[pos + 1] << 0x8))
 #endif
 
-#ifdef LITTLE_ENDIAN_
-#define READ_U32(buffer, pos)  *(u32 *) &buffer[pos]
+#ifdef UGO_CFG_LITTLE_ENDIAN_TARGET
+#define READ_U32(buffer, pos)  (*(u32 *) &buffer[pos])
 #else
-#define READ_U32(buffer, pos)   (u32) (buffer[pos]             | buffer[pos + 1] << 0x08 \
-                                     | buffer[pos + 2] << 0x10 | buffer[pos + 3] << 0x18)
+#define READ_U32(buffer, pos)   ((u32)(buffer[pos]              \
+                                     | buffer[pos + 1] << 0x08  \
+                                     | buffer[pos + 2] << 0x10  \
+                                     | buffer[pos + 3] << 0x18))
 #endif
 /* ============================================================================================== */
 
