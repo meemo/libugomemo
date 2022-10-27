@@ -26,7 +26,6 @@ time {
 
             echo "Compiling library..."
             $cc_command -c ../src/*.c
-            $cc_command -c ../src/*/*.c
         )
 
         ar -r libugomemo.a $build_dir/*.o
