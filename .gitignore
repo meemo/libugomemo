@@ -17,7 +17,9 @@ build/
 *.ppm
 
 keys/kwz_priv.pem
+keys/kwz_pub.pem
 keys/ppm_priv.pem
+keys/ppm_pub.pem
 
 # Test executables
 tests/crc32_test
