@@ -25,7 +25,7 @@ int main(void) {
 
     input_file_contents = (u8 *) malloc(input_file_size * sizeof(u8));
 
-    while (i < input_file_contents) {
+    while (i < input_file_size) {
         input_file_contents[i++] = fgetc(input_file);
     }
 

@@ -17,3 +17,4 @@ build/
 tests/crc32_test
 tests/misc_test
 tests/ppm_audio_test
+tests/ppm_video_test

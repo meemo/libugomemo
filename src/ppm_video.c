@@ -17,10 +17,21 @@ void PPMDecodeThumbnail(const u8 *buffer, u8 *output_buffer) {
         for (tile_x = 0; tile_x < PPM_THUMBNAIL_WIDTH; tile_x += 8) {
             for (y = 0; y < 8; y++) {
                 for (x = 0; x < 8; x += 2) {
-                    memcpy(buffer + (((tile_y + y) * 64 ) + (tile_x + x)),     PPM_THUMBNAIL_PALETTE[*buffer >> 0x4], 3);
-                    memcpy(buffer + (((tile_y + y) * 64 ) + (tile_x + x + 1)), PPM_THUMBNAIL_PALETTE[*buffer  & 0xF], 3);
+                    /* Pixel 1 */
+                    memcpy(
+                        &output_buffer[(((tile_y + y) * 64) + (tile_x + x)) * 3],
+                        PPM_THUMBNAIL_PALETTE[*buffer >> 0x4],
+                        3
+                    );
 
-                    output_buffer++;
+                    /* Pixel 2 */
+                    memcpy(
+                        &output_buffer[(((tile_y + y) * 64) + (tile_x + x + 1)) * 3],
+                        PPM_THUMBNAIL_PALETTE[*buffer & 0xF],
+                        3
+                    );
+
+                    buffer++;
                 }
             }
         }
