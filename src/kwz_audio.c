@@ -8,48 +8,6 @@
  */
 
 
-/* ========================================== Constants ========================================= */
-#define STEP_INDEX_MIN      0
-#define STEP_INDEX_MAX     79
-#define PREDICTOR_MIN   -2048
-#define PREDICTOR_MAX    2047
-#define SCALING_FACTOR     16  /* 16 bits per sample in the output. */
-#define VARIABLE_THRESHOLD 18
-#define INITIAL_PREDICTOR   0
-#define DEFAULT_STEP_INDEX  0
-
-static const s16 ADPCM_INDEX_TABLE_2BIT[4] = {
-    -1, 2,
-    -1, 2
-};
-
-static const s16 ADPCM_INDEX_TABLE_4BIT[16] = {
-    -1, -1, -1, -1,
-     2,  4,  6,  8,
-    -1, -1, -1, -1,
-     2,  4,  6,  8
-};
-
-static const s16 ADPCM_STEP_TABLE[89] = {
-       7,      8,     9,    10,    11,    12,
-      13,     14,    16,    17,    19,    21,
-      23,     25,    28,    31,    34,    37,
-      41,     45,    50,    55,    60,    66,
-      73,     80,    88,    97,   107,   118,
-     130,    143,   157,   173,   190,   209,
-     230,    253,   279,   307,   337,   371,
-     408,    449,   494,   544,   598,   658,
-     724,    796,   876,   963,  1060,  1166,
-    1282,   1411,  1552,  1707,  1878,  2066,
-    2272,   2499,  2749,  3024,  3327,  3660,
-    4026,   4428,  4871,  5358,  5894,  6484,
-    7132,   7845,  8630,  9493, 10442, 11487,
-    12635, 13899, 15289, 16818, 18500, 20350,
-    22385, 24623, 27086, 29794, 32767
-};
-/* ============================================================================================== */
-
-
 /**
  * Decodes KWZ file audio data from a given buffer and position to another buffer as PCM16 with platform native
  * endianness (little endian in the vast majority of cases).
@@ -68,7 +26,7 @@ static const s16 ADPCM_STEP_TABLE[89] = {
 void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, uint offset, s16 initial_step_index) {
     s16 step;
     s16 step_index = initial_step_index;
-    s16 predictor = INITIAL_PREDICTOR;
+    s16 predictor = KWZ_INITIAL_PREDICTOR;
     s16 diff;
     u8  sample;
     u8  byte;
@@ -91,7 +49,7 @@ void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, ui
                If bit_pos is greater than 4 (equal to 6), then there is no way to fit another 4 bit sample,
                so it must be 2 bits.
             */
-            if (step_index < VARIABLE_THRESHOLD || bit_pos > 4) {
+            if (step_index < KWZ_VARIABLE_THRESHOLD || bit_pos > 4) {
                 sample = byte & 0x3;
 
                 step = ADPCM_STEP_TABLE[step_index];
@@ -123,11 +81,11 @@ void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, ui
                 bit_pos += 4;
             }
 
-            CLAMP(STEP_INDEX_MIN, step_index, STEP_INDEX_MAX);
-            CLAMP(PREDICTOR_MIN,  predictor,  PREDICTOR_MAX );
+            CLAMP(KWZ_STEP_INDEX_MIN, step_index, KWZ_STEP_INDEX_MAX);
+            CLAMP(KWZ_PREDICTOR_MIN,  predictor,  KWZ_PREDICTOR_MAX );
 
             /* Scale the predictor before adding it to the output buffer. */
-            audio_buffer[output_pos++] = (s16) predictor * SCALING_FACTOR;
+            audio_buffer[output_pos++] = (s16) predictor * KWZ_SCALING_FACTOR;
         }
     }
 }

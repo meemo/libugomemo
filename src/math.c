@@ -21,7 +21,7 @@
 double UGO_SQRT(double x) {
     /* Newton's method. */
     double result = x / 2;
-    double temp   = 0.0f;
+    double temp   = 0.0;
 
     while (temp != result) {
         temp = result;
