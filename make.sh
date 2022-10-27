@@ -36,11 +36,12 @@ time {
         rmdir $build_dir
     fi
 
-    # Only build tests if
+    # Only build tests if the library has been compiled
     if [ -e libugomemo.a ]; then
         echo "Compiling tests..."
-        $cc_command tests/sha1_test.c      -Iinclude -L. -lugomemo -o tests/sha1_test
         $cc_command tests/ppm_audio_test.c -Iinclude -L. -lugomemo -o tests/ppm_audio_test
+        $cc_command tests/misc_test.c      -Iinclude -L. -lugomemo -o tests/misc_test
+        $cc_command tests/crc32_test.c     -Iinclude -L. -lugomemo -o tests/crc32_test
     else
         echo "libugomemo.a not found! Have you run the script without any parameters yet?"
     fi

@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_TYPES_H
-#define LIBUGOMEMO_TYPES_H
+#ifndef LIBUGOMEMO_TYPES_H_
+#define LIBUGOMEMO_TYPES_H_
 
 #include <stdint.h>
 
@@ -795,15 +795,36 @@ typedef struct wav_file {
     s16         data;
 } wav_file;
 
-/**
- * sha1_ctx
+/* kwz_audio_state
  *
- * Used to store the state of a SHA-1 hash.
+ * This represents the state for an nIMA ADPCM (KWZ audio; modified IMA ADPCM) decoder.
+ *
+ * This is useful for decoding tracks sample by sample instead of all at once, so that
+ * you do not need to pass 8 parameters to the decoder.
  */
-typedef struct {
-    u32 state[5];
-    u32 count[2];
-    u8 buffer[64];
-} sha1_ctx;
+typedef struct kwz_audio_state {
+    /* Input and output locations */
+    const u8 *file_buffer;
+    uint track_len;
+    uint track_offset;
+
+    /* Decoder state */
+    s16 step_index;
+    s16 predictor;
+    s16 step;
+    s16 diff;
+    u8 sample;
+    u8 byte;
+
+    /* The position in the file buffer. */
+    uint file_pos;
+    uint bit_pos;
+    uint output_pos;
+} kwz_audio_state;
+
+/**
+ * An in-progress CRC32 is simply a u32, no need for fancy structs.
+ */
+typedef u32 crc32_state;
 
 #endif

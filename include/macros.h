@@ -1,5 +1,5 @@
-#ifndef LIBUGOMEMO_MACROS_H
-#define LIBUGOMEMO_MACROS_H
+#ifndef LIBUGOMEMO_MACROS_H_
+#define LIBUGOMEMO_MACROS_H_
 
 
 /* =========================================== Misc. =========================================== */
@@ -31,28 +31,6 @@
 /* ============================================================================================== */
 
 
-/* =========================================== SHA-1 =========================================== */
-/* Rotate (bits) left. */
-#define ROL(value, bits)  (((value) << (bits)) | ((value)  >>  (32 - (bits))))
-
-#ifdef LITTLE_ENDIAN_
-#define blk0(i)  (block->l[i] = (ROL(block->l[i], 24) & 0xFF00FF00) | (ROL(block->l[i], 8) & 0x00FF00FF))
-#else
-#define blk0(i)  (block->l[i])
-#endif
-
-#define blk(i)  (block->l[i & 15] = ROL(block->l[(i + 13) & 15] ^ block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ \
-                 block->l[i & 15], 1))
-
-/* Core operations. */
-#define R0(v, w, x, y, z, i)  z += ((w & (x ^ y)) ^ y)       + blk0(i) + 0x5A827999 + ROL(v, 5); w = ROL(w, 30);
-#define R1(v, w, x, y, z, i)  z += ((w & (x ^ y)) ^ y)       +  blk(i) + 0x5A827999 + ROL(v, 5); w = ROL(w, 30);
-#define R2(v, w, x, y, z, i)  z += (w ^ x ^ y)               +  blk(i) + 0x6ED9EBA1 + ROL(v, 5); w = ROL(w, 30);
-#define R3(v, w, x, y, z, i)  z += (((w | x) & y) | (w & x)) +  blk(i) + 0x8F1BBCDC + ROL(v, 5); w = ROL(w, 30);
-#define R4(v, w, x, y, z, i)  z += (w ^ x ^ y)               +  blk(i) + 0xCA62C1D6 + ROL(v, 5); w = ROL(w, 30);
-/* ============================================================================================== */
-
-
 /* ============================================ IO ============================================= */
 /**
  * The following macros are used for reading little endian integers of certain sizes from buffers regardless of the
@@ -62,25 +40,27 @@
  * - size: A value of the format `{signed-ness}{number of bits}` like u32, where:
  *   - signed-ness: U is the only implemented value (representing unsigned integer).
  *   - number of bits: One of: 8, 16, or 32; the number of bits in the integer to extract.
- * - buffer: The buffer to extract the integer from. Unsigned 8 bit per element buffer expected.
+ * - buffer: The buffer to extract the integer from. u8 buffer expected.
  * - position: The position in the buffer to extract the integer from.
  *             MAKE SURE THIS WON'T EXCEED THE LENGTH OF THE BUFFER!
  */
 
 /* Single bytes are too small for endianness to take effect. */
-#define READ_U8(buffer, pos)    (u8) (buffer[pos])
+#define READ_U8(buffer, pos)    ((u8) (buffer[pos]))
 
-#ifdef LITTLE_ENDIAN_
-#define READ_U16(buffer, pos)  *(u16 *) &buffer[pos]
+#ifdef UGO_CFG_LITTLE_ENDIAN_TARGET
+#define READ_U16(buffer, pos)  (*(u16 *) &buffer[pos])
 #else
-#define READ_U16(buffer, pos)   (u16) (buffer[pos] | buffer[pos + 1] << 0x8)
+#define READ_U16(buffer, pos)   ((u16)(buffer[pos] | buffer[pos + 1] << 0x8))
 #endif
 
-#ifdef LITTLE_ENDIAN_
-#define READ_U32(buffer, pos)  *(u32 *) &buffer[pos]
+#ifdef UGO_CFG_LITTLE_ENDIAN_TARGET
+#define READ_U32(buffer, pos)  (*(u32 *) &buffer[pos])
 #else
-#define READ_U32(buffer, pos)   (u32) (buffer[pos]             | buffer[pos + 1] << 0x08 \
-                                     | buffer[pos + 2] << 0x10 | buffer[pos + 3] << 0x18)
+#define READ_U32(buffer, pos)   ((u32)(buffer[pos]              \
+                                     | buffer[pos + 1] << 0x08  \
+                                     | buffer[pos + 2] << 0x10  \
+                                     | buffer[pos + 3] << 0x18))
 #endif
 /* ============================================================================================== */
 
