@@ -9,7 +9,7 @@ build_dir=$(pwd)/build
 
 # Compiler options
 cc="clang"
-common_flags="-std=c89 -pedantic -Wall -Wextra -Werror -g"
+common_flags="-std=c89 -pedantic -Wall -Wextra -g"
 optimization="-march=native -O3"
 include="-I../include"
 
