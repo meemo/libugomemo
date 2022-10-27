@@ -660,7 +660,6 @@ typedef struct ppm_sound_header {
     u8  frame_playback_speed_bgm;
     u8  padding[14];
 } ppm_sound_header;
-#define PPM_SOUND_HEADER_SIZE 32
 
 /* ppm_signature
  *
@@ -794,6 +793,22 @@ typedef struct wav_file {
     wav_header *header;
     s16         data;
 } wav_file;
+
+typedef struct bmp_header {
+    u8  magic[2]; /* 0x42, 0x4D */
+    u32 file_size;
+    u16 reserved_1; /* 0 */
+    u16 reserved_2; /* 0 */
+    u32 data_offset;
+} bmp_header;
+
+typedef struct dib_header {
+    u32 header_size; /* 12 */
+    u16 image_width;
+    u16 image_height;
+    u16 color_planes; /* 1 */
+    u16 bits_per_pixel; /* 24  */
+} dib_header;
 
 /* kwz_audio_state
  *

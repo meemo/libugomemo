@@ -96,7 +96,7 @@ int main(void) {
     file_meta = (ppm_file_new *) file_contents;
 
     sound_offset = ROUND_MULT_4(0x6A0 + file_meta->animation_data_size + file_meta->frame_count);
-    bgm_offset = sound_offset + PPM_SOUND_HEADER_SIZE;
+    bgm_offset = sound_offset + sizeof(ppm_sound_header);
 
     sound_header = (ppm_sound_header *) &file_contents[sound_offset];
 

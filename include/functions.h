@@ -3,23 +3,23 @@
 
 #include <types.h>
 
-/* kwz/kwz_audio.c */
-void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint len, uint offset, int initial_step_index);
+/* kwz_audio.c */
+void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, uint offset, s16 initial_step_index);
 
-/* kwz/kwz_meta.c */
-
-
-/* kwz/kwz_video.c */
+/* kwz_meta.c */
 
 
-/* ppm/ppm_audio.c */
+/* kwz_video.c */
+
+
+/* ppm_audio.c */
 int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint len);
 
-/* ppm/ppm_meta.c */
+/* ppm_meta.c */
 
 
-/* ppm/ppm_video.c */
-
+/* ppm_video.c */
+void PPMDecodeThumbnail(const u8 *buffer, u8 *output_buffer);
 
 /* audio.c */
 
