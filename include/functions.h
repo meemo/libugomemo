@@ -13,7 +13,7 @@ void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, ui
 
 
 /* ppm_audio.c */
-int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint offset, uint len);
+int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint track_len, uint offset);
 
 /* ppm_meta.c */
 

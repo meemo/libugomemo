@@ -103,7 +103,7 @@ int main(void) {
     printf("BGM size: %d\n", sound_header->bgm_size);
     printf("BGM offset: %d\n", bgm_offset);
 
-    write_ppm_track(file_contents, bgm_offset, sound_header->bgm_size);
+    write_ppm_track(file_contents, sound_header->bgm_size, bgm_offset);
 
     return 0;
 }
