@@ -7,9 +7,12 @@
 - [ ] Audio decoding
   - [x] Decode entire track
   - [ ] Decode sample by sample
-    - Complicated by the fact that bytes have 2 samples each
-- [ ] Frame decoding
+    - [x] Create decoder state struct to be passed around
+    - [ ] Create init
+    - [ ] Create get next sample
+    - [ ] Create finish (clearing the state)
 - [ ] Thumbnail decoding
+- [ ] Frame decoding
 - [ ] File validation
 
 ### KWZ
@@ -17,9 +20,14 @@
 - [ ] Audio decoding
   - [x] Decode entire track
   - [ ] Decode sample by sample
-    - Complicated by the fact that bytes have anywhere from 2-4 samples each
+    - [ ] Create decoder state struct to be passed around
+    - [ ] Create init
+    - [ ] Create get next sample
+    - [ ] Create finish (clearing the state)
+- [ ] Thumbnail extraction
 - [ ] Frame decoding
-- [ ] Port correct step index calculation for DSi Library flipnotes
+  - This is going to be *fun*
+- [ ] Re-implement correct step index calculation for DSi Library audio
 - [ ] File validation
 
 ### audio.c
@@ -29,15 +37,16 @@
   - [ ] PPM BGM + 3 sound effects option
   - [ ] 2 arbitrary tracks
 - [ ] Console-accurate resampling
-- Maybe other resampling methods
+- [ ] Maybe other resampling methods
 
 ### Misc
 
-- [ ] BMP output for RGB8 stuff (frame decoding)
+- [ ] BMP output for RGB8 data (from KWZ/PPM frame decoding and PPM thumbnail decoding)
 - [ ] Set up a proper build system
 - [ ] Find a documentation generator
 - [ ] Create a .clang-format for code style
 - [ ] Set up real test cases
+  - [ ] In the meantime create basic test cases programs that return 1 on failure
 - [ ] Set up CI for style/tests/builds
 
 ## Low-priority
@@ -52,6 +61,7 @@
 - [ ] Frame encoding (this is going to be rough)
 - [ ] Audio encoding
 
-### Crypto
+### Crypto and related
 
+- [x] CRC32 calculation
 - [ ] Signature validation/creation
