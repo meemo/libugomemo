@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 #ifndef LIBUGOMEMO_H_
 #define LIBUGOMEMO_H_
 
