@@ -12,6 +12,8 @@ build/
 *.wav
 *.mp3
 *.bmp
+*.png
+*.bak
 
 # Test executables
 tests/crc32_test
