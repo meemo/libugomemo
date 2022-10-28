@@ -63,7 +63,7 @@ static const s16 ADPCM_STEP_TABLE[89] = {
 static const float PPM_FRAMERATES[9] = { 0.0f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 12.0f, 20.0f, 30.0f };
 
 /* { R, G, B } */
-static const u8 PPM_THUMBNAIL_PALETTE[16][3] = {
+static const rgb24_pixel PPM_THUMBNAIL_PALETTE[16] = {
     { 0xFF, 0xFF, 0xFF },
     { 0x52, 0x52, 0x52 },
     { 0xFF, 0xFF, 0xFF },
@@ -83,7 +83,7 @@ static const u8 PPM_THUMBNAIL_PALETTE[16][3] = {
 };
 
 #ifdef UGO_CFG_LARGE_BINARY_SIZE
-/* CRC32 poly-8 table. Increases CRC32 calculation speed at the cost of 8KiB of extra binary size. */
+/* CRC32 poly-8 table. Increases CRC32 calculation speed at the cost of extra binary size. */
 static const u32 CRC32_POLY8[256] = {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
     0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,

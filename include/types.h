@@ -842,4 +842,10 @@ typedef struct kwz_audio_state {
  */
 typedef u32 crc32_state;
 
+typedef struct rgb24_pixel {
+    u8 red;
+    u8 green;
+    u8 blue;
+} rgb24_pixel;
+
 #endif

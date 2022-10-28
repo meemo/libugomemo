@@ -19,7 +19,7 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint track_len, uin
 
 
 /* ppm_video.c */
-void PPMDecodeThumbnail(const u8 *buffer, u8 *output_buffer);
+void PPMDecodeThumbnail(u8 *buffer, rgb24_pixel *output_buffer);
 
 /* audio.c */
 

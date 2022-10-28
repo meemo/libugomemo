@@ -10,30 +10,21 @@
 /**
  * Decodes a PPM thumbnail to a stream of RGB8 bytes in output_buffer.
  */
-void PPMDecodeThumbnail(const u8 *buffer, u8 *output_buffer) {
-    u8 tile_x, tile_y, x, y;
+void PPMDecodeThumbnail(u8 *buffer, rgb24_pixel *output_buffer) {
+    u8 tile_y, tile_x, line, pixel;
 
-    for (tile_y = 0; tile_y < PPM_THUMBNAIL_HEIGHT; tile_y += 8) {
-        for (tile_x = 0; tile_x < PPM_THUMBNAIL_WIDTH; tile_x += 8) {
-            for (y = 0; y < 8; y++) {
-                for (x = 0; x < 8; x += 2) {
-                    /* Pixel 1 */
-                    memcpy(
-                        &output_buffer[(((tile_y + y) * 64) + (tile_x + x)) * 3],
-                        PPM_THUMBNAIL_PALETTE[*buffer >> 0x4],
-                        3
-                    );
+    buffer += 0xA0;
 
-                    /* Pixel 2 */
-                    memcpy(
-                        &output_buffer[(((tile_y + y) * 64) + (tile_x + x + 1)) * 3],
-                        PPM_THUMBNAIL_PALETTE[*buffer & 0xF],
-                        3
-                    );
+    for (tile_y = 0; tile_y < 48; tile_y += 8)
+    for (tile_x = 0; tile_x < 64; tile_x += 8)
+    for (line   = 0; line   <  8; line   += 1)
+    for (pixel  = 0; pixel  <  8; pixel  += 2) {
+        /* Pixel 1 */
+        output_buffer[((tile_y + line) * 64) + (tile_x + pixel)] = PPM_THUMBNAIL_PALETTE[*buffer >> 0x4];
 
-                    buffer++;
-                }
-            }
-        }
+        /* Pixel 2 */
+        output_buffer[((tile_y + line) * 64) + (tile_x + pixel + 1)] = PPM_THUMBNAIL_PALETTE[*buffer & 0xF];
+
+        buffer++;
     }
 }

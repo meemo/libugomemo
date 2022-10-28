@@ -8,7 +8,8 @@ int main(void) {
     FILE *input_file, *output_file;
     uint input_file_size;
     uint i = 0;
-    u8 *input_file_contents, *output_rgb;
+    u8 *input_file_contents;
+    rgb24_pixel *output_rgb;
 
     bmp_header *bmp;
     dib_header *dib;
@@ -32,7 +33,7 @@ int main(void) {
     fclose(input_file);
 
     /* Prep buffer for decoding */
-    output_rgb = (u8 *) malloc(PPM_THUMB_SIZE_BYTES * sizeof(u8));
+    output_rgb = (rgb24_pixel *) calloc(PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH, sizeof(rgb24_pixel));
 
     /* Decode the thumbnail */
     PPMDecodeThumbnail(input_file_contents, output_rgb);
@@ -43,7 +44,9 @@ int main(void) {
 
     bmp->magic[0] = 0x42;
     bmp->magic[1] = 0x4D;
-    bmp->file_size = sizeof(bmp_header) + sizeof(dib_header) + PPM_THUMB_SIZE_BYTES;
+    bmp->file_size = (
+        sizeof(bmp_header) + sizeof(dib_header) + (PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH * sizeof(rgb24_pixel))
+    );
     bmp->data_offset = sizeof(bmp_header) + sizeof(dib_header);
 
     dib->header_size = 12;
@@ -55,7 +58,7 @@ int main(void) {
     /* Write the final BMP file */
     fwrite(bmp, sizeof(bmp_header), 1, output_file);
     fwrite(dib, sizeof(dib_header), 1, output_file);
-    fwrite(output_rgb, sizeof(u8), PPM_THUMB_SIZE_BYTES, output_file);
+    fwrite(output_rgb, sizeof(rgb24_pixel), PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH, output_file);
 
     fclose(output_file);
 
