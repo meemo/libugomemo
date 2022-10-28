@@ -795,20 +795,25 @@ typedef struct wav_file {
 } wav_file;
 
 typedef struct bmp_header {
-    u8  magic[2]; /* 0x42, 0x4D */
+    /* BMP header */
+    u16 magic; /* 42 4D (watch out for endianness) */
     u32 file_size;
     u16 reserved_1; /* 0 */
     u16 reserved_2; /* 0 */
     u32 data_offset;
-} bmp_header;
-
-typedef struct dib_header {
-    u32 header_size; /* 12 */
-    u16 image_width;
-    u16 image_height;
+    /* DIB header (BITMAPINFOHEADER) */
+    u32 header_size; /* 28 */
+    s32 image_width;
+    s32 image_height;
     u16 color_planes; /* 1 */
-    u16 bits_per_pixel; /* 24  */
-} dib_header;
+    u16 bits_per_pixel; /* 24 */
+    u32 compression_type; /* 0 */
+    u32 image_size;
+    s32 x_resolution;
+    s32 y_resolution;
+    u32 num_colors; /* 0 */
+    u32 num_important_colors; /* 0 */
+} __attribute__((packed)) bmp_header;
 
 /* kwz_audio_state
  *

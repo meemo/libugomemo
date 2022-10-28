@@ -12,7 +12,6 @@ int main(void) {
     rgb24_pixel *output_rgb;
 
     bmp_header *bmp;
-    dib_header *dib;
 
     /* Open files */
     input_file = fopen("tests/samples/U19FA7_1307576D91807_000.ppm", "r");
@@ -33,31 +32,27 @@ int main(void) {
     fclose(input_file);
 
     /* Prep buffer for decoding */
-    output_rgb = (rgb24_pixel *) calloc(PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH, sizeof(rgb24_pixel));
+    output_rgb = (rgb24_pixel *) malloc(PPM_THUMB_SIZE_BYTES);
 
     /* Decode the thumbnail */
     PPMDecodeThumbnail(input_file_contents, output_rgb);
 
     /* Create the headers for the output BMP file */
     bmp = (bmp_header *) calloc(1, sizeof(bmp_header));
-    dib = (dib_header *) calloc(1, sizeof(dib_header));
 
-    bmp->magic[0] = 0x42;
-    bmp->magic[1] = 0x4D;
-    bmp->file_size = (
-        sizeof(bmp_header) + sizeof(dib_header) + (PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH * sizeof(rgb24_pixel))
-    );
-    bmp->data_offset = sizeof(bmp_header) + sizeof(dib_header);
+    bmp->magic = 0x4D42;
+    bmp->file_size = sizeof(bmp_header) + PPM_THUMB_SIZE_BYTES;
+    bmp->data_offset = 0x36;
 
-    dib->header_size = 12;
-    dib->image_width = PPM_THUMBNAIL_WIDTH;
-    dib->image_height = PPM_THUMBNAIL_HEIGHT;
-    dib->color_planes = 1;
-    dib->bits_per_pixel = 24;
+    bmp->header_size = 0x28;
+    bmp->image_width = PPM_THUMBNAIL_WIDTH;
+    bmp->image_height = PPM_THUMBNAIL_HEIGHT;
+    bmp->color_planes = 1;
+    bmp->bits_per_pixel = 24;
+    bmp->image_size = PPM_THUMB_SIZE_BYTES;
 
-    /* Write the final BMP file */
+    /* Write the BMP file */
     fwrite(bmp, sizeof(bmp_header), 1, output_file);
-    fwrite(dib, sizeof(dib_header), 1, output_file);
     fwrite(output_rgb, sizeof(rgb24_pixel), PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH, output_file);
 
     fclose(output_file);
