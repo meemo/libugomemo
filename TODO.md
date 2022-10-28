@@ -11,7 +11,7 @@
     - [ ] Create init
     - [ ] Create get next sample
     - [ ] Create finish (clearing the state)
-- [ ] Thumbnail decoding
+- [x] Thumbnail decoding
 - [ ] Frame decoding
 - [ ] File validation
 
@@ -37,11 +37,14 @@
   - [ ] PPM BGM + 3 sound effects option
   - [ ] 2 arbitrary tracks
 - [ ] Console-accurate resampling
-- [ ] Maybe other resampling methods
+  - [ ] Some other resampling methods
+- [ ] Volume manipulation
 
 ### Misc
 
 - [ ] BMP output for RGB8 data (from KWZ/PPM frame decoding and PPM thumbnail decoding)
+  - [x] Get it working at all
+  - [ ] Get it working **portably**
 - [ ] Set up a proper build system
 - [ ] Find a documentation generator
 - [ ] Create a .clang-format for code style
@@ -61,7 +64,7 @@
 - [ ] Frame encoding (this is going to be rough)
 - [ ] Audio encoding
 
-### Crypto and related
+### Crypto and tangentially related
 
 - [x] CRC32 calculation
 - [ ] Signature validation/creation
