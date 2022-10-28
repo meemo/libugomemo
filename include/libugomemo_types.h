@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#include <libugomemo_config.h>
+
 typedef uint8_t  u8;
 typedef int8_t   s8;
 
@@ -815,7 +817,7 @@ typedef struct bmp_header {
     s32 y_resolution;
     u32 num_colors; /* 0 */
     u32 num_important_colors; /* 0 */
-} __attribute__((packed)) bmp_header;
+} UGO_STRUCT_FOOTER bmp_header;
 
 /* kwz_audio_state
  *

@@ -36,4 +36,31 @@
  */
 #define UGO_CFG_LARGE_BINARY_SIZE
 
+/**
+ * Don't change this.
+ *
+ * Compilers try to be smart and pad structs to word lengths in order to increase access speed, however we're using them
+ * to extract and write bytes from buffers. As a result, we have to do some trickery to ensure this doesn't happen.
+ *
+ * This is confirmed to happen with at least BMP headers, but I don't feel like checking everything for word alignment so
+ * this will affect everything.
+ *
+ * gcc and clang support the __attribute__((packed)) attribute, so we can do 
+ */
+#if defined(__GNUC__) || defined(__clang__)
+
+#define UGO_STRUCT_FOOTER  __attribute__((packed))
+ 
+#elif defined(__WIN32) || defined(__MSVC__)
+
+#pragma pack
+#define UGO_SRUCT_FOOTER
+
+#elif
+
+/* God help you... */
+#define UGO_STRUCT_FOTTER
+
+#endif
+
 #endif
