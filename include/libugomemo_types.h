@@ -39,6 +39,30 @@ typedef enum { false = 0, true = !false } bool;
  */
 
 
+/**
+ * Compilers try to be smart and pad structs to word lengths in order to increase access speed, however we're using them
+ * to extract and write bytes from buffers. As a result, we have to do some trickery to ensure this doesn't happen.
+ *
+ * This is confirmed to happen with at least BMP headers, but I don't feel like checking everything for word alignment so
+ * this will affect everything.
+ *
+ * gcc and clang support the __attribute__((packed)) attribute, so we can use that. MSVC uses #pragma pack, so in that case
+ * we have to use that. In any other cases we just have to pray that there's no padding going on.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+
+#define UGO_STRUCT_FOOTER  __attribute__((packed))
+
+#elif defined(__WIN32) || defined(__MSVC__)
+
+#pragma pack
+
+#endif
+
+#ifndef UGO_STRUCT_FOOTER
+#define UGO_STRUCT_FOOTER
+#endif
+
 /* ============================================================
  *                       .kwz File Structs
  * ============================================================
