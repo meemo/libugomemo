@@ -1,8 +1,8 @@
 #ifndef LIBUGOMEMO_CONSTANTS_H_
 #define LIBUGOMEMO_CONSTANTS_H_
 
-#include <types.h>
-#include <config.h>
+#include <libugomemo_types.h>
+#include <libugomemo_config.h>
 
 #define KWZ_STEP_INDEX_MIN         0
 #define KWZ_STEP_INDEX_MAX        79

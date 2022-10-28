@@ -1,7 +1,7 @@
 #ifndef LIBUGOMEMO_FUNCTIONS_H_
 #define LIBUGOMEMO_FUNCTIONS_H_
 
-#include <types.h>
+#include <libugomemo_types.h>
 
 /* kwz_audio.c */
 void KWZDecodeTrack(const u8 *file_buffer, u16 *audio_buffer, uint track_len, uint offset, s16 initial_step_index);

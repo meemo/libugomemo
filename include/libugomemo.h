@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <constants.h>
-#include <config.h>
-#include <macros.h>
-#include <functions.h>
+#include <libugomemo_types.h>
+#include <libugomemo_constants.h>
+#include <libugomemo_config.h>
+#include <libugomemo_macros.h>
+#include <libugomemo_functions.h>
 
 #ifdef __cplusplus
 }
