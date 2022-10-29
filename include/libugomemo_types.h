@@ -148,7 +148,7 @@ typedef struct kfh_section_header {
     u16  flags;
     u8   frame_speed;
     u8   layer_flags;
-} kfh_section_header;
+} UGO_STRUCT_FOOTER kfh_section_header;
 
 /**
  * ktn_section_header
@@ -169,7 +169,7 @@ typedef struct ktn_section_header {
     u8   magic[4];
     u32  size;
     u32  crc32;
-} ktn_section_header;
+} UGO_STRUCT_FOOTER ktn_section_header;
 
 /**
  * ksn_section_header
@@ -204,7 +204,7 @@ typedef struct ksn_section_header {
     u32 se2_size;
     u32 se3_size;
     u32 se4_size;
-} ksn_section_header;
+} UGO_STRUCT_FOOTER ksn_section_header;
 
 /* kmc_section_header
  *
@@ -224,7 +224,7 @@ typedef struct kmc_section_header {
     u8   magic[4];
     u32  size;
     u32  crc32;
-} kmc_section_header;
+} UGO_STRUCT_FOOTER kmc_section_header;
 
 /* kmi_section_header
  *
@@ -242,7 +242,7 @@ typedef struct kmc_section_header {
 typedef struct kmi_section_header {
     u8  magic[4];
     u32 size;
-} kmi_section_header;
+} UGO_STRUCT_FOOTER kmi_section_header;
 
 /* kmi_entry
  *
@@ -283,7 +283,7 @@ typedef struct kmi_entry {
     u8  sound_effect_flags;
     u16 unknown;
     u16 camera_flags;
-} kmi_entry;
+} UGO_STRUCT_FOOTER kmi_entry;
 
 /* kmi_frame_flags
  *
@@ -324,18 +324,18 @@ typedef struct kmi_entry {
  *   - (frame_flags >> 28) & 0xF
  */
 typedef struct kmi_frame_flags {
-    int paper_color;
-    int layer_a_diff;
-    int layer_b_diff;
-    int layer_c_diff;
-    int is_prev_frame_based;
-    int layer_a_1st_color;
-    int layer_a_2nd_color;
-    int layer_b_1st_color;
-    int layer_b_2nd_color;
-    int layer_c_1st_color;
-    int layer_c_2nd_color;
-} kmi_frame_flags;
+    u8   paper_color;
+    u8   layer_a_diff;
+    u8   layer_b_diff;
+    u8   layer_c_diff;
+    bool is_prev_frame_derived;
+    u8   layer_a_1st_color;
+    u8   layer_a_2nd_color;
+    u8   layer_b_1st_color;
+    u8   layer_b_2nd_color;
+    u8   layer_c_1st_color;
+    u8   layer_c_2nd_color;
+} UGO_STRUCT_FOOTER kmi_frame_flags;
 
 /* kmi_sfx_flags
  *
@@ -355,11 +355,11 @@ typedef struct kmi_frame_flags {
  *   - sfx_flags & 0x8
  */
 typedef struct kmi_sfx_flags {
-    int se1_used;
-    int se2_used;
-    int se3_used;
-    int se4_used;
-} kmi_sfx_flags;
+    bool se1_used;
+    bool se2_used;
+    bool se3_used;
+    bool se4_used;
+} UGO_STRUCT_FOOTER kmi_sfx_flags;
 
 /* kmi_camera_flags
  *
@@ -376,10 +376,10 @@ typedef struct kmi_sfx_flags {
  *   - camera_flags & 0x4
  */
 typedef struct kmi_camera_flags {
-    int layer_a;
-    int layer_b;
-    int layer_c;
-} kmi_camera_flags;
+    bool layer_a;
+    bool layer_b;
+    bool layer_c;
+} UGO_STRUCT_FOOTER kmi_camera_flags;
 
 /* kwz_file_name
  *
@@ -402,8 +402,8 @@ typedef struct kmi_camera_flags {
  * - file_name: The decoded data from a base32 decoded .kwz filename, described above.
  */
 typedef struct kwz_file_name {
-    u8 *file_name[18];
-} kwz_file_name;
+    u8 file_name[18];
+} UGO_STRUCT_FOOTER kwz_file_name;
 
 /* kwz_signature
  *
@@ -422,8 +422,8 @@ typedef struct kwz_file_name {
  * - signature: The signature of a .kwz file as described above.
  */
 typedef struct kwz_signature {
-    u8 *signature[256];
-} kwz_signature;
+    u8 signature[256];
+} UGO_STRUCT_FOOTER kwz_signature;
 
 /* kwz_file
  *
@@ -458,7 +458,7 @@ typedef struct kwz_file {
     kmi_section_header *kmi;
     kmi_entry          *kmi_entries;
     kwz_signature      *signature;
-} kwz_file;
+} UGO_STRUCT_FOOTER kwz_file;
 
 /* kfh_flags
  *
@@ -478,11 +478,11 @@ typedef struct kwz_file {
  *  - flags & 0x10
  */
 typedef struct kfh_flags {
-    int lock;
-    int loop;
-    int toolset;
-    int unknown;
-} kfh_flags;
+    bool lock;
+    bool loop;
+    bool toolset;
+    bool unknown;
+} UGO_STRUCT_FOOTER kfh_flags;
 
 /* kfh_layer_flags
  *
@@ -499,10 +499,10 @@ typedef struct kfh_flags {
  *   - layer_flags & 0x4
  */
 typedef struct kfh_layer_flags {
-    int layer_a_visible;
-    int layer_b_visible;
-    int layer_c_visible;
-} kfh_layer_flags;
+    bool layer_a_visible;
+    bool layer_b_visible;
+    bool layer_c_visible;
+} UGO_STRUCT_FOOTER kfh_layer_flags;
 
 
 /* ============================================================
@@ -534,7 +534,7 @@ typedef struct ppm_file_header {
     u32 sound_data_size;
     u16 frame_count;
     u16 format_version;
-} ppm_file_header;
+} UGO_STRUCT_FOOTER ppm_file_header;
 
 /* ppm_meta
  *
@@ -597,7 +597,7 @@ typedef struct ppm_meta {
     u8  root_file_name_fragment[8];
     u32 timestamp;
     u16 unused;
-} ppm_meta;
+} UGO_STRUCT_FOOTER ppm_meta;
 
 /* ppm_anim_header
  *
@@ -617,7 +617,7 @@ typedef struct ppm_anim_header {
     u16 offset_table_size;
     u16 unused;  /* Always seen as null */
     u16 flags;
-} ppm_anim_header;
+} UGO_STRUCT_FOOTER ppm_anim_header;
 
 
 /* ppm_anim_flags
@@ -654,7 +654,7 @@ typedef struct ppm_anim_flags {
     int hide_layer_1;
     int hide_layer_2;
     int unknown_4;
-} ppm_anim_flags;
+} UGO_STRUCT_FOOTER ppm_anim_flags;
 
 /* ppm_sound_header
  *
@@ -687,7 +687,7 @@ typedef struct ppm_sound_header {
     u8  frame_playback_speed;
     u8  frame_playback_speed_bgm;
     u8  padding[14];
-} ppm_sound_header;
+} UGO_STRUCT_FOOTER ppm_sound_header;
 
 /* ppm_signature
  *
@@ -699,7 +699,7 @@ typedef struct ppm_sound_header {
  */
 typedef struct ppm_signature {
     u8 signature[144];
-} ppm_signature;
+} UGO_STRUCT_FOOTER ppm_signature;
 
 /* ppm_file
  *
@@ -717,11 +717,11 @@ typedef struct ppm_file {
     ppm_sound_header *sound_header;
     u8               *sound_data;
     ppm_signature    *signature;
-} ppm_file;
+} UGO_STRUCT_FOOTER ppm_file;
 
 
 /* ============================================================
- *                       Misc Structs
+ *                              Misc
  * ============================================================
  */
 
@@ -805,7 +805,7 @@ typedef struct wav_header {
     /* data sub chunk */
     u8  data_header[4];
     u32 subchunk_2_size;
-} wav_header;
+} UGO_STRUCT_FOOTER wav_header;
 
 /* wav_file
  *
@@ -820,7 +820,7 @@ typedef struct wav_header {
 typedef struct wav_file {
     wav_header *header;
     s16         data;
-} wav_file;
+} UGO_STRUCT_FOOTER wav_file;
 
 typedef struct bmp_header {
     /* BMP header */
@@ -868,17 +868,22 @@ typedef struct kwz_audio_state {
     uint file_pos;
     uint bit_pos;
     uint output_pos;
-} kwz_audio_state;
+} UGO_STRUCT_FOOTER kwz_audio_state;
 
-/**
- * An in-progress CRC32 is simply a u32, no need for fancy structs.
+/* rgb24_pixel
+ *
+ * It is what it says on the tin.
  */
-typedef u32 crc32_state;
-
 typedef struct rgb24_pixel {
     u8 red;
     u8 green;
     u8 blue;
-} rgb24_pixel;
+} UGO_STRUCT_FOOTER rgb24_pixel;
+
+/* crc32_state
+ *
+ * An in-progress CRC32 is simply a u32, no need for fancy structs.
+ */
+typedef u32 crc32_state;
 
 #endif

@@ -2,7 +2,8 @@
 
 #include <libugomemo.h>
 
-#define PPM_THUMB_SIZE_BYTES  (PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH * 3)
+#define PPM_THUMB_PIXEL_COUNT  (PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH)
+#define PPM_THUMB_SIZE_BYTES   (PPM_THUMB_PIXEL_COUNT * 3)
 
 int main(void) {
     FILE *input_file, *output_file;
@@ -37,8 +38,8 @@ int main(void) {
     /* Decode the thumbnail */
     PPMDecodeThumbnail(input_file_contents, output_rgb);
 
-    /* Create the headers for the output BMP file */
-    bmp = (bmp_header *) calloc(1, sizeof(bmp_header));
+    /* Create the output BMP file's header. calloc is used so that the other fields are 0. */
+    bmp = (bmp_header *) UGO_CALLOC(1, sizeof(bmp_header));
 
     bmp->magic = 0x4D42;
     bmp->file_size = sizeof(bmp_header) + PPM_THUMB_SIZE_BYTES;
@@ -53,8 +54,9 @@ int main(void) {
 
     /* Write the BMP file */
     fwrite(bmp, sizeof(bmp_header), 1, output_file);
-    fwrite(output_rgb, sizeof(rgb24_pixel), PPM_THUMBNAIL_HEIGHT * PPM_THUMBNAIL_WIDTH, output_file);
+    fwrite(output_rgb, sizeof(rgb24_pixel), PPM_THUMB_PIXEL_COUNT, output_file);
 
+    free(bmp);
     fclose(output_file);
 
     return 0;
