@@ -11,38 +11,37 @@ build_dir=$(pwd)/build
 cc="clang"
 common_flags="-std=c89 -pedantic -Wall -Wextra -g"
 optimization="-march=native -O3"
-include="-I../include"
+include="-I$(pwd)/include"
+
+include_library="-L$(pwd) -lugomemo"
 
 cc_command="$cc $common_flags $optimization $include"
 
 TIMEFORMAT="Finished in %R seconds."
 time {
-    # Compile the library only if no arguments were passed.
-    if (($# == 0)); then
-        mkdir -p $build_dir
+    mkdir -p $build_dir
+    
+    echo "Compiling library..."
+    (
+        cd src || exit 1
+        
+        for file in *.c; do
+            $cc_command -c $file -o $build_dir/"${file%%.*}".o
+        done
+    )
 
-        (
-            cd $build_dir || exit 1
+    ar -r libugomemo.a $build_dir/*.o
 
-            echo "Compiling library..."
-            $cc_command -c ../src/*.c
-        )
+    echo "Compiling tests..."
+    (
+        cd tests || exit 1
 
-        ar -r libugomemo.a $build_dir/*.o
+        for file in *.c; do
+            $cc_command $file $include_library -o "${file%%.*}"
+        done
+    )
 
-        echo "Cleaning up..."
-        rm $build_dir/*.o
-        rmdir $build_dir
-    fi
-
-    # Only build tests if the library has been compiled
-    if [ -e libugomemo.a ]; then
-        echo "Compiling tests..."
-        $cc_command tests/ppm_audio_test.c -Iinclude -L. -lugomemo -o tests/ppm_audio_test
-        $cc_command tests/ppm_video_test.c -Iinclude -L. -lugomemo -o tests/ppm_video_test
-        $cc_command tests/misc_test.c      -Iinclude -L. -lugomemo -o tests/misc_test
-        $cc_command tests/crc32_test.c     -Iinclude -L. -lugomemo -o tests/crc32_test
-    else
-        echo "libugomemo.a not found! Have you run the script without any parameters yet?"
-    fi
+    echo "Cleaning up..."
+    rm -f $build_dir/*.o
+    rmdir $build_dir
 }
