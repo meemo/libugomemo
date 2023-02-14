@@ -71,6 +71,13 @@ typedef enum { false = 0, true = !false } bool;
  * ============================================================
 */
 
+typedef struct KfhFlags {
+    bool lock    : 1;
+    bool loop    : 1;
+    bool toolset : 1;
+    u16          : 13;
+} KfhFlags;
+
 typedef struct KfhSection {
     u8  magic[4];
     u32 size;
@@ -89,16 +96,16 @@ typedef struct KfhSection {
     c8  current_file_name[28];
     u16 frame_count;
     u16 thumbnail_frame_index;
-    u16 flags;
+    KfhFlags flags;
     u8  frame_speed;
     u8  layer_flags;
 } KfhSection;
 
-typedef struct KtnSection {
+typedef struct KtnSectionHeader {
     u8   magic[4];
     u32  size;
     u32  crc32;
-} KtnSection;
+} KtnSectionHeader;
 
 typedef struct KsnSectionHeader {
     u8  magic[4];
@@ -137,31 +144,33 @@ typedef struct KmiEntry {
 } KmiEntry;
 
 typedef struct KmiFrameFlags {
-    u8   paper_color;
-    u8   layer_a_diff;
-    u8   layer_b_diff;
-    u8   layer_c_diff;
-    bool is_prev_frame_derived;
-    u8   layer_a_1st_color;
-    u8   layer_a_2nd_color;
-    u8   layer_b_1st_color;
-    u8   layer_b_2nd_color;
-    u8   layer_c_1st_color;
-    u8   layer_c_2nd_color;
-} UGO_PACK_STRUCT KmiFrameFlags;
+    u16  paper_color     : 0xF;
+    u8   layer_a_diff    :   1;
+    u8   layer_b_diff    :   1;
+    u8   layer_c_diff    :   1;
+    bool is_derived      :   1;
+    u16  layer_a_color_1 : 0xF;
+    u16  layer_a_color_2 : 0xF;
+    u16  layer_b_color_1 : 0xF;
+    u16  layer_b_color_2 : 0xF;
+    u16  layer_c_color_1 : 0xF;
+    u16  layer_c_color_2 : 0xF;
+} KmiFrameFlags;
 
 typedef struct KmiSfxFlags {
-    bool se1_used;
-    bool se2_used;
-    bool se3_used;
-    bool se4_used;
-} UGO_PACK_STRUCT KmiSfxFlags;
+    bool se1_used : 1;
+    bool se2_used : 1;
+    bool se3_used : 1;
+    bool se4_used : 1;
+    u8            : 4;
+} KmiSfxFlags;
 
 typedef struct KmiCameraFlags {
-    bool layer_a;
-    bool layer_b;
-    bool layer_c;
-} UGO_PACK_STRUCT KmiCameraFlags;
+    bool layer_a : 1;
+    bool layer_b : 1;
+    bool layer_c : 1;
+    u8           : 5;
+} KmiCameraFlags;
 
 typedef struct KwzFileName {
     u8 file_name[18];
@@ -170,13 +179,6 @@ typedef struct KwzFileName {
 typedef struct KwzSignature {
     u8 signature[256];
 } KwzSignature;
-
-typedef struct KfhFlags {
-    bool lock;
-    bool loop;
-    bool toolset;
-    bool unknown;
-} KfhFlags;
 
 typedef struct KfhLayerFlags {
     bool layer_a_visible;
