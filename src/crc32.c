@@ -46,11 +46,11 @@ static const u32 CRC32_POLY8[256] = {
 };
 #endif
 
-void CRC32_init(crc32_state *state) {
+void CRC32_init(CRC32_ctx *state) {
     *state = 0xFFFFFFFF;
 }
 
-void CRC32_update(crc32_state *state, u8 input_byte) {
+void CRC32_update(CRC32_ctx *state, u8 input_byte) {
 #ifdef UGO_CFG_LARGE_BINARY_SIZE
     /* Faster method that requires the big poly-8 table. */
     *state = CRC32_POLY8[(*state ^ input_byte) & 0xFF] ^ (*state >> 8);
@@ -68,7 +68,7 @@ void CRC32_update(crc32_state *state, u8 input_byte) {
 #endif
 }
 
-void CRC32_finish(crc32_state *state, u32 *crc32_output) {
+void CRC32_finish(CRC32_ctx *state, u32 *crc32_output) {
     *crc32_output = ~(*state);
 }
 
@@ -76,7 +76,7 @@ void CRC32_finish(crc32_state *state, u32 *crc32_output) {
  * Automatically calculates the CRC32 of a given buffer.
  */
 void CRC32_calculate(u8 *buffer, uint buffer_len, u32 *crc32_output) {
-    crc32_state state;
+    CRC32_ctx state;
     uint i;
 
     CRC32_init(&state);

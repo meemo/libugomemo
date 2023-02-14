@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <libugomemo.h>
+#include <libugomemo_types.h>
 
 /**
  * ppm_video.c
@@ -14,7 +14,7 @@ static const float PPM_FRAMERATES[9] = { 0.0f, 0.5f, 1.0f, 2.0f, 4.0f, 6.0f, 12.
 */
 
 /* { R, G, B } */
-static const rgb24_pixel PPM_THUMBNAIL_PALETTE[16] = {
+static const Rgb24Pixel PPM_THUMBNAIL_PALETTE[16] = {
     { 0xFF, 0xFF, 0xFF },
     { 0x52, 0x52, 0x52 },
     { 0xFF, 0xFF, 0xFF },
@@ -36,7 +36,7 @@ static const rgb24_pixel PPM_THUMBNAIL_PALETTE[16] = {
 /**
  * Decodes a PPM thumbnail to a stream of RGB8 bytes in output_buffer.
  */
-void PPMDecodeThumbnail(u8 *buffer, rgb24_pixel *output_buffer) {
+void PPMDecodeThumbnail(u8 *buffer, Rgb24Pixel *output_buffer) {
     u8 tile_y, tile_x, line, pixel;
 
     buffer += 0xA0;

@@ -10,9 +10,9 @@ int main(void) {
     uint input_file_size;
     uint i = 0;
     u8 *input_file_contents;
-    rgb24_pixel *output_rgb;
+    Rgb24Pixel *output_rgb;
 
-    bmp_header *bmp;
+    BmpHeader *bmp;
 
     /* Open files */
     input_file = fopen("tests/samples/U19FA7_1307576D91807_000.ppm", "r");
@@ -33,16 +33,16 @@ int main(void) {
     fclose(input_file);
 
     /* Prep buffer for decoding */
-    output_rgb = (rgb24_pixel *) malloc(PPM_THUMB_SIZE_BYTES);
+    output_rgb = (Rgb24Pixel *) malloc(PPM_THUMB_SIZE_BYTES);
 
     /* Decode the thumbnail */
     PPMDecodeThumbnail(input_file_contents, output_rgb);
 
     /* Create the output BMP file's header. calloc is used so that the other fields are 0. */
-    bmp = (bmp_header *) UGO_CALLOC(1, sizeof(bmp_header));
+    bmp = (BmpHeader *) UGO_CALLOC(1, sizeof(BmpHeader));
 
     bmp->magic = 0x4D42;
-    bmp->file_size = sizeof(bmp_header) + PPM_THUMB_SIZE_BYTES;
+    bmp->file_size = sizeof(BmpHeader) + PPM_THUMB_SIZE_BYTES;
     bmp->data_offset = 0x36;
 
     bmp->header_size = 0x28;
@@ -53,8 +53,8 @@ int main(void) {
     bmp->image_size = PPM_THUMB_SIZE_BYTES;
 
     /* Write the BMP file */
-    fwrite(bmp, sizeof(bmp_header), 1, output_file);
-    fwrite(output_rgb, sizeof(rgb24_pixel), PPM_THUMB_PIXEL_COUNT, output_file);
+    fwrite(bmp, sizeof(BmpHeader), 1, output_file);
+    fwrite(output_rgb, sizeof(Rgb24Pixel), PPM_THUMB_PIXEL_COUNT, output_file);
 
     free(bmp);
     fclose(output_file);

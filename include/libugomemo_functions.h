@@ -21,15 +21,15 @@ int PPMDecodeTrack(const u8 *file_buffer, s16 *audio_buffer, uint track_len, uin
 
 
 /* ppm_video.c */
-void PPMDecodeThumbnail(u8 *buffer, rgb24_pixel *output_buffer);
+void PPMDecodeThumbnail(u8 *buffer, Rgb24Pixel *output_buffer);
 
 /* audio.c */
 
 
 /* crc32.c */
-void CRC32_init(crc32_state *state);
-void CRC32_update(crc32_state *state, u8 input_byte);
-void CRC32_finish(crc32_state *state, u32 *crc32_output);
+void CRC32_init(CRC32_ctx *state);
+void CRC32_update(CRC32_ctx *state, u8 input_byte);
+void CRC32_finish(CRC32_ctx *state, u32 *crc32_output);
 void CRC32_calculate(u8 *buffer, uint buffer_len, u32 *crc32_output);
 
 /* math.c */

@@ -37,7 +37,7 @@ int write_ppm_track(u8 *file_buffer, int track_offset, int track_size) {
     FILE *output_file;
     s16 *output_buffer;
     int output_size;
-    struct wav_header header = {
+    struct WavHeader header = {
         { 'R', 'I', 'F', 'F' },
         0, /* Size of the audio data + 36 */
         { 'W', 'A', 'V', 'E' },
@@ -62,7 +62,7 @@ int write_ppm_track(u8 *file_buffer, int track_offset, int track_size) {
     header.subchunk_2_size = output_size;
 
     output_file = fopen("tests/out.wav", "wb");
-    fwrite(&header, sizeof(wav_header), 1, output_file);
+    fwrite(&header, sizeof(WavHeader), 1, output_file);
     fwrite(output_buffer, sizeof(s16), output_size, output_file);
     fclose(output_file);
 
@@ -76,7 +76,7 @@ int main(void) {
     long file_size;
     u8 *file_contents;
     ppm_file_new     *file_meta;
-    ppm_sound_header *sound_header;
+    PpmSoundHeader *sound_header;
     int sound_offset;
     int bgm_offset;
 
@@ -96,9 +96,9 @@ int main(void) {
     file_meta = (ppm_file_new *) file_contents;
 
     sound_offset = ROUND_MULT_4(0x6A0 + file_meta->animation_data_size + file_meta->frame_count);
-    bgm_offset = sound_offset + sizeof(ppm_sound_header);
+    bgm_offset = sound_offset + sizeof(PpmSoundHeader);
 
-    sound_header = (ppm_sound_header *) &file_contents[sound_offset];
+    sound_header = (PpmSoundHeader *) &file_contents[sound_offset];
 
     printf("BGM size: %d\n", sound_header->bgm_size);
     printf("BGM offset: %d\n", bgm_offset);
