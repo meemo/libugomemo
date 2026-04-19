@@ -97,7 +97,7 @@ static void kwz_decompress_layer_v2(
                 line_idx_a = KWZ_COMMON_LINE_INDEX[idx];
                 line_idx_b = KWZ_LINE_INDEX_SHIFTED[idx];
                 line_a = KWZ_LINE_TABLE[line_idx_a];
-                line_b = KWZ_LINE_TABLE_SHIFTED[line_idx_b];
+                line_b = KWZ_LINE_TABLE[line_idx_b];
                 for (int row = 0; row < 8; row++) {
                     const u8 *line = (row & 1) ? line_b : line_a;
                     memcpy(&layer[(y + row) * KWZ_FRAME_WIDTH + x], line, 8);
