@@ -1,0 +1,7 @@
+# Make all text file newlines \n
+* text=lf
+
+# Linguist overrides (adding markdown to GitHub code percentages)
+*.md linguist-vendored=false
+*.md linguist-generated=false
+*.md linguist-detectable=true
